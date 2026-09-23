@@ -21,6 +21,7 @@ Tämä sivu on aloitteen tekijän tekemä esimerkkitoteutus. Se näyttää, milt
 - Tunnusluvut: ostot yhteensä, toimittajien ja tositteiden määrä, keskimääräinen rivi, paikallisten ja maakunnallisten toimittajien osuus
 - Ostot kuukausittain tositepäivämäärän mukaan. Kuukauden voi valita kaaviosta tai pudotusvalikosta, jolloin koko raportti rajautuu siihen.
 - Toimittajalista hakutoiminnolla. Toimittajaa napsauttamalla näkyvät sen ostot vuosittain, tileittäin ja laskuriveittäin.
+- Kuntakartta, jossa kunnat on väritetty toimittajien ostosumman tai toimittajamäärän mukaan. Kartan voi rajata koko Suomeen tai Varsinais-Suomeen, ja kuntaa napsauttamalla raportti rajautuu siihen.
 - Jakaumat maakunnittain, kunnittain, toimialoittain ja toimittajan tyypin mukaan (yritys, julkinen sektori, järjestö tai säätiö)
 - Rajaukset toimielimen, tilin, tulosalueen, kunnan, maakunnan ja toimialan mukaan. Rajaukset voi yhdistää, ja ne tallentuvat osoiteriville, joten näkymän voi jakaa linkkinä.
 - Toimii puhelimella, tabletilla ja tietokoneella
@@ -61,7 +62,7 @@ Vuosittaiset Excel-tiedostot yhdistettiin yhdeksi aineistoksi. Sarakkeiden nimet
 
 ### Toimittajatietojen rikastus
 
-Toimittajien kunta, maakunta, päätoimiala ja yhtiömuoto haettiin Y-tunnuksella [PRH:n avoimesta YTJ-rajapinnasta](https://avoindata.prh.fi/). Kuntakoodit muutettiin kuntien ja maakuntien nimiksi [Tilastokeskuksen luokitusten](https://www.stat.fi/fi/luokitukset) avulla (kunnat ja maakunnat 2025).
+Toimittajien kunta, maakunta, päätoimiala ja yhtiömuoto haettiin Y-tunnuksella [PRH:n avoimesta YTJ-rajapinnasta](https://avoindata.prh.fi/). Kartan kunta- ja maakuntarajat ovat Tilastokeskuksen avoimesta aineistosta (kunnat ja maakunnat 2025, 1:4 500 000, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.fi)). Kuntakoodit muutettiin kuntien ja maakuntien nimiksi [Tilastokeskuksen luokitusten](https://www.stat.fi/fi/luokitukset) avulla (kunnat ja maakunnat 2025).
 
 ## Rajoitukset ja huomiot
 

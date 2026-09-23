@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paimion ostolaskudata</title>
+<style>
+@font-face{font-family:"Rubik";font-style:normal;font-weight:300 900;font-display:swap;src:url(data:font/woff2;base64,__FONT__) format("woff2")}
+:root{
+  --navy:#072b4c; --blue:#0f5ba1; --blue-2:#3f7fbf; --yellow:#ffd166;
+  --bg:#ffffff; --surface:#ffffff; --tint:#e4ebf5; --tint-2:#ecf5fd; --gray:#f2f2f2;
+  --ink:#2d2f30; --ink-2:#363636; --muted:#6b6f73; --line:#e3e3e3;
+  --bar:#0f5ba1; --bar-dim:#c9d8ea; --focus:#ffd166;
+  --radius:12px; --shadow:0 2px 10px rgba(0,0,0,.07);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Rubik,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.45}
+a{color:var(--blue)}
+.wrap{max-width:1280px;margin:0 auto;padding:0 16px}
+.topbar{background:var(--blue);color:#fff;font-size:15px}
+.topbar .wrap{display:flex;justify-content:flex-end;gap:28px;min-height:54px;align-items:center;flex-wrap:wrap}
+.topbar a{color:#fff;text-decoration:none;font-weight:500}
+.topbar a:hover{text-decoration:underline}
+.hero{margin:20px 20px 0;position:relative}
+.hero-in{background:var(--navy) url('data:image/jpeg;base64,__HERO__') center 72%/cover no-repeat;border-radius:24px 24px 0 0;padding:48px max(24px,calc((100% - 1248px)/2)) 110px;position:relative;overflow:hidden;isolation:isolate}
+.hero-in::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(7,43,76,.92) 0%,rgba(7,43,76,.78) 45%,rgba(7,43,76,.15) 100%)}
+.hero svg.wave{position:absolute;left:0;right:0;bottom:-1px;display:block;width:100%;height:70px}
+.crumbs{font-size:15px;color:#fff;display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:20px}
+.crumbs a{color:#fff;text-decoration:none}.crumbs a:hover{text-decoration:underline}
+.crumbs span.sep{font-weight:600}
+.hero h1{margin:0;color:#fff;font-size:clamp(30px,5vw,48px);font-weight:600;line-height:1.1}
+.hero p{margin:18px 0 0;font-size:16px;line-height:1.65;max-width:62ch;color:#fff}
+.hero p a{color:var(--yellow);font-weight:500}
+.yearbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:14px 0 22px}
+.yearbar .lbl{font-weight:600;color:var(--navy);font-size:16px}
+.years{display:flex;gap:8px;flex-wrap:wrap}
+.years button{font:inherit;font-size:15px;font-weight:500;border:2px solid var(--blue);background:#fff;color:var(--blue);padding:8px 18px;border-radius:8px;cursor:pointer;min-height:44px}
+.years button:hover{background:var(--tint-2)}
+.years button[aria-pressed="true"]{background:var(--blue);color:#fff}
+@media (max-width:560px){.yearbar{display:block}.yearbar .lbl{display:block;margin-bottom:8px}.years{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}.years button{padding:6px 0;font-size:14px;min-height:40px}.hero{margin:12px 8px 0}.hero-in{padding:24px 18px 60px;border-radius:16px 16px 0 0}.hero-in::before{background:rgba(7,43,76,.8)}.hero svg.wave{height:40px}.topbar .wrap{gap:18px;justify-content:flex-start}}
+main{padding:10px 16px 48px}
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-bottom:12px}
+.filters label{display:flex;flex-direction:column;font-size:13px;color:var(--ink);font-weight:500;gap:4px;flex:1 1 180px;min-width:0}
+.filters select,.filters input{font:inherit;font-weight:400;font-size:15px;color:var(--ink);background:var(--gray);border:1px solid var(--gray);border-radius:8px;padding:9px 10px;min-height:42px;width:100%}
+.filters select:focus,.filters input:focus,button:focus-visible,tr:focus-visible{outline:3px solid var(--focus);outline-offset:1px}
+.btn{font:inherit;font-size:15px;font-weight:500;border:0;background:var(--blue);color:#fff;border-radius:8px;padding:9px 14px;min-height:42px;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--navy)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;min-height:0;margin-bottom:12px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--tint);color:var(--ink-2);border-radius:999px;padding:5px 6px 5px 12px;font-size:13px}
+.chip b{font-weight:500;color:var(--muted)}
+.chip button{border:0;background:var(--surface);color:var(--ink-2);width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:14px;line-height:1}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--gray);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow)}
+.kpi .l{font-size:13.5px;color:var(--ink)}
+.kpi .v{font-size:clamp(20px,2.6vw,28px);font-weight:600;margin-top:2px;font-variant-numeric:tabular-nums;color:var(--navy)}
+.kpi .s{font-size:12.5px;color:var(--muted);margin-top:2px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid #ececec;padding:20px;min-width:0;display:flex;flex-direction:column}
+.card h2{font-size:19px;font-weight:600;margin:0 0 4px;color:var(--navy)}
+.card .sub{font-size:12.5px;color:var(--muted);margin:0 0 12px}
+.c4{grid-column:span 4}.c5{grid-column:span 5}.c6{grid-column:span 6}.c7{grid-column:span 7}.c8{grid-column:span 8}.c12{grid-column:span 12}
+@media (max-width:1000px){.c4,.c5,.c7{grid-column:span 6}.c8{grid-column:span 12}}
+@media (max-width:720px){.c4,.c5,.c6,.c7,.c8{grid-column:span 12}}
+/* column chart */
+.colchart{position:relative;height:220px;display:flex;align-items:flex-end;gap:6px;padding:0 0 26px;border-bottom:0}
+.colchart .col{flex:1;display:flex;flex-direction:column;align-items:center;height:100%;position:relative;cursor:pointer;min-width:0}
+.colchart .area{flex:1;width:100%;display:flex;align-items:flex-end;justify-content:center;min-height:0}
+.colchart .bar{width:min(70%,56px);background:var(--bar);border-radius:4px 4px 0 0;min-height:1px}
+.colchart .col.dim .bar{background:var(--bar-dim)}
+.colchart .col .val{font-size:12px;color:var(--ink-2);margin-bottom:4px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.colchart .col .lab{position:absolute;bottom:-22px;font-size:12px;color:var(--muted);white-space:nowrap}
+.colchart .col:hover .bar{filter:brightness(1.12)}
+.colchart.thin{gap:2px}.colchart.thin .bar{width:100%;border-radius:2px 2px 0 0}
+.colchart.thin .col .lab{font-size:11px}
+.axisline{position:absolute;left:0;right:0;bottom:26px;border-top:1px solid var(--line)}
+/* horizontal bar list */
+.hbars{display:flex;flex-direction:column;gap:2px}
+.hrow{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:10px;row-gap:4px;align-items:baseline;padding:6px 8px;border-radius:6px;cursor:pointer}
+.hrow:hover{background:var(--tint-2)}
+.hrow.on{background:var(--tint)}
+.hrow .n{font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hrow .track{grid-column:1 / -1;grid-row:2;height:8px;background:transparent;position:relative}
+.hrow .fill{height:100%;background:var(--bar);border-radius:0 4px 4px 0;min-width:2px}
+.hrow .v{font-size:13px;font-variant-numeric:tabular-nums;color:var(--ink-2);text-align:right;white-space:nowrap}
+.hrow .v small{color:var(--muted);font-size:12px;margin-left:6px}
+/* tables */
+.tblwrap{overflow:auto;max-height:430px;border-radius:8px;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{position:sticky;top:0;background:var(--tint);color:var(--navy);font-weight:600;cursor:pointer;user-select:none;z-index:1}
+th.num,td.num{text-align:right;font-variant-numeric:tabular-nums}
+th[aria-sort]::after{content:" ▾";color:var(--blue)}
+th[aria-sort="ascending"]::after{content:" ▴"}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--tint-2)}
+td.name{white-space:normal;min-width:160px}
+td .yt{display:block;color:var(--muted);font-size:11.5px}
+tfoot td{position:sticky;bottom:0;background:var(--tint);font-weight:600}
+.more{margin-top:8px;font-size:12.5px;color:var(--muted)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:10px}
+.seg button{font:inherit;font-size:13px;border:0;background:var(--surface);color:var(--ink-2);padding:6px 12px;cursor:pointer;min-height:34px}
+.seg button[aria-pressed="true"]{background:var(--blue);color:#fff}
+.msel select{font:inherit;font-size:14px;color:var(--ink);background:var(--gray);border:1px solid var(--gray);border-radius:8px;padding:7px 10px;min-height:38px;cursor:pointer}
+.msel select:focus{outline:3px solid var(--focus);outline-offset:1px}
+.maptools{display:flex;gap:8px;flex-wrap:wrap}
+.map{position:relative;width:100%;flex:1;min-height:480px}
+.map svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.map path.k{stroke:#fff;stroke-width:.6px;vector-effect:non-scaling-stroke;cursor:pointer;transition:fill .15s}
+.map path.k:hover{stroke:var(--navy);stroke-width:1.5px}
+.map path.k.sel{stroke:var(--yellow);stroke-width:3px}
+.map path.mb{fill:none;stroke:var(--navy);stroke-opacity:.45;stroke-width:1px;vector-effect:non-scaling-stroke;pointer-events:none}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--muted);margin-top:8px;align-items:center}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:14px;height:14px;border-radius:3px;display:inline-block}
+@media (max-width:720px){.map{min-height:420px}}
+.cardhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.src{border-left:4px solid var(--blue);padding:2px 0 2px 14px;color:var(--ink-2);font-size:14px;max-width:80ch}
+.src p{margin:0 0 8px}
+.links{margin:0;padding-left:18px;font-size:14px}
+.links li{margin:6px 0}
+.links span{color:var(--muted);font-size:12.5px;margin-left:4px}
+.dlh{font-size:14px;font-weight:600;margin:16px 0 8px}
+.dl{display:flex;flex-wrap:wrap;gap:8px}
+.dl a{display:inline-flex;align-items:center;min-height:40px;padding:8px 14px;border:1px solid var(--line);border-radius:8px;text-decoration:none;font-size:14px;background:var(--tint-2)}
+.dl a::before{content:"↓";margin-right:8px;color:var(--blue);font-weight:600}
+.dl a:hover{border-color:var(--blue)}
+html{scroll-behavior:smooth}
+.note{background:var(--tint-2);border-left:4px solid var(--yellow);padding:12px 14px;border-radius:0 8px 8px 0;font-size:13.5px;color:var(--ink-2)}
+.note ul{margin:6px 0 0;padding-left:18px}
+.note li{margin:3px 0}
+#tip{position:fixed;pointer-events:none;background:var(--navy);color:#fff;padding:7px 10px;border-radius:6px;font-size:12.5px;z-index:50;display:none;max-width:260px;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+#tip b{font-weight:600}
+/* drawer */
+.drawer-bg{position:fixed;inset:0;background:rgba(7,43,76,.45);display:none;z-index:40}
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(640px,100%);background:var(--surface);z-index:41;transform:translateX(100%);transition:transform .2s ease;display:flex;flex-direction:column;box-shadow:-8px 0 30px rgba(0,0,0,.2)}
+.drawer{visibility:hidden}.drawer.open{transform:none;visibility:visible}
+.drawer header{background:var(--yellow);color:var(--navy)!important;color:#fff;padding:16px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.drawer header h3{margin:0;font-size:18px;font-weight:600}
+.drawer header p{margin:4px 0 0;color:var(--ink);font-size:13px}
+.drawer header button{border:0;background:#fff;color:var(--navy);border-radius:8px;min-width:40px;height:40px;font-size:20px;cursor:pointer}
+.drawer .body{padding:16px;overflow:auto;display:flex;flex-direction:column;gap:18px}
+.drawer h4{margin:0 0 8px;font-size:14px;font-weight:600}
+.drawer .tblwrap{max-height:none}
+footer{background:#fff;color:var(--ink);font-size:15px}
+footer .wrap{padding:28px 16px 32px;border-top:4px solid var(--tint-2);line-height:1.7}
+footer a{color:var(--ink)}
+footer .copy{text-align:center;margin-top:18px;padding-top:18px;border-top:4px solid var(--tint-2);font-size:15px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (max-width:560px){
+  #supTable th:nth-child(2),#supTable td:nth-child(2){display:none}
+  .years button{padding:8px 11px;font-size:14px}
+  .colchart{height:190px}.colchart .col .val{font-size:10.5px}
+}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="wrap">
+  <a href="#tietoa">Tietoa aineistosta</a>
+  <a href="https://www.paimio.fi/kaupunki-ja-hallinto/talous/" target="_blank" rel="noopener">Lähdeaineisto</a>
+</div></div>
+<header class="hero">
+  <div class="hero-in">
+    <nav class="crumbs" aria-label="Murupolku"><span>Avoin data</span><span class="sep">›</span><span>Talous</span><span class="sep">›</span><span aria-current="page">Ostolaskut</span></nav>
+    <h1>Paimion kaupungin ostolaskut</h1>
+    <p>Kaupungin palvelujen, aineiden, tarvikkeiden ja tavaroiden ostot tiliöintirivitasolla. Summat ovat arvonlisäverottomia. <a href="#tietoa">Tietoa aineistosta</a></p>
+    <svg class="wave" viewBox="0 0 1000 70" preserveAspectRatio="none" aria-hidden="true"><path d="M0 50 C 90 70, 220 36, 400 22 C 620 5, 800 70, 1000 10 V70 H0 Z" fill="#ffffff"/></svg>
+  </div>
+  
+</header>
+
+<main class="wrap">
+  <div class="yearbar"><span class="lbl">Vuosi</span><nav class="years" id="years" aria-label="Valitse vuosi"></nav></div>
+  <section class="filters" aria-label="Rajaukset">
+    <label>Toimittaja tai Y-tunnus<input id="q" type="search" placeholder="Hae nimellä tai Y-tunnuksella" autocomplete="off"></label>
+    <label>Toimielin<select id="f-toimielin"></select></label>
+    <label>Tili<select id="f-tilil"></select></label>
+    <label>Toimittajan tyyppi<select id="f-omistus"></select></label>
+    <button class="btn" id="reset" type="button">Tyhjennä rajaukset</button>
+  </section>
+  <div class="chips" id="chips" aria-live="polite"></div>
+
+  <section class="kpis" id="kpis" aria-label="Tunnusluvut"></section>
+
+  <div class="grid">
+    <section class="card c5">
+      <h2>Ostot vuosittain</h2>
+      <p class="sub">Vuosien vertailu. Valitse vuosi napsauttamalla pylvästä.</p>
+      <div class="colchart" id="yearChart"></div>
+    </section>
+    <section class="card c7">
+      <div class="cardhead"><div><h2>Ostot kuukausittain</h2>
+      <p class="sub">Tositepäivämäärän mukaan. Aineistovuoteen kuuluu myös edellisen ja seuraavan vuoden tositteita.</p></div>
+      <label class="msel"><span class="sr">Kuukausi</span><select id="f-month"></select></label></div>
+      <div class="colchart thin" id="monthChart"></div>
+    </section>
+
+    <section class="card c7">
+      <div class="cardhead"><div><h2>Toimittajat</h2><p class="sub">Napsauta riviä nähdäksesi toimittajan laskut.</p></div></div>
+      <div class="tblwrap"><table id="supTable"></table></div>
+      <div class="more" id="supMore"></div>
+    </section>
+    <section class="card c5">
+      <div class="cardhead"><div><h2>Toimittajat maakunnittain</h2><p class="sub">Toimittajan osoitteen mukaan (YTJ). Napsauta rajataksesi.</p></div>
+      <div class="seg" data-for="maakunta"><button aria-pressed="true" data-m="eur">€</button><button aria-pressed="false" data-m="n">Toimittajia</button></div></div>
+      <div class="hbars" id="maakunta"></div>
+    </section>
+
+    <section class="card c7">
+      <div class="cardhead"><div><h2>Toimittajat kartalla</h2><p class="sub">Toimittajan kotikunta (YTJ). Napsauta kuntaa rajataksesi.</p></div>
+      <div class="maptools"><div class="seg" data-for="kunta"><button aria-pressed="true" data-m="eur">€</button><button aria-pressed="false" data-m="n">Toimittajia</button></div>
+      <div class="seg" data-for="zoom"><button aria-pressed="false" data-m="fi">Suomi</button><button aria-pressed="true" data-m="vs">Varsinais-Suomi</button></div></div></div>
+      <div class="map" id="map"></div>
+      <div class="legend" id="mapLegend"></div>
+      <p class="more" id="mapNote"></p>
+    </section>
+    <section class="card c5">
+      <div class="cardhead"><div><h2>Toimittajat kunnittain</h2><p class="sub">20 suurinta</p></div>
+      <div class="seg" data-for="kunta"><button aria-pressed="true" data-m="eur">€</button><button aria-pressed="false" data-m="n">Toimittajia</button></div></div>
+      <div class="hbars" id="kunta"></div>
+    </section>
+    <section class="card c6">
+      <div class="cardhead"><div><h2>Toimittajan tyyppi</h2><p class="sub">Yhtiömuodon mukaan (YTJ)</p></div>
+      <div class="seg" data-for="omistus"><button aria-pressed="true" data-m="eur">€</button><button aria-pressed="false" data-m="n">Toimittajia</button></div></div>
+      <div class="hbars" id="omistus"></div>
+      <h2 style="margin-top:18px">Toimielimet</h2>
+      <p class="sub" id="toimielinSub">Ei eritelty vuoden 2025 aineistossa.</p>
+      <div class="hbars" id="toimielin"></div>
+    </section>
+    <section class="card c6">
+      <div class="cardhead"><div><h2>Toimialat</h2><p class="sub">Toimittajan päätoimiala (YTJ), 15 suurinta</p></div>
+      <div class="seg" data-for="toimiala"><button aria-pressed="true" data-m="eur">€</button><button aria-pressed="false" data-m="n">Toimittajia</button></div></div>
+      <div class="hbars" id="toimiala"></div>
+    </section>
+
+    <section class="card c6">
+      <h2>Tilit</h2>
+      <p class="sub">Menolajit kirjanpidon tilin mukaan. Napsauta rajataksesi.</p>
+      <div class="tblwrap"><table id="tiliTable"></table></div>
+    </section>
+    <section class="card c6">
+      <h2>Tulosalueet</h2>
+      <p class="sub">Ei eritelty vuoden 2025 aineistossa.</p>
+      <div class="tblwrap"><table id="taTable"></table></div>
+    </section>
+
+    <section class="card c12" id="tietoa">
+      <h2>Tietoa aineistosta</h2>
+      <p class="sub">Paimion kaupungin kuvaus aineistosta <a href="https://www.paimio.fi/kaupunki-ja-hallinto/talous/" target="_blank" rel="noopener">Talous-sivulla</a></p>
+      <div class="src">
+        <p>Aineisto sisältää Paimion kaupungin palvelujen, aineiden, tarvikkeiden ja tavaroiden ostot sekä kuntien kirjanpidossa tiliryhmiin vuokrakulut ja muut toimintakulut kuuluvat ostot tiliöintirivitasolla.</p>
+        <p>Summat ovat arvonlisäverottomia, loppukustannuksia kaupungille. Aineistosta on poistettu yksityishenkilöille maksetut laskut.</p>
+        <p>Aineiston julkaisemisessa on noudatettu Kuntaliiton julkaisemaa <a href="https://www.kuntaliitto.fi/julkaisut/2021/2112-kuntien-ja-kuntayhtymien-ostolaskudatan-avaamisen-ohje" target="_blank" rel="noopener">Kuntien ja kuntayhtymien ostolaskudatan avaamisen ohjetta</a>. Tiedot on poimittu kaupungin kirjanpitojärjestelmästä ja aineistoa on täydennetty YTJ:stä suomalaisten yritysten tiedoilla.</p>
+        <p>Tiedot päivitetään vuosittain tilinpäätöksen hyväksymisen jälkeen.</p>
+      </div>
+      <h3 class="dlh">Alkuperäiset aineistot (Excel)</h3>
+      <div class="dl">
+        __DOWNLOADS__
+      </div>
+      <h3 class="dlh">Ohjeet ja lisätietoa</h3>
+      <ul class="links">
+        <li><a href="https://www.kuntaliitto.fi/julkaisut/2021/2112-kuntien-ja-kuntayhtymien-ostolaskudatan-avaamisen-ohje" target="_blank" rel="noopener">Kuntien ja kuntayhtymien ostolaskudatan avaamisen ohje</a> <span>Kuntaliitto 2021</span></li>
+        <li><a href="https://www.kuntaliitto.fi/talous/kirjanpito-ja-tilinpaatos/kuntien-ja-kuntayhtymien-ostolaskut" target="_blank" rel="noopener">Kuntien ja kuntayhtymien ostolaskut</a> <span>Kuntaliitto: koulutusmateriaalit, tietosuojan tarkistuslista ja palveluluokituksen pohjat</span></li>
+        <li><a href="https://www.kuntaliitto.fi/laki/julkisuus-ja-tietosuoja/kunnille-saapuvat-tietopyynnot/kuntien-ostolaskujen-ja-muiden-asiakirjojen-julkisuus" target="_blank" rel="noopener">Kuntien ostolaskujen ja muiden asiakirjojen julkisuus</a> <span>Kuntaliitto</span></li>
+        <li><a href="https://www.avoindata.fi/data/fi/dataset/kuntien-ja-kuntayhtymien-ostolaskudatan-avaamisen-ohje" target="_blank" rel="noopener">Avaamisen ohje avoindata.fi-palvelussa</a> <span>avoindata.fi</span></li>
+      </ul>
+    </section>
+    <section class="card c12">
+      <div class="note">
+        <strong>Huomioita tästä katselusivusta</strong>
+        <ul>
+          <li>Vuodesta 2023 alkaen sosiaali- ja terveyspalvelut sekä pelastustoimi siirtyivät Varsinais-Suomen hyvinvointialueelle, mikä näkyy ostojen selvänä laskuna.</li>
+          <li>Vuoden 2025 aineistossa ei ole toimielin- eikä tulosaluetietoa, joten niiden rajaukset eivät koske vuotta 2025.</li>
+          <li>Toimittajan kunta, maakunta, toimiala ja tyyppi on haettu PRH:n avoimesta YTJ-rajapinnasta Y-tunnuksella. Tiedot kuvaavat nykytilaa, eivät laskun aikaista tilannetta. Kunnat, kuntayhtymät, yhdistykset ja säätiöt puuttuvat rajapinnasta, joten niiden tyyppi ja kunta on päätelty nimestä tai jätetty tuntemattomaksi.</li>
+          <li>Hyvityslaskut näkyvät negatiivisina riveinä, ja ne vähentävät summia.</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    Lähde: <a href="https://www.paimio.fi/kaupunki-ja-hallinto/talous/" target="_blank" rel="noopener">Paimion kaupunki, ostolaskudata __YEARS__</a>. Otsikkokuva: Paimion kaupunki, paimio.fi. Toimittajatiedot: <a href="https://avoindata.prh.fi/" target="_blank" rel="noopener">PRH / YTJ avoin data</a>, kuntaluokitus ja kuntarajat <a href="https://www.stat.fi/fi/luokitukset" target="_blank" rel="noopener">Tilastokeskus</a> (CC BY 4.0).<br>
+    Epävirallinen katselusivu kaupungin julkaisemasta avoimesta datasta. Koottu <span id="built"></span>.
+  </div>
+</footer>
+
+<div id="tip" role="status"></div>
+<div class="drawer-bg" id="dbg"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-labelledby="dTitle">
+  <header><div><h3 id="dTitle"></h3><p id="dSub"></p></div><button id="dClose" aria-label="Sulje">×</button></header>
+  <div class="body" id="dBody"></div>
+</aside>
+
+<script>
+const DATA = __DATA__;
+const Y = DATA.years, D = DATA.dims, SUP = DATA.sup, R = DATA.rows;
+// row: [yi, ym, s, tili, toimielin, tulosalue, cents, tosite]
+const fmtE = new Intl.NumberFormat('fi-FI',{maximumFractionDigits:0});
+const fmt2 = new Intl.NumberFormat('fi-FI',{minimumFractionDigits:2,maximumFractionDigits:2});
+const eur = v => fmtE.format(Math.round(v)) + ' €';
+const short = v => { const a=Math.abs(v); return a>=1e6 ? (v/1e6).toLocaleString('fi-FI',{maximumFractionDigits:1})+' M€' : a>=1e3 ? (v/1e3).toLocaleString('fi-FI',{maximumFractionDigits:0})+' t€' : fmtE.format(v)+' €'; };
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $ = id => document.getElementById(id);
+const S = {year:null, month:null, q:'', toimielin:null, tilil:null, tulosalue:null, omistus:null, kunta:null, maakunta:null, toimiala:null};
+const mode = {maakunta:'eur',kunta:'eur',omistus:'eur',toimiala:'eur',zoom:'vs'};
+const LABEL = {month:'Kuukausi',toimielin:'Toimielin',tilil:'Tili',tulosalue:'Tulosalue',omistus:'Tyyppi',kunta:'Kunta',maakunta:'Maakunta',toimiala:'Toimiala',q:'Haku'};
+const COLIDX = {tilil:3,toimielin:4,tulosalue:5};
+const SUPIDX = {kunta:2,maakunta:3,toimiala:4,omistus:5};
+const supLower = SUP.map(s=>(s[0]+' '+s[1]).toLowerCase());
+
+// load state from URL hash
+try{ const h=new URLSearchParams(location.hash.slice(1)); for(const k of Object.keys(S)){ if(h.has(k)){ const v=h.get(k); S[k]= k==='q'?v:(k==='year'?+v:+v);} } }catch(e){}
+function saveHash(){ const p=new URLSearchParams(); for(const [k,v] of Object.entries(S)) if(v!==null&&v!=='') p.set(k,v); history.replaceState(null,'','#'+p.toString()); }
+
+function match(r, skip){
+  if(skip!=='year' && S.year!==null && r[0]!==S.year) return false;
+  if(skip!=='month' && S.month!==null){ const yy=Math.floor(r[1]/100); if(S.month===0 ? yy===Y[r[0]] : r[1]!==Y[r[0]]*100+S.month) return false; }
+  for(const k in COLIDX){ if(k!==skip && S[k]!==null && r[COLIDX[k]]!==S[k]) return false; }
+  const sp=SUP[r[2]];
+  for(const k in SUPIDX){ if(k!==skip && S[k]!==null && sp[SUPIDX[k]]!==S[k]) return false; }
+  if(S.q && !supLower[r[2]].includes(S.q)) return false;
+  return true;
+}
+
+function fillSelect(id,key){
+  const el=$(id); const vals=D[key];
+  el.innerHTML='<option value="">Kaikki</option>'+vals.map((v,i)=>v==='–'?'':`<option value="${i}">${esc(v)}</option>`).join('');
+  el.value = S[key]===null?'':S[key];
+  el.onchange=()=>{ S[key]= el.value===''?null:+el.value; update(); };
+}
+
+function yearsNav(){
+  const n=$('years');
+  n.innerHTML = Y.map((y,i)=>`<button data-y="${i}" aria-pressed="${S.year===i}">${y}</button>`).join('');
+  n.querySelectorAll('button').forEach(b=>b.onclick=()=>{ S.year = +b.dataset.y; update(); });
+}
+
+const tip=$('tip');
+function showTip(e,html){ tip.innerHTML=html; tip.style.display='block'; const x=Math.min(e.clientX+14, innerWidth-tip.offsetWidth-8); const y=Math.max(8,e.clientY-tip.offsetHeight-12); tip.style.left=x+'px'; tip.style.top=y+'px'; }
+function hideTip(){ tip.style.display='none'; }
+
+function colChart(el, items, opts={}){
+  const max=Math.max(1,...items.map(i=>i.v));
+  el.innerHTML='<div class="axisline"></div>'+items.map((it,i)=>{
+    const h=Math.max(0,it.v)/max*100;
+    return `<div class="col ${it.dim?'dim':''}" data-i="${i}" tabindex="${opts.click?0:-1}" role="${opts.click?'button':'img'}" aria-label="${esc(it.label)}: ${eur(it.v)}">
+      ${opts.values?`<span class="val">${short(it.v)}</span>`:''}
+      <div class="area"><div class="bar" style="height:${h}%"></div></div>
+      <span class="lab">${esc(it.tick??it.label)}</span></div>`;}).join('');
+  el.querySelectorAll('.col').forEach(c=>{
+    const it=items[+c.dataset.i];
+    c.onmousemove=e=>showTip(e,`<b>${esc(it.label)}</b><br>${eur(it.v)}${it.extra?'<br>'+it.extra:''}`);
+    c.onmouseleave=hideTip;
+    if(opts.click){ c.onclick=()=>opts.click(it); c.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();opts.click(it);} }; }
+  });
+}
+
+function hbars(el,key,agg,limit){
+  const m=mode[key]||'eur';
+  let arr=[...agg.entries()].map(([k,o])=>({k,eur:o.eur,n:o.sup.size}));
+  arr.sort((a,b)=>b[m]-a[m]);
+  const total=arr.reduce((s,a)=>s+a[m],0);
+  if(limit) arr=arr.slice(0,limit);
+  const max=Math.max(1,...arr.map(a=>a[m]));
+  el.innerHTML = arr.length? arr.map(a=>{
+    const v=a[m]; const pct= total? (v/total*100):0;
+    return `<div class="hrow ${S[key]===a.k?'on':''}" data-k="${a.k}" tabindex="0" role="button" aria-pressed="${S[key]===a.k}">
+      <span class="n" title="${esc(D[key][a.k])}">${esc(D[key][a.k])}</span>
+      <span class="track"><span class="fill" style="width:${Math.max(0,v)/max*100}%;display:block"></span></span>
+      <span class="v">${m==='eur'?short(v):fmtE.format(v)}<small>${pct.toLocaleString('fi-FI',{maximumFractionDigits:1})} %</small></span></div>`;}).join('') : '<p class="sub">Ei rivejä valinnalla.</p>';
+  el.querySelectorAll('.hrow').forEach(r=>{
+    const k=+r.dataset.k; const a=arr.find(x=>x.k===k);
+    const act=()=>{ S[key]= S[key]===k?null:k; update(); };
+    r.onclick=act; r.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();act();} };
+    r.onmousemove=e=>showTip(e,`<b>${esc(D[key][k])}</b><br>${eur(a.eur)}<br>${fmtE.format(a.n)} toimittajaa`);
+    r.onmouseleave=hideTip;
+  });
+}
+
+function table(el, cols, rows, state, onRow, foot){
+  const sk=state.sort, dir=state.dir;
+  const sorted=[...rows].sort((a,b)=>{ const x=a[sk],y=b[sk]; return (typeof x==='string'? x.localeCompare(y,'fi'): x-y)*(dir==='asc'?1:-1); });
+  const shown=sorted.slice(0,state.limit||sorted.length);
+  el.innerHTML = `<thead><tr>${cols.map(c=>`<th class="${c.num?'num':''}" data-k="${c.k}" ${sk===c.k?`aria-sort="${dir==='asc'?'ascending':'descending'}"`:''} scope="col">${c.t}</th>`).join('')}</tr></thead>
+   <tbody>${shown.map((r,i)=>`<tr tabindex="0" data-i="${i}">${cols.map(c=>`<td class="${c.num?'num':''} ${c.cls||''}">${c.f?c.f(r):esc(r[c.k])}</td>`).join('')}</tr>`).join('')}</tbody>
+   ${foot?`<tfoot><tr>${foot.map((f,i)=>`<td class="${cols[i].num?'num':''}">${f}</td>`).join('')}</tr></tfoot>`:''}`;
+  el.querySelectorAll('th').forEach(th=>th.onclick=()=>{ const k=th.dataset.k; if(state.sort===k) state.dir= state.dir==='asc'?'desc':'asc'; else { state.sort=k; state.dir= cols.find(c=>c.k===k).num?'desc':'asc'; } table(el,cols,rows,state,onRow,foot); });
+  if(onRow) el.querySelectorAll('tbody tr').forEach(tr=>{ const r=shown[+tr.dataset.i]; tr.onclick=()=>onRow(r); tr.onkeydown=e=>{ if(e.key==='Enter'){onRow(r);} }; });
+  return sorted.length;
+}
+const supState={sort:'eur',dir:'desc',limit:200}, tiliState={sort:'eur',dir:'desc'}, taState={sort:'eur',dir:'desc'};
+
+const MN=['tammikuu','helmikuu','maaliskuu','huhtikuu','toukokuu','kesäkuu','heinäkuu','elokuu','syyskuu','lokakuu','marraskuu','joulukuu'];
+function monthLabel(m){ return m===0?'muiden vuosien päivämäärät':(MN[m-1][0].toUpperCase()+MN[m-1].slice(1)+(S.year!==null?' '+Y[S.year]:'')); }
+function monthSelect(){ const el=$('f-month'); el.innerHTML='<option value="">Kaikki kuukaudet</option>'+MN.map((n,i)=>`<option value="${i+1}">${n[0].toUpperCase()+n.slice(1)}</option>`).join('')+'<option value="0">Muiden vuosien päivämäärät</option>'; el.onchange=()=>{ S.month= el.value===''?null:+el.value; update(); }; }
+
+const MAP = __MAP__;
+const MAPIDX = MAP.k.map(k=>D.kunta.indexOf(k[0]));
+const RAMP=['#d6e3f3','#a9c4e2','#6f9ccf','#3f7fbf','#0f5ba1','#072b4c'];
+function initMap(){
+  $('map').innerHTML=`<svg viewBox="0 0 ${MAP.w} ${MAP.h}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Suomen kuntakartta"><g>${MAP.k.map((k,i)=>`<path class="k" d="${k[1]}" data-i="${i}"/>`).join('')}</g><path class="mb" d="${MAP.m}"/></svg>`;
+  $('map').querySelectorAll('path.k').forEach(p=>{
+    const i=+p.dataset.i, di=MAPIDX[i];
+    p.onclick=()=>{ if(di<0) return; S.kunta= S.kunta===di?null:di; update(); };
+    p.onmouseleave=hideTip;
+  });
+}
+function drawMap(agg){
+  const svg=$('map').querySelector('svg'); if(!svg) return;
+  const vb= mode.zoom==='vs'? MAP.vs : [0,0,MAP.w,MAP.h];
+  svg.setAttribute('viewBox', vb.join(' '));
+  const m=mode.kunta||'eur';
+  const val=i=>{ const o=agg.get(i); return o? (m==='eur'?o.eur:o.sup.size):0; };
+  const vals=MAP.k.map((k,i)=>MAPIDX[i]>=0?val(MAPIDX[i]):0);
+  const pos=vals.filter(v=>v>0); const lo=Math.max(m==='eur'?100:1,Math.min(...pos,Infinity)), hi=Math.max(...pos,1);
+  const L0=Math.log(lo), L1=Math.log(hi);
+  const cls=v=> v<=0?-1 : (L1<=L0?RAMP.length-1 : Math.min(RAMP.length-1,Math.max(0,Math.floor((Math.log(Math.max(v,lo))-L0)/(L1-L0)*RAMP.length))));
+  const fmt=v=> m==='eur'? short(v) : fmtE.format(Math.round(v));
+  $('map').querySelectorAll('path.k').forEach(p=>{
+    const i=+p.dataset.i, v=vals[i], c=cls(v);
+    p.style.fill= c<0? '#eeeeee' : RAMP[c];
+    p.classList.toggle('sel', MAPIDX[i]>=0 && S.kunta===MAPIDX[i]);
+    const o=MAPIDX[i]>=0?agg.get(MAPIDX[i]):null;
+    p.onmousemove=e=>showTip(e, `<b>${esc(MAP.k[i][0])}</b><br>${o? eur(o.eur)+'<br>'+fmtE.format(o.sup.size)+' toimittajaa' : 'Ei toimittajia'}`);
+  });
+  const nice=v=>{ const e=Math.pow(10,Math.floor(Math.log10(v))-1); return Math.round(v/e)*e; };
+  const step=k=>nice(Math.exp(L0+(L1-L0)*k/RAMP.length));
+  $('mapLegend').innerHTML= (pos.length && L1<=L0)? `<span><i style="background:#eeeeee"></i>ei ostoja</span><span><i style="background:${RAMP[RAMP.length-1]}"></i>${fmt(hi)}</span>` : pos.length? `<span><i style="background:#eeeeee"></i>ei ostoja</span>`+RAMP.map((c,k)=>`<span><i style="background:${c}"></i>${k===0?'alle '+fmt(step(1)):(k===RAMP.length-1?'yli '+fmt(step(k)):fmt(step(k))+'–'+fmt(step(k+1)))}</span>`).join('') : '';
+  const out=['Ei tiedossa','Ulkomaat'].map(n=>{ const o=agg.get(D.kunta.indexOf(n)); return o? `${n}: ${fmt(m==='eur'?o.eur:o.sup.size)}`:null; }).filter(Boolean);
+  $('mapNote').textContent = 'Asteikko on logaritminen.' + (out.length? ' Kartan ulkopuolella: '+out.join(', ')+'.':'');
+}
+function chips(){
+  const c=[];
+  for(const k of ['toimielin','tilil','tulosalue','omistus','kunta','maakunta','toimiala']) if(S[k]!==null) c.push(`<span class="chip"><b>${LABEL[k]}:</b> ${esc(D[k][S[k]])}<button aria-label="Poista rajaus" data-k="${k}">×</button></span>`);
+  if(S.month!==null) c.push(`<span class="chip"><b>Kuukausi:</b> ${esc(monthLabel(S.month))}<button aria-label="Poista rajaus" data-k="month">×</button></span>`);
+  if(S.q) c.push(`<span class="chip"><b>Haku:</b> ${esc(S.q)}<button aria-label="Poista haku" data-k="q">×</button></span>`);
+  $('chips').innerHTML=c.join('');
+  $('chips').querySelectorAll('button').forEach(b=>b.onclick=()=>{ const k=b.dataset.k; S[k]= k==='q'?'':null; if(k==='q') $('q').value=''; update(); });
+}
+
+function update(){
+  saveHash(); yearsNav(); chips();
+  for(const k of ['toimielin','tilil','omistus']) $('f-'+k).value = S[k]===null?'':S[k];
+  $('f-month').value = S.month===null?'':S.month;
+  // main pass
+  let tot=0, n=0; const sups=new Set(), tos=new Set(); const supAgg=new Map(), tiliAgg=new Map(), taAgg=new Map(), ieAgg=new Map(); const months=new Map(); const mapAgg=new Map();
+  const dimAgg={kunta:new Map(),maakunta:new Map(),omistus:new Map(),toimiala:new Map()};
+  const yearAgg=Y.map(()=>0);
+  let paimio=0; const paimioIdx=D.kunta.indexOf('Paimio'), vsIdx=D.maakunta.indexOf('Varsinais-Suomi'); let vs=0;
+  const add=(m,k,e,s)=>{ let o=m.get(k); if(!o){o={eur:0,sup:new Set(),n:0}; m.set(k,o);} o.eur+=e; o.sup.add(s); o.n++; };
+  for(const r of R){
+    if(match(r,'year')) yearAgg[r[0]]+=r[6]/100;
+    if(r[1] && match(r,'month')) months.set(r[1],(months.get(r[1])||0)+r[6]/100);
+    if(match(r,'kunta')) add(mapAgg,SUP[r[2]][2],r[6]/100,r[2]);
+    if(!match(r,null)) continue;
+    const e=r[6]/100, s=r[2], sp=SUP[s];
+    tot+=e; n++; sups.add(s); tos.add(r[0]*1e10+r[7]);
+    add(supAgg,s,e,s); add(tiliAgg,r[3],e,s);
+    if(D.tulosalue[r[5]]!=='–') add(taAgg,r[5],e,s);
+    if(D.toimielin[r[4]]!=='–') add(ieAgg,r[4],e,s);
+    for(const k in dimAgg) add(dimAgg[k],sp[SUPIDX[k]],e,s);
+    if(sp[2]===paimioIdx) paimio+=e; if(sp[3]===vsIdx) vs+=e;
+  }
+  // KPIs
+  const yl = S.year===null? `${Y[0]}–${Y[Y.length-1]}` : Y[S.year];
+  $('kpis').innerHTML = [
+    ['Ostot yhteensä', short(tot), S.month!==null? monthLabel(S.month) : yl],
+    ['Toimittajia', fmtE.format(sups.size), 'eri toimittajaa'],
+    ['Tositteita', fmtE.format(tos.size), fmtE.format(n)+' riviä'],
+    ['Keskimääräinen rivi', eur(n?tot/n:0), 'alv 0 %'],
+    ['Paimiolaiset toimittajat', tot? (paimio/tot*100).toLocaleString('fi-FI',{maximumFractionDigits:1})+' %':'–', short(paimio)],
+    ['Varsinais-Suomesta', tot? (vs/tot*100).toLocaleString('fi-FI',{maximumFractionDigits:1})+' %':'–', short(vs)],
+  ].map(k=>`<div class="kpi"><div class="l">${k[0]}</div><div class="v">${k[1]}</div><div class="s">${k[2]}</div></div>`).join('');
+  // year chart
+  $('yearChart').parentElement.querySelector('.sub').textContent = S.month===null ? 'Vuosien vertailu. Valitse vuosi napsauttamalla pylvästä.' : (S.month===0 ? 'Vuosien vertailu, muiden vuosien päivämäärät.' : `Vuosien vertailu, ${MN[S.month-1]} kunakin vuonna.`);
+  colChart($('yearChart'), Y.map((y,i)=>({label:String(y),v:yearAgg[i],i,dim:S.year!==null&&S.year!==i})), {values:true, click:it=>{ S.year=it.i; update(); }});
+  // month chart
+  let mk=[...months.keys()].sort((a,b)=>a-b);
+  if(S.year!==null){ const yy=Y[S.year]; const inYear=mk.filter(m=>Math.floor(m/100)===yy); const other=mk.filter(m=>Math.floor(m/100)!==yy);
+    const items=[]; for(let mm=1;mm<=12;mm++){ const key=yy*100+mm; items.push({label:`${MN[mm-1][0].toUpperCase()+MN[mm-1].slice(1)} ${yy}`,tick:String(mm),mm,v:months.get(key)||0,dim:S.month!==null&&S.month!==mm}); }
+    const ov=other.reduce((s,m)=>s+months.get(m),0);
+    colChart($('monthChart'), items, {click:it=>{ S.month= S.month===it.mm?null:it.mm; update(); }});
+    $('monthChart').insertAdjacentHTML('afterend','');
+    $('monthChart').parentElement.querySelector('.sub').textContent = `Tositepäivämäärän mukaan, ${yy}. Napsauta kuukautta rajataksesi.` + (ov? ` Muiden vuosien päivämäärillä ${short(ov)}.`:'');
+  } else {
+    const byY=new Map(); for(const m of mk){ const yy=Math.floor(m/100); if(yy>=Y[0]&&yy<=Y[Y.length-1]) byY.set(m,months.get(m)); }
+    const items=[]; for(const yy of Y) for(let mm=1;mm<=12;mm++){ const key=yy*100+mm; items.push({label:`${mm}/${yy}`,tick: mm===1?String(yy):'',v:byY.get(key)||0}); }
+    colChart($('monthChart'), items, {});
+    $('monthChart').parentElement.querySelector('.sub').textContent='Tositepäivämäärän mukaan, kaikki vuodet. Valitse vuosi tarkentaaksesi.';
+  }
+  // suppliers
+  const srows=[...supAgg.entries()].map(([s,o])=>({s,name:SUP[s][0],yt:SUP[s][1],kunta:D.kunta[SUP[s][2]],eur:o.eur,n:o.n}));
+  const cnt=table($('supTable'),[
+    {k:'name',t:'Toimittaja',cls:'name',f:r=>`${esc(r.name)}<span class="yt">${esc(r.yt||'ei Y-tunnusta')}</span>`},
+    {k:'kunta',t:'Kunta'},
+    {k:'n',t:'Rivejä',num:true,f:r=>fmtE.format(r.n)},
+    {k:'eur',t:'Ostot €',num:true,f:r=>fmtE.format(Math.round(r.eur))}],
+    srows, supState, r=>openSup(r.s), ['Yhteensä','',fmtE.format(n),fmtE.format(Math.round(tot))]);
+  $('supMore').textContent = cnt>supState.limit? `Näytetään ${supState.limit} / ${fmtE.format(cnt)} toimittajaa. Tarkenna hakua nähdäksesi muut.` : `${fmtE.format(cnt)} toimittajaa.`;
+  // dims
+  hbars($('maakunta'),'maakunta',dimAgg.maakunta,12);
+  hbars($('kunta'),'kunta',dimAgg.kunta,20);
+  drawMap(mapAgg);
+  document.querySelectorAll('.seg').forEach(g=>g.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed', (mode[g.dataset.for]||'eur')===b.dataset.m)));
+  hbars($('omistus'),'omistus',dimAgg.omistus);
+  hbars($('toimiala'),'toimiala',dimAgg.toimiala,15);
+  hbars($('toimielin'),'toimielin',ieAgg);
+  if(ieAgg.size===0) $('toimielin').innerHTML='<p class="sub">Valinnalla ei ole toimielintietoa.</p>';
+  const trows=[...tiliAgg.entries()].map(([k,o])=>({k,name:D.tilil[k],eur:o.eur,sup:o.sup.size}));
+  table($('tiliTable'),[{k:'name',t:'Tili',cls:'name'},{k:'sup',t:'Toimittajia',num:true,f:r=>fmtE.format(r.sup)},{k:'eur',t:'Ostot €',num:true,f:r=>fmtE.format(Math.round(r.eur))}],
+    trows,tiliState,r=>{ S.tilil= S.tilil===r.k?null:r.k; update(); });
+  const arows=[...taAgg.entries()].map(([k,o])=>({k,name:D.tulosalue[k],eur:o.eur,sup:o.sup.size}));
+  if(arows.length) table($('taTable'),[{k:'name',t:'Tulosalue',cls:'name'},{k:'sup',t:'Toimittajia',num:true,f:r=>fmtE.format(r.sup)},{k:'eur',t:'Ostot €',num:true,f:r=>fmtE.format(Math.round(r.eur))}],
+    arows,taState,r=>{ S.tulosalue= S.tulosalue===r.k?null:r.k; update(); });
+  else $('taTable').innerHTML='<tbody><tr><td>Ei tulosaluetietoa valinnalla.</td></tr></tbody>';
+}
+
+// supplier drawer
+function openSup(s){
+  const sp=SUP[s]; const rows=R.filter(r=>r[2]===s && match(r,'year') );
+  const byY=Y.map(()=>0); rows.forEach(r=>byY[r[0]]+=r[6]/100);
+  const cur=rows.filter(r=>S.year===null||r[0]===S.year);
+  const tili=new Map(); cur.forEach(r=>tili.set(r[3],(tili.get(r[3])||0)+r[6]/100));
+  $('dTitle').textContent=sp[0];
+  $('dSub').textContent=[sp[1]||'Ei Y-tunnusta', D.kunta[sp[2]], D.omistus[sp[5]], D.toimiala[sp[4]]].filter(x=>x&&x!=='Ei tiedossa'&&!x.includes('ei toimialatietoa')).join(' · ');
+  const list=[...cur].sort((a,b)=>b[1]-a[1]||b[6]-a[6]);
+  $('dBody').innerHTML=`
+   <div><h4>Ostot vuosittain</h4><div class="colchart" id="dYear" style="height:170px"></div></div>
+   <div><h4>Tilit${S.year!==null?' '+Y[S.year]:''}</h4><div class="hbars" id="dTili"></div></div>
+   <div><h4>Laskurivit${S.year!==null?' '+Y[S.year]:''} (${fmtE.format(list.length)})</h4>
+   <div class="tblwrap"><table><thead><tr><th>Kk</th><th>Tosite</th><th>Tili</th><th>Toimielin / tulosalue</th><th class="num">Summa €</th></tr></thead><tbody>
+   ${list.slice(0,500).map(r=>`<tr style="cursor:default"><td>${r[1]?(r[1]%100)+'/'+Math.floor(r[1]/100):'–'}</td><td>${r[7]||''}</td><td style="white-space:normal">${esc(D.tilil[r[3]])}</td><td style="white-space:normal">${esc([D.toimielin[r[4]],D.tulosalue[r[5]]].filter(x=>x!=='–').join(' / ')||'–')}</td><td class="num">${fmt2.format(r[6]/100)}</td></tr>`).join('')}
+   </tbody></table></div>${list.length>500?'<p class="more">Näytetään 500 uusinta riviä.</p>':''}</div>`;
+  colChart($('dYear'), Y.map((y,i)=>({label:String(y),v:byY[i],dim:S.year!==null&&S.year!==i})), {values:true});
+  const tm=new Map([...tili.entries()].map(([k,v])=>[k,{eur:v,sup:new Set([s])}]));
+  const save=mode.tilil; mode.tilil='eur'; hbars($('dTili'),'tilil',tm,10); mode.tilil=save;
+  $('dTili').querySelectorAll('.hrow').forEach(r=>{ r.onclick=null; r.style.cursor='default'; r.removeAttribute('role'); r.removeAttribute('tabindex'); r.classList.remove('on'); });
+  $('drawer').classList.add('open'); $('drawer').setAttribute('aria-hidden','false'); $('dbg').style.display='block'; $('dClose').focus();
+}
+function closeSup(){ $('drawer').classList.remove('open'); $('drawer').setAttribute('aria-hidden','true'); $('dbg').style.display='none'; hideTip(); }
+$('dClose').onclick=closeSup; $('dbg').onclick=closeSup; addEventListener('keydown',e=>{ if(e.key==='Escape') closeSup(); });
+
+document.querySelectorAll('.seg').forEach(g=>g.querySelectorAll('button').forEach(b=>b.onclick=()=>{ mode[g.dataset.for]=b.dataset.m; g.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b)); update(); }));
+let qt; $('q').value=S.q||''; $('q').oninput=e=>{ clearTimeout(qt); qt=setTimeout(()=>{ S.q=e.target.value.trim().toLowerCase(); update(); },200); };
+$('reset').onclick=()=>{ for(const k in S) if(k!=='year') S[k]= k==='q'?'':null; $('q').value=''; update(); };
+if(S.year===null||isNaN(S.year)||!(S.year in Y)) S.year=Y.length-1;
+initMap(); monthSelect(); fillSelect('f-toimielin','toimielin'); fillSelect('f-tilil','tilil'); fillSelect('f-omistus','omistus');
+$('built').textContent=DATA.built;
+update();
+</script>
+</body>
+</html>
