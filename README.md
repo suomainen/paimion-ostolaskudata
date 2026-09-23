@@ -4,6 +4,17 @@ Selattava verkkosivu Paimion kaupungin julkaisemasta ostolaskudatasta vuosilta 2
 
 > **Huom.** Tämä on epävirallinen katselusivu kaupungin avoimesta datasta. Se ei ole Paimion kaupungin ylläpitämä palvelu. Virallinen aineisto löytyy kaupungin [Talous-sivulta](https://www.paimio.fi/kaupunki-ja-hallinto/talous/).
 
+## Tausta
+
+Sivun lähtökohtana on valtuustoaloite *Paimion kaupungin ostolaskudatan selainpohjainen ja ajantasainen julkaiseminen verkkosivuilla*. Aloitteen jätti Oskari Summanen valtuustoryhmien puolesta (SDP, PS, KD, Vihr. ja Vas.) kaupunginvaltuuston kokouksessa 22.4.2026 (§ 19).
+
+Aloitteessa esitetään, että Paimio siirtyy Excel-tiedostoina julkaistavasta ostolaskudatasta selainpohjaiseen raportointiin, jossa edellisen kuukauden ostolaskudata on nähtävillä kaupungin verkkosivuilla. Aloitteessa ehdotetaan lisäksi teknistä toteutusta, jota voi käyttää ilman erillisiä ohjelmia tai latauksia, ja toteutuksen aloittamista vuoden 2026 loppuun mennessä.
+
+Tämä sivu on aloitteen tekijän tekemä esimerkkitoteutus. Se näyttää, miltä selainpohjainen raportointi voisi näyttää kaupungin jo julkaisemalla datalla.
+
+- [Kokousasia: Kaupunginvaltuusto 22.4.2026 § 19](https://julkaisu.paimio.fi/dynasty10/cgi/DREQUEST.PHP?page=meetingitem&id=2026733-12)
+- [Aloite (PDF)](https://julkaisu.paimio.fi/dynasty10/kokous/2026733-12-39533.PDF)
+
 ## Ominaisuudet
 
 - Vuosivalinta 2020–2025 ja vuosien välinen vertailu
@@ -61,9 +72,13 @@ Toimittajien kunta, maakunta, päätoimiala ja yhtiömuoto haettiin Y-tunnuksell
 - **Puuttuvat YTJ-tiedot:** PRH:n avoimessa rajapinnassa ei ole kuntia, kuntayhtymiä, yhdistyksiä, säätiöitä eikä osaa toiminimistä. Niiden osuus ostojen euroista on noin 45 %. Näiden toimittajien tyyppi ja kunta on päätelty nimestä, esimerkiksi "Liedon kunta" → Lieto. Muutaman kuntayhtymän kotikunta on asetettu käsin. Loput on merkitty "Ei tiedossa".
 - **Hyvityslaskut** näkyvät negatiivisina riveinä ja vähentävät summia.
 
+## Päivittäminen
+
+Sivu kootaan kansion `tyokalut` skriptillä `paivita.py`. Kun kaupunki julkaisee uuden vuoden aineiston, lisää sen osoite tiedostoon `tyokalut/lahteet.json` ja aja `python tyokalut/paivita.py`. Tarkemmat ohjeet ovat tiedostossa [tyokalut/LUEMINUT.md](tyokalut/LUEMINUT.md).
+
 ## Miten sivu on tehty
 
-Sivu on tehty yhdessä Clauden kanssa, Anthropicin tekoälyavustajalla, jota käytettiin Claude-sovelluksen Cowork-tilassa. Koko työ tehtiin yhden kahvimukillisen aikana.
+Sivu on tehty yhdessä Clauden kanssa, Anthropicin tekoälyavustajalla, jota käytettiin Claude-sovelluksen Cowork-tilassa. Koko työ tehtiin parin kahvimukillisen aikana.
 
 ## Lisätietoa
 
