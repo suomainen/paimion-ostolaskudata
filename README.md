@@ -31,7 +31,7 @@ Tämä sivu on aloitteen tekijän tekemä esimerkkitoteutus. Se näyttää, milt
 Sivu on yksi itsenäinen `index.html`-tiedosto, johon data on upotettu. Palvelinta tai asennuksia ei tarvita.
 
 - **Paikallisesti:** avaa `index.html` selaimessa.
-- **GitHub Pagesissa:** Settings → Pages → Source: *Deploy from a branch*, haara `main`, kansio `/ (root)`.
+- **GitHub Pagesissa:** [Julkaistu esitys](https://suomainen.github.io/paimion-ostolaskudata)
 
 Sivu ei hae mitään verkosta. Data, Rubik-fontti ja otsikkokuva on upotettu tiedostoon (base64), joten sivu toimii myös ilman verkkoyhteyttä. Rubik-fontti on julkaistu [SIL Open Font License 1.1](https://openfontlicense.org) -lisenssillä.
 
