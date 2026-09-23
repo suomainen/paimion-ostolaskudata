@@ -13,6 +13,7 @@ paimion-ostolaskudata/        (GitHub-repo = paikallinen kansio "sivusto")
     ├── paivita.py            koko päivitys yhdellä ajolla
     ├── lahteet.json          vuosien Excel-tiedostojen osoitteet paimio.fi:ssä
     ├── template.html         sivun pohja (HTML, CSS, JavaScript)
+    ├── kartta.json           kunta- ja maakuntarajat SVG-muodossa (Tilastokeskus 2025, 1:4,5 milj.)
     ├── prh_valimuisti.json   PRH:sta jo haetut toimittajatiedot
     ├── rubik-latin.woff2     Rubik-fontti (SIL OFL 1.1)
     └── hero.jpg              otsikkokuva (Paimion kaupunki, paimio.fi)
@@ -48,6 +49,6 @@ Skripti etsii kaupungin Excel-tiedostot kansiosta `lahdedata`, joko repon juures
 
 ## Sivun muokkaaminen
 
-Ulkoasu ja toiminnot ovat tiedostossa `template.html`. Paikkamerkit `__DATA__`, `__FONT__`, `__HERO__`, `__DOWNLOADS__` ja `__YEARS__` korvataan ajon aikana. Älä poista niitä.
+Ulkoasu ja toiminnot ovat tiedostossa `template.html`. Paikkamerkit `__DATA__`, `__MAP__`, `__FONT__`, `__HERO__`, `__DOWNLOADS__` ja `__YEARS__` korvataan ajon aikana. Älä poista niitä.
 
 Otsikkokuvan voi vaihtaa korvaamalla tiedoston `hero.jpg`. Kuvan kohdistusta säädetään `template.html`:n kohdassa `center 72%`.

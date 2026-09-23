@@ -10,7 +10,7 @@ Vaiheet:
  2. Lukee ja yhtenäistää vuosien sarakkeet
  3. Rikastaa toimittajat PRH:n YTJ-rajapinnasta (välimuisti prh_valimuisti.json)
  4. Hakee kunta–maakunta-luokituksen Tilastokeskukselta
- 5. Kokoaa index.html repon juureen (data, fontti ja kuva upotettuina)
+ 5. Kokoaa index.html repon juureen (data, kuntakartta, fontti ja kuva upotettuina)
 """
 import base64, concurrent.futures as cf, io, json, re, sys, time, urllib.error, urllib.request
 from datetime import date
@@ -170,7 +170,7 @@ dl = '\n        '.join(f'<a href="{lahteet[y]}">Ostolaskut {y}</a>' for y in VUO
 out = (t.replace('__DATA__', json.dumps(data, ensure_ascii=False, separators=(',', ':')))
         .replace('__FONT__', base64.b64encode((HERE / 'rubik-latin.woff2').read_bytes()).decode())
         .replace('__HERO__', base64.b64encode(b.getvalue()).decode())
-        .replace('__DOWNLOADS__', dl).replace('__YEARS__', f'{VUODET[0]}–{VUODET[-1]}'))
+        .replace('__MAP__', (HERE / 'kartta.json').read_text(encoding='utf-8')).replace('__DOWNLOADS__', dl).replace('__YEARS__', f'{VUODET[0]}–{VUODET[-1]}'))
 SIVU.mkdir(exist_ok=True)
 (SIVU / 'index.html').write_text(out, encoding='utf-8')
 print(f'Valmis: {SIVU / "index.html"} ({len(out.encode()) / 1e6:.1f} Mt)')
