@@ -70,6 +70,38 @@ d['toimielin'] = d.toimielin.replace({'Tekninen ltk':'Tekninen lautakunta','Koul
     'Keskusvaaliltk':'Keskusvaalilautakunta','Tarkastusltk':'Tarkastuslautakunta',
     'Sosiaali- ja terveysltk':'Sosiaali- ja terveyslautakunta','Sivistys- ja vapaa-aikaltk':'Sivistys- ja vapaa-aikalautakunta'})
 
+# ---------- 2b. puuttuvien toimielinten ja tulosalueiden arviointi ----------
+# Vuodesta, jolta toimielin/tulosalue puuttuu (2025), ne arvioidaan palveluluokan perusteella.
+# Malli opetetaan vuosista, joilla sekä palveluluokka että toimielin ovat mukana. Tarkin täsmäävä
+# avain voittaa: (palveluluokka, tili, Y-tunnus) → (palveluluokka, tili) → palveluluokka.
+# Arvio hyväksytään vain, jos vähintään ARVIO_KYNNYS euroista on kuulunut samaan luokkaan.
+# Takautuva testi (opetus 2022–2023, testi 2024): toimielin 99 % oikein, kattavuus 91 %.
+ARVIO_KYNNYS = 0.8
+d['palveluluokka'] = d.palveluluokka.astype(str).str.strip().replace({'nan': None, 'None': None}) if 'palveluluokka' in d else None
+d['yt_'] = d.ytunnus.fillna('')
+d['arvio'] = 0
+def _malli(train, target, keys):
+    g = train.groupby(keys + [target]).summa.apply(lambda s: s.abs().sum()).reset_index()
+    g['share'] = g.summa / g.groupby(keys).summa.transform('sum')
+    top = g.sort_values('share').groupby(keys).tail(1)
+    return top[top.share >= ARVIO_KYNNYS].set_index(keys)[target]
+for target in ('toimielin', 'tulosalue'):
+    train = d[d[target].notna() & d.palveluluokka.notna() & (d.arvio == 0)]
+    # vain kaksi viimeisintä vuotta, jotta organisaatiomuutokset (esim. sote-siirto 2023) eivät vääristä
+    train = train[train.vuosi.isin(sorted(train.vuosi.unique())[-2:])]
+    puuttuu = d[target].isna() & d.palveluluokka.notna()
+    if train.empty or not puuttuu.any(): continue
+    for keys in (['palveluluokka', 'tili', 'yt_'], ['palveluluokka', 'tili'], ['palveluluokka']):
+        idx = d.index[d[target].isna() & d.palveluluokka.notna()]
+        if not len(idx): break
+        m = _malli(train, target, keys)
+        arvo = pd.Series(list(zip(*[d.loc[idx, k] for k in keys])) if len(keys) > 1 else d.loc[idx, keys[0]].tolist(), index=idx).map(m)
+        ok = arvo.dropna()
+        d.loc[ok.index, target] = ok; d.loc[ok.index, 'arvio'] = 1
+    kaikki = puuttuu.sum(); n = (puuttuu & d[target].notna()).sum()
+    eur = d.loc[puuttuu & d[target].notna(), 'summa'].abs().sum() / d.loc[puuttuu, 'summa'].abs().sum()
+    print(f'Arvioitu {target}: {n}/{kaikki} riviä ({eur:.0%} euroista)')
+
 # ---------- 3. PRH ----------
 VM = HERE / 'prh_valimuisti.json'
 cache = json.load(open(VM, encoding='utf-8')) if VM.exists() else {}
@@ -161,7 +193,7 @@ supattr = [[A.at[k, 'nimi'], A.at[k, 'yt'], dims['kunta'].index(A.at[k, 'kunta']
 ym = (d.pvm.dt.year * 100 + d.pvm.dt.month).fillna(0).astype(int)
 tos = pd.to_numeric(d.tosite, errors='coerce').fillna(0).astype('int64')
 R = np.column_stack([d.vuosi - VUODET[0], ym, d.skey.map(si), d.tilil_i, d.toimielin_i, d.tulosalue_i,
-                     (d.summa * 100).round().astype('int64'), tos]).tolist()
+                     (d.summa * 100).round().astype('int64'), tos, d.arvio]).tolist()
 data = dict(years=VUODET, dims=dims, sup=supattr, rows=R, built=f'{date.today().day}.{date.today().month}.{date.today().year}')
 
 t = (HERE / 'template.html').read_text(encoding='utf-8')

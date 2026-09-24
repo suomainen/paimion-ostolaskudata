@@ -224,7 +224,7 @@ footer .copy{text-align:center;margin-top:18px;padding-top:18px;border-top:4px s
       <div class="seg" data-for="omistus"><button aria-pressed="true" data-m="eur">€</button><button aria-pressed="false" data-m="n">Toimittajia</button></div></div>
       <div class="hbars" id="omistus"></div>
       <h2 style="margin-top:18px">Toimielimet</h2>
-      <p class="sub" id="toimielinSub">Ei eritelty vuoden 2025 aineistossa.</p>
+      <p class="sub" id="toimielinSub"></p>
       <div class="hbars" id="toimielin"></div>
     </section>
     <section class="card c6">
@@ -240,7 +240,7 @@ footer .copy{text-align:center;margin-top:18px;padding-top:18px;border-top:4px s
     </section>
     <section class="card c6">
       <h2>Tulosalueet</h2>
-      <p class="sub">Ei eritelty vuoden 2025 aineistossa.</p>
+      <p class="sub" id="taSub"></p>
       <div class="tblwrap"><table id="taTable"></table></div>
     </section>
 
@@ -270,7 +270,7 @@ footer .copy{text-align:center;margin-top:18px;padding-top:18px;border-top:4px s
         <strong>Huomioita tästä katselusivusta</strong>
         <ul>
           <li>Vuodesta 2023 alkaen sosiaali- ja terveyspalvelut sekä pelastustoimi siirtyivät Varsinais-Suomen hyvinvointialueelle, mikä näkyy ostojen selvänä laskuna.</li>
-          <li>Vuoden 2025 aineistossa ei ole toimielin- eikä tulosaluetietoa, joten niiden rajaukset eivät koske vuotta 2025.</li>
+          <li>Vuoden 2025 aineistossa ei ole toimielin- eikä tulosaluetietoa. Ne on arvioitu palveluluokan perusteella kahden edellisen vuoden (2023–2024) aineistosta: arvio tehdään vain, kun vähintään 80 % aiempien vuosien euroista on kuulunut samaan toimielimeen tai tulosalueeseen. Takautuvassa testissä (vuosi 2024 arvioituna vuosista 2022–2023) toimielin osui oikein 99 %:ssa arvioiduista euroista. Arvioimatta jääneet rivit näkyvät ilman toimielintä. Toimittajan laskuriveillä arvioidut on merkitty tähdellä.</li>
           <li>Toimittajan kunta, maakunta, toimiala ja tyyppi on haettu PRH:n avoimesta YTJ-rajapinnasta Y-tunnuksella. Tiedot kuvaavat nykytilaa, eivät laskun aikaista tilannetta. Kunnat, kuntayhtymät, yhdistykset ja säätiöt puuttuvat rajapinnasta, joten niiden tyyppi ja kunta on päätelty nimestä tai jätetty tuntemattomaksi.</li>
           <li>Hyvityslaskut näkyvät negatiivisina riveinä, ja ne vähentävät summia.</li>
         </ul>
@@ -445,7 +445,7 @@ function update(){
   for(const k of ['toimielin','tilil','omistus']) $('f-'+k).value = S[k]===null?'':S[k];
   $('f-month').value = S.month===null?'':S.month;
   // main pass
-  let tot=0, n=0; const sups=new Set(), tos=new Set(); const supAgg=new Map(), tiliAgg=new Map(), taAgg=new Map(), ieAgg=new Map(); const months=new Map(); const mapAgg=new Map();
+  let tot=0, n=0; const sups=new Set(), tos=new Set(); const supAgg=new Map(), tiliAgg=new Map(), taAgg=new Map(), ieAgg=new Map(); const months=new Map(); const mapAgg=new Map(); let est=0, totAbs=0;
   const dimAgg={kunta:new Map(),maakunta:new Map(),omistus:new Map(),toimiala:new Map()};
   const yearAgg=Y.map(()=>0);
   let paimio=0; const paimioIdx=D.kunta.indexOf('Paimio'), vsIdx=D.maakunta.indexOf('Varsinais-Suomi'); let vs=0;
@@ -460,6 +460,7 @@ function update(){
     add(supAgg,s,e,s); add(tiliAgg,r[3],e,s);
     if(D.tulosalue[r[5]]!=='–') add(taAgg,r[5],e,s);
     if(D.toimielin[r[4]]!=='–') add(ieAgg,r[4],e,s);
+    if(r[8]) est+=Math.abs(e); totAbs+=Math.abs(e);
     for(const k in dimAgg) add(dimAgg[k],sp[SUPIDX[k]],e,s);
     if(sp[2]===paimioIdx) paimio+=e; if(sp[3]===vsIdx) vs+=e;
   }
@@ -507,6 +508,8 @@ function update(){
   hbars($('omistus'),'omistus',dimAgg.omistus);
   hbars($('toimiala'),'toimiala',dimAgg.toimiala,15);
   hbars($('toimielin'),'toimielin',ieAgg);
+  const estTxt = est>0 ? `Osa luvuista arvioitu palveluluokan perusteella (${(est/totAbs*100).toLocaleString('fi-FI',{maximumFractionDigits:0})} % euroista), koska kaupungin aineistossa tieto puuttuu.` : '';
+  $('toimielinSub').textContent = estTxt; $('taSub').textContent = estTxt;
   if(ieAgg.size===0) $('toimielin').innerHTML='<p class="sub">Valinnalla ei ole toimielintietoa.</p>';
   const trows=[...tiliAgg.entries()].map(([k,o])=>({k,name:D.tilil[k],eur:o.eur,sup:o.sup.size}));
   table($('tiliTable'),[{k:'name',t:'Tili',cls:'name'},{k:'sup',t:'Toimittajia',num:true,f:r=>fmtE.format(r.sup)},{k:'eur',t:'Ostot €',num:true,f:r=>fmtE.format(Math.round(r.eur))}],
@@ -531,8 +534,8 @@ function openSup(s){
    <div><h4>Tilit${S.year!==null?' '+Y[S.year]:''}</h4><div class="hbars" id="dTili"></div></div>
    <div><h4>Laskurivit${S.year!==null?' '+Y[S.year]:''} (${fmtE.format(list.length)})</h4>
    <div class="tblwrap"><table><thead><tr><th>Kk</th><th>Tosite</th><th>Tili</th><th>Toimielin / tulosalue</th><th class="num">Summa €</th></tr></thead><tbody>
-   ${list.slice(0,500).map(r=>`<tr style="cursor:default"><td>${r[1]?(r[1]%100)+'/'+Math.floor(r[1]/100):'–'}</td><td>${r[7]||''}</td><td style="white-space:normal">${esc(D.tilil[r[3]])}</td><td style="white-space:normal">${esc([D.toimielin[r[4]],D.tulosalue[r[5]]].filter(x=>x!=='–').join(' / ')||'–')}</td><td class="num">${fmt2.format(r[6]/100)}</td></tr>`).join('')}
-   </tbody></table></div>${list.length>500?'<p class="more">Näytetään 500 uusinta riviä.</p>':''}</div>`;
+   ${list.slice(0,500).map(r=>`<tr style="cursor:default"><td>${r[1]?(r[1]%100)+'/'+Math.floor(r[1]/100):'–'}</td><td>${r[7]||''}</td><td style="white-space:normal">${esc(D.tilil[r[3]])}</td><td style="white-space:normal">${esc([D.toimielin[r[4]],D.tulosalue[r[5]]].filter(x=>x!=='–').join(' / ')||'–')}${r[8]?' <span title="Arvioitu palveluluokan perusteella">*</span>':''}</td><td class="num">${fmt2.format(r[6]/100)}</td></tr>`).join('')}
+   </tbody></table></div>${list.length>500?'<p class="more">Näytetään 500 uusinta riviä.</p>':''}${list.some(r=>r[8])?'<p class="more">* Toimielin ja tulosalue arvioitu palveluluokan perusteella.</p>':''}</div>`;
   colChart($('dYear'), Y.map((y,i)=>({label:String(y),v:byY[i],dim:S.year!==null&&S.year!==i})), {values:true});
   const tm=new Map([...tili.entries()].map(([k,v])=>[k,{eur:v,sup:new Set([s])}]));
   const save=mode.tilil; mode.tilil='eur'; hbars($('dTili'),'tilil',tm,10); mode.tilil=save;
