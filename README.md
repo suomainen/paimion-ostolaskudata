@@ -31,7 +31,7 @@ Tämä sivu on aloitteen tekijän tekemä esimerkkitoteutus. Se näyttää, milt
 Sivu on yksi itsenäinen `index.html`-tiedosto, johon data on upotettu. Palvelinta tai asennuksia ei tarvita.
 
 - **Paikallisesti:** avaa `index.html` selaimessa.
-- **GitHub Pagesissa:** [Julkaistu esitys](https://suomainen.github.io/paimion-ostolaskudata)
+- **GitHub Pagesissa:** Settings → Pages → Source: *Deploy from a branch*, haara `main`, kansio `/ (root)`.
 
 Sivu ei hae mitään verkosta. Data, Rubik-fontti ja otsikkokuva on upotettu tiedostoon (base64), joten sivu toimii myös ilman verkkoyhteyttä. Rubik-fontti on julkaistu [SIL Open Font License 1.1](https://openfontlicense.org) -lisenssillä.
 
@@ -67,7 +67,7 @@ Toimittajien kunta, maakunta, päätoimiala ja yhtiömuoto haettiin Y-tunnuksell
 ## Rajoitukset ja huomiot
 
 - **Sote-siirto 2023:** Vuodesta 2023 alkaen sosiaali- ja terveyspalvelut sekä pelastustoimi siirtyivät Varsinais-Suomen hyvinvointialueelle. Siksi ostot laskevat selvästi vuodesta 2022 vuoteen 2023.
-- **Vuosi 2025:** Aineistossa ei ole toimielin- eikä tulosaluetietoa. Näiden rajaukset koskevat vain vuosia 2020–2024.
+- **Vuosi 2025:** Aineistossa ei ole toimielin- eikä tulosaluetietoa. Ne on arvioitu palveluluokan perusteella kahden edellisen vuoden aineistosta, ja arvio tehdään vain, kun vähintään 80 % aiempien euroista on kuulunut samaan luokkaan. Takautuvassa testissä toimielin osui oikein 99 %:ssa arvioiduista euroista, ja arvio kattaa noin 90 % vuoden 2025 euroista. Arvioidut rivit on merkitty sivulla.
 - **Tositepäivämäärät:** Vuoden aineistoon kuuluu myös edellisen ja seuraavan vuoden päivämäärällä olevia tositteita, koska aineisto on rajattu tilikauden mukaan.
 - **YTJ-tiedot kuvaavat nykytilaa**, eivät laskun aikaista tilannetta. Esimerkiksi toimittajan kotikunta tai toimiala on voinut muuttua.
 - **Puuttuvat YTJ-tiedot:** PRH:n avoimessa rajapinnassa ei ole kuntia, kuntayhtymiä, yhdistyksiä, säätiöitä eikä osaa toiminimistä. Niiden osuus ostojen euroista on noin 45 %. Näiden toimittajien tyyppi ja kunta on päätelty nimestä, esimerkiksi "Liedon kunta" → Lieto. Muutaman kuntayhtymän kotikunta on asetettu käsin. Loput on merkitty "Ei tiedossa".
