@@ -2,6 +2,11 @@
 
 Versionumero on muotoa **pää.osa.korjaus**: pää = sivun kokonaan uusi versio, osa = uusi ominaisuus tai uuden vuoden aineisto, korjaus = pieni korjaus tai tarkennus. Uusin versio ensin. Pelkkä dokumentaation tai työkalujen muutos ei nosta numeroa.
 
+## 1.5.1
+
+- Kopioi linkki tähän näkymään -painike siirretty yläpalkkiin, joka pysyy näkyvissä sivua vieritettäessä.
+- Yhteenveto- ja Analyysit-välilehdet isompina valintoina kuvauksineen.
+
 ## 1.5.0
 
 - Analyysit-välilehti: kehitys vuosittain valitulla jaottelulla (toimiala, tili, palveluluokka, toimielin, kunta, maakunta, toimittajan tyyppi), uudet ja poistuneet toimittajat, paikallisuus tileittäin, toimittajat ostojen koon mukaan sekä paikallisuus ja keskittyneisyys vuosittain.

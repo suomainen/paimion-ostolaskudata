@@ -19,8 +19,13 @@ html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Rubik,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.45}
 a{color:var(--blue)}
 .wrap{max-width:1280px;margin:0 auto;padding:0 16px}
-.topbar{background:var(--blue);color:#fff;font-size:15px}
-.topbar .wrap{display:flex;justify-content:flex-end;gap:28px;min-height:54px;align-items:center;flex-wrap:wrap}
+.topbar{background:var(--blue);color:#fff;font-size:15px;position:sticky;top:0;z-index:30;box-shadow:0 2px 8px rgba(7,43,76,.25)}
+html{scroll-padding-top:76px}
+.topbar .wrap{display:flex;justify-content:flex-end;gap:8px 24px;min-height:54px;align-items:center;flex-wrap:wrap;padding-top:7px;padding-bottom:7px}
+.copybtn{font:inherit;font-size:15px;font-weight:500;display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--blue);border:0;border-radius:8px;padding:8px 14px;min-height:40px;cursor:pointer;margin-right:auto}
+.copybtn:hover{background:var(--tint-2)}
+.copybtn svg{width:18px;height:18px;flex:none}
+.copybtn.ok{background:var(--yellow);color:var(--navy)}
 .topbar a{color:#fff;text-decoration:none;font-weight:500}
 .topbar a:hover{text-decoration:underline}
 .hero{margin:20px 20px 0;position:relative}
@@ -39,13 +44,13 @@ a{color:var(--blue)}
 .years button{font:inherit;font-size:15px;font-weight:500;border:2px solid var(--blue);background:#fff;color:var(--blue);padding:8px 18px;border-radius:8px;cursor:pointer;min-height:44px}
 .years button:hover{background:var(--tint-2)}
 .years button[aria-pressed="true"]{background:var(--blue);color:#fff}
-@media (max-width:560px){.yearbar{display:block}.yearbar .lbl{display:block;margin-bottom:8px}.years{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}.years button{padding:6px 0;font-size:14px;min-height:40px}.hero{margin:12px 8px 0}.hero-in{padding:24px 18px 60px;border-radius:16px 16px 0 0}.hero-in::before{background:rgba(7,43,76,.8)}.hero svg.wave{height:40px}.topbar .wrap{gap:18px;justify-content:flex-start}}
+@media (max-width:560px){.copybtn{width:100%;justify-content:center;margin-right:0}.topbar .vainleved{display:none}html{scroll-padding-top:66px}.yearbar{display:block}.yearbar .lbl{display:block;margin-bottom:8px}.years{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}.years button{padding:6px 0;font-size:14px;min-height:40px}.hero{margin:12px 8px 0}.hero-in{padding:24px 18px 60px;border-radius:16px 16px 0 0}.hero-in::before{background:rgba(7,43,76,.8)}.hero svg.wave{height:40px}}
 main{padding:10px 16px 48px}
 .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-bottom:12px}
 .filters label{display:flex;flex-direction:column;font-size:13px;color:var(--ink);font-weight:500;gap:4px;flex:1 1 180px;min-width:0}
 .filters select,.filters input{font:inherit;font-weight:400;font-size:15px;color:var(--ink);background:var(--gray);border:1px solid var(--gray);border-radius:8px;padding:9px 10px;min-height:42px;width:100%}
 a:focus-visible,[tabindex="0"]:focus-visible,select:focus-visible,input:focus-visible,button:focus-visible,.hrow:focus-visible,.col:focus-visible,main:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
-.topbar a:focus-visible,.hero a:focus-visible,.skip:focus-visible{outline-color:var(--yellow)}
+.topbar a:focus-visible,.topbar button:focus-visible,.hero a:focus-visible,.skip:focus-visible{outline-color:var(--yellow)}
 .neg{color:#b3261e}
 .btn{font:inherit;font-size:15px;font-weight:500;border:0;background:var(--blue);color:#fff;border-radius:8px;padding:9px 14px;min-height:42px;cursor:pointer;white-space:nowrap}
 .btn:hover{background:var(--navy)}
@@ -53,14 +58,16 @@ a:focus-visible,[tabindex="0"]:focus-visible,select:focus-visible,input:focus-vi
 .chip{display:inline-flex;align-items:center;gap:6px;background:var(--tint);color:var(--ink-2);border-radius:999px;padding:5px 6px 5px 12px;font-size:13px}
 .chip b{font-weight:500;color:var(--muted)}
 .chip button{border:0;background:var(--surface);color:var(--ink-2);width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:14px;line-height:1}
-.tabs{display:flex;gap:6px;border-bottom:2px solid var(--tint);margin:4px 0 18px}
-.tabs button{font:inherit;font-size:16px;font-weight:500;border:0;background:none;color:var(--ink);padding:10px 18px;min-height:44px;cursor:pointer;border-bottom:4px solid transparent;margin-bottom:-2px;border-radius:8px 8px 0 0}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:6px 0 20px}
+.tabs button{font:inherit;text-align:left;border:2px solid var(--blue);background:#fff;color:var(--navy);padding:12px 16px;min-height:64px;cursor:pointer;border-radius:12px;display:flex;flex-direction:column;gap:2px;box-shadow:var(--shadow)}
+.tabs button b{font-size:18px;font-weight:600;color:var(--blue)}
+.tabs button span{font-size:13.5px;color:var(--ink)}
 .tabs button:hover{background:var(--tint-2)}
-.tabs button[aria-selected="true"]{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+.tabs button[aria-selected="true"]{background:var(--blue);color:#fff}
+.tabs button[aria-selected="true"] b,.tabs button[aria-selected="true"] span{color:#fff}
+@media (max-width:560px){.tabs{gap:8px}.tabs button{padding:10px 12px}.tabs button b{font-size:16px}.tabs button span{font-size:12.5px}}
 .asel{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:500;min-width:200px}
 .asel select{font:inherit;font-weight:400;font-size:15px;color:var(--ink);background:var(--gray);border:1px solid var(--gray);border-radius:8px;padding:8px 10px;min-height:42px}
-.btn.ghost{background:#fff;color:var(--blue);border:2px solid var(--blue)}
-.btn.ghost:hover{background:var(--tint-2)}
 .up{color:#1b6e3c}.down{color:#b3261e}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
 .kpi{background:var(--gray);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow)}
@@ -177,8 +184,9 @@ footer .copy{text-align:center;margin-top:18px;padding-top:18px;border-top:4px s
 <body>
 <a class="skip" href="#sisalto">Siirry sisältöön</a>
 <nav class="topbar" id="topbar" aria-label="Sivun linkit"><div class="wrap">
-  <a href="#tietoa">Tietoa aineistosta</a>
-  <a href="https://www.paimio.fi/kaupunki-ja-hallinto/talous/" target="_blank" rel="noopener">Lähdeaineisto<span class="sr"> (avautuu uuteen välilehteen)</span></a>
+  <button class="copybtn" id="copy" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5"/></svg><span id="copyText">Kopioi linkki tähän näkymään</span></button>
+  <a class="vainleved" href="#tietoa">Tietoa aineistosta</a>
+  <a class="vainleved" href="https://www.paimio.fi/kaupunki-ja-hallinto/talous/" target="_blank" rel="noopener">Lähdeaineisto<span class="sr"> (avautuu uuteen välilehteen)</span></a>
 </div></nav>
 <header class="hero" id="hero">
   <div class="hero-in">
@@ -198,7 +206,6 @@ footer .copy{text-align:center;margin-top:18px;padding-top:18px;border-top:4px s
     <label>Tili<select id="f-tilil"></select></label>
     <label>Toimittajan tyyppi<select id="f-omistus"></select></label>
     <button class="btn" id="reset" type="button">Tyhjennä rajaukset</button>
-    <button class="btn ghost" id="copy" type="button">Kopioi linkki näkymään</button>
   </section>
   <div class="chips" id="chips"></div>
   <p class="sr" id="live" role="status"></p>
@@ -206,8 +213,8 @@ footer .copy{text-align:center;margin-top:18px;padding-top:18px;border-top:4px s
   <section class="kpis" id="kpis" aria-label="Tunnusluvut"></section>
 
   <div class="tabs" role="tablist" aria-label="Näkymä">
-    <button type="button" role="tab" id="t-yhteenveto" aria-controls="p-yhteenveto" aria-selected="true">Yhteenveto</button>
-    <button type="button" role="tab" id="t-analyysit" aria-controls="p-analyysit" aria-selected="false" tabindex="-1">Analyysit</button>
+    <button type="button" role="tab" id="t-yhteenveto" aria-controls="p-yhteenveto" aria-selected="true"><b>Yhteenveto</b><span>Valitun vuoden luvut, kartta ja toimittajat</span></button>
+    <button type="button" role="tab" id="t-analyysit" aria-controls="p-analyysit" aria-selected="false" tabindex="-1"><b>Analyysit</b><span>Kehitys vuosittain, uudet toimittajat ja paikallisuus</span></button>
   </div>
 
   <div class="grid" id="p-yhteenveto" role="tabpanel" aria-labelledby="t-yhteenveto">
@@ -774,12 +781,14 @@ $('dClose').onclick=closeSup; $('dbg').onclick=closeSup; addEventListener('keydo
 document.querySelectorAll('.seg').forEach(g=>g.querySelectorAll('button').forEach(b=>b.onclick=()=>{ mode[g.dataset.for]=b.dataset.m; g.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b)); update(); }));
 let qt; $('q').value=S.q||''; $('q').oninput=e=>{ clearTimeout(qt); qt=setTimeout(()=>{ S.q=e.target.value.trim().toLowerCase(); update(); },200); };
 $('reset').onclick=()=>{ for(const k in S) if(!['year','view','adim'].includes(k)) S[k]= k==='q'?'':null; $('q').value=''; update(); };
+const KOPIOI='Kopioi linkki tähän näkymään'; let kopioAjastin;
 $('copy').onclick=async()=>{
-  const b=$('copy'), alku=b.textContent; let ok=false;
+  let ok=false;
   try{ await navigator.clipboard.writeText(location.href); ok=true; }catch(e){}
-  b.textContent= ok? 'Linkki kopioitu' : 'Kopioi osoite osoiteriviltä';
-  $('live').textContent= ok? 'Linkki näkymään kopioitu leikepöydälle.' : 'Kopiointi ei onnistunut. Kopioi osoite selaimen osoiteriviltä.';
-  setTimeout(()=>{ b.textContent=alku; },2500);
+  $('copyText').textContent= ok? 'Linkki kopioitu – liitä se viestiin' : 'Kopioi osoite selaimen osoiteriviltä';
+  $('copy').classList.toggle('ok',ok);
+  $('live').textContent= ok? 'Linkki tähän näkymään kopioitu leikepöydälle.' : 'Kopiointi ei onnistunut. Kopioi osoite selaimen osoiteriviltä.';
+  clearTimeout(kopioAjastin); kopioAjastin=setTimeout(()=>{ $('copyText').textContent=KOPIOI; $('copy').classList.remove('ok'); },3500);
 };
 if(S.year===null||isNaN(S.year)||!(S.year in Y)) S.year=Y.length-1;
 initMap(); monthSelect(); fillSelect('f-toimielin','toimielin'); fillSelect('f-tilil','tilil'); fillSelect('f-omistus','omistus'); fillSelect('f-kunta','kunta');

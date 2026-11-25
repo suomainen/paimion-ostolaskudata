@@ -28,7 +28,7 @@ Tämä sivu on aloitteen tekijän tekemä esimerkkitoteutus. Se näyttää, milt
 - Kuntakartta, jossa kunnat on väritetty toimittajien ostosumman tai toimittajamäärän mukaan. Kartan voi rajata koko Suomeen tai Varsinais-Suomeen, ja kuntaa napsauttamalla raportti rajautuu siihen.
 - Jakaumat maakunnittain, kunnittain, toimialoittain ja toimittajan tyypin mukaan (yritys, julkinen sektori, järjestö tai säätiö)
 - Rajaukset toimielimen, tilin, tulosalueen, palveluluokan, kunnan, maakunnan ja toimialan mukaan. Rajaukset voi yhdistää.
-- Pysyvät linkit: näkymän tila (vuosi, rajaukset, välilehti, avattu toimittaja) on sivun osoitteessa nimillä ja koodeilla, joten linkki vie samaan näkymään myös aineiston päivityksen jälkeen. Linkin saa painikkeesta Kopioi linkki näkymään.
+- Pysyvät linkit: näkymän tila (vuosi, rajaukset, välilehti, avattu toimittaja) on sivun osoitteessa nimillä ja koodeilla, joten linkki vie samaan näkymään myös aineiston päivityksen jälkeen. Linkin saa yläpalkin painikkeesta Kopioi linkki tähän näkymään, joka pysyy näkyvissä koko ajan.
 - Analyysit-välilehti: ostojen kehitys vuosittain valitulla jaottelulla (esimerkiksi toimiala tai tili), uudet ja poistuneet toimittajat, paikallisuus tileittäin, toimittajat ostojen koon mukaan sekä paikallisuus ja keskittyneisyys vuosittain
 - Palveluluokat: mihin kaupungin palveluun ostot kohdistuvat (Valtiokonttorin kuntien yhteinen luokitus, aineistossa vuodesta 2022)
 - Toimii puhelimella, tabletilla ja tietokoneella sekä näppäimistöllä ja ruudunlukijalla (WCAG 2.1 AA)
