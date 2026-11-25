@@ -2,6 +2,8 @@
 
 Selattava verkkosivu Paimion kaupungin julkaisemasta ostolaskudatasta vuosilta 2020–2025. Sivulla voi tarkastella kaupungin ostoja vuosittain, toimittajittain, tileittäin, toimielimittäin ja toimittajan sijainnin tai toimialan mukaan.
 
+Sivusto: **https://suomainen.github.io/paimion-ostolaskudata/**
+
 > **Huom.** Tämä on epävirallinen katselusivu kaupungin avoimesta datasta. Se ei ole Paimion kaupungin ylläpitämä palvelu. Virallinen aineisto löytyy kaupungin [Talous-sivulta](https://www.paimio.fi/kaupunki-ja-hallinto/talous/).
 >
 > Sivu ja sen koodi on tehty tekoälyavustajan avulla, ja tiedoissa voi olla virheitä. Tarkista olennaiset tiedot kaupungin alkuperäisestä aineistosta. Korjaukset ja huomiot: oskari@summanen.org tai [GitHubin issues](https://github.com/suomainen/paimion-ostolaskudata/issues).
