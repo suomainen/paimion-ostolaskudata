@@ -155,6 +155,19 @@ def test_etsi_uudet_lahteet():
     assert lahteet[2025] == 'vanha-osoite' and lahteet[2026].endswith('ostolaskut-vuodelta-2026.xlsx')
 
 
+# ---------- versio ----------
+def test_versio_on_muutoslokin_uusin():
+    loki = (p.ROOT / 'CHANGELOG.md').read_text(encoding='utf-8')
+    assert re.search(r'^## (\d+\.\d+\.\d+)$', loki, re.M).group(1) == p.VERSIO
+
+
+def test_sivulla_on_sama_versio():
+    sivu = p.ROOT / 'index.html'
+    if not sivu.exists():
+        pytest.skip('index.html puuttuu')
+    assert f'>Versio {p.VERSIO}<' in sivu.read_text(encoding='utf-8')
+
+
 # ---------- valmis sivu vastaa lähdetiedostoja ----------
 def _sivun_data():
     sivu = p.ROOT / 'index.html'

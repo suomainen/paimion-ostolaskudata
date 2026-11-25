@@ -28,6 +28,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+VERSIO = '1.4.0'                        # sivun versio; nosta samalla kun lisäät kohdan tiedostoon CHANGELOG.md
+
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent                      # repon juuri: index.html ja README.md
 # Lähdedata: repon juuressa (ei GitHubiin, ks. .gitignore) tai projektikansiossa sen vieressä
@@ -116,7 +118,7 @@ def lue_json(polku, oletus=None):
 def kirjoita_json(polku, data, **kw):
     """Kirjoittaa väliaikaistiedoston kautta, jottei keskeytys jätä puolikasta tiedostoa."""
     tmp = polku.with_suffix(polku.suffix + '.tmp')
-    tmp.write_text(json.dumps(data, ensure_ascii=False, **kw), encoding='utf-8')
+    tmp.write_text(json.dumps(data, ensure_ascii=False, **kw), encoding='utf-8', newline='\n')
     tmp.replace(polku)
 
 
@@ -466,11 +468,12 @@ def kokoa_sivu(data, lahteet, vuodet):
     sivu = (HERE / 'template.html').read_text(encoding='utf-8')
     for merkki, arvo in (('__DATA__', data_json), ('__MAP__', (HERE / 'kartta.json').read_text(encoding='utf-8')),
                          ('__FONT__', b64('rubik-latin.woff2')), ('__HERO__', b64('hero.svg')),
-                         ('__DOWNLOADS__', lataukset), ('__YEARS__', f'{vuodet[0]}–{vuodet[-1]}')):
+                         ('__DOWNLOADS__', lataukset), ('__YEARS__', f'{vuodet[0]}–{vuodet[-1]}'),
+                         ('__VERSION__', VERSIO)):
         if merkki not in sivu:
             sys.exit(f'template.html: paikkamerkki {merkki} puuttuu')
         sivu = sivu.replace(merkki, arvo)
-    (ROOT / 'index.html').write_text(sivu, encoding='utf-8')
+    (ROOT / 'index.html').write_text(sivu, encoding='utf-8', newline='\n')
     return len(sivu.encode()) / 1e6
 
 

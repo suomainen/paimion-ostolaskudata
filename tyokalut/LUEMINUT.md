@@ -8,6 +8,7 @@ Näillä tiedostoilla kootaan repon juuren `index.html` uudelleen, kun kaupunki 
 paimion-ostolaskudata/        (GitHub-repo)
 ├── index.html                valmis sivu (koottu tiedosto, älä muokkaa käsin)
 ├── README.md
+├── CHANGELOG.md              muutosloki, uusin versio ensin
 ├── requirements.txt          Python-kirjastot
 ├── .gitignore                jättää lahdedata-kansion pois GitHubista
 ├── lahdedata/                kaupungin Excel-tiedostot (vain omalla koneella)
@@ -52,7 +53,8 @@ Kaupungin Excel-tiedostot ovat kansiossa `lahdedata`, joko repon juuressa tai se
    ```
 4. Avaa `index.html` selaimessa ja katso, että uusi vuosi näyttää järkevältä.
 5. Käy `tunnistamattomat.csv`:n alku läpi. Jos listan kärjessä on uusi iso toimittaja, lisää sen kotikunta `paivita.py`:n `KUNTA_KASIN`-sanakirjaan.
-6. Lataa GitHubiin `index.html` ja muuttuneet `tyokalut`-tiedostot. Päivitä `README.md`:n vuositaulukko ja testitulokset.
+6. Nosta `paivita.py`:n `VERSIO`, lisää kohta tiedostoon `CHANGELOG.md` ja aja skripti uudelleen, jotta numero päivittyy sivulle. Päivitä `README.md`:n vuositaulukko ja testitulokset.
+7. Vie GitHubiin: `git add -A`, `git commit`, `git tag -a vX.Y.Z -m "Kuvaus"` ja `git push --follow-tags`.
 
 Jos kaupunki julkaisee tiedoston nimellä, jota skripti ei tunnista, lisää osoite käsin tiedostoon `lahteet.json`:
 
@@ -70,8 +72,10 @@ Jos kaupunki julkaisee tiedoston nimellä, jota skripti ei tunnista, lisää oso
 
 ## Sivun muokkaaminen
 
-Ulkoasu ja toiminnot ovat tiedostossa `template.html`. Paikkamerkit `__DATA__`, `__MAP__`, `__FONT__`, `__HERO__`, `__DOWNLOADS__` ja `__YEARS__` korvataan ajon aikana. Skripti pysähtyy, jos jokin niistä puuttuu.
+Ulkoasu ja toiminnot ovat tiedostossa `template.html`. Paikkamerkit `__DATA__`, `__MAP__`, `__FONT__`, `__HERO__`, `__DOWNLOADS__`, `__YEARS__` ja `__VERSION__` korvataan ajon aikana. Skripti pysähtyy, jos jokin niistä puuttuu.
 
 Datan rivit ovat taulukoita, joiden sarakkeet on nimetty kahdessa paikassa: `paivita.py`:n `RIVI` ja `template.html`:n `const C`. Jos lisäät sarakkeen, lisää se molempiin.
 
 Otsikkokuvan värejä ja kuviota muutetaan tiedostossa `tee_kuva.py`. Aja se ja sen jälkeen `paivita.py`.
+
+Saavutettavuuden tarkistuslista on `README.md`:n kohdassa Saavutettavuus. Käy se läpi aina, kun muutat pohjaa.

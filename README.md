@@ -3,6 +3,8 @@
 Selattava verkkosivu Paimion kaupungin julkaisemasta ostolaskudatasta vuosilta 2020–2025. Sivulla voi tarkastella kaupungin ostoja vuosittain, toimittajittain, tileittäin, toimielimittäin ja toimittajan sijainnin tai toimialan mukaan.
 
 > **Huom.** Tämä on epävirallinen katselusivu kaupungin avoimesta datasta. Se ei ole Paimion kaupungin ylläpitämä palvelu. Virallinen aineisto löytyy kaupungin [Talous-sivulta](https://www.paimio.fi/kaupunki-ja-hallinto/talous/).
+>
+> Sivu ja sen koodi on tehty tekoälyavustajan avulla, ja tiedoissa voi olla virheitä. Tarkista olennaiset tiedot kaupungin alkuperäisestä aineistosta. Korjaukset ja huomiot: oskari@summanen.org tai [GitHubin issues](https://github.com/suomainen/paimion-ostolaskudata/issues).
 
 ## Tausta
 
@@ -25,7 +27,7 @@ Tämä sivu on aloitteen tekijän tekemä esimerkkitoteutus. Se näyttää, milt
 - Jakaumat maakunnittain, kunnittain, toimialoittain ja toimittajan tyypin mukaan (yritys, julkinen sektori, järjestö tai säätiö)
 - Rajaukset toimielimen, tilin, tulosalueen, palveluluokan, kunnan, maakunnan ja toimialan mukaan. Rajaukset voi yhdistää, ja ne tallentuvat osoiteriville, joten näkymän voi jakaa linkkinä.
 - Palveluluokat: mihin kaupungin palveluun ostot kohdistuvat (Valtiokonttorin kuntien yhteinen luokitus, aineistossa vuodesta 2022)
-- Toimii puhelimella, tabletilla ja tietokoneella sekä pelkällä näppäimistöllä
+- Toimii puhelimella, tabletilla ja tietokoneella sekä näppäimistöllä ja ruudunlukijalla (WCAG 2.1 AA)
 
 ## Käyttö
 
@@ -80,6 +82,35 @@ Toimittajien kunta, maakunta, päätoimiala ja yhtiömuoto haettiin Y-tunnuksell
 ## Päivittäminen
 
 Sivu kootaan kansion `tyokalut` skriptillä: `python tyokalut/paivita.py`. Skripti tarkistaa kaupungin Talous-sivulta uudet vuodet, lataa aineistot, ajaa arvioinnin takautuvan testin ja kokoaa `index.html`:n. Testit ajetaan komennolla `python -m pytest tyokalut`. Tarkemmat ohjeet ovat tiedostossa [tyokalut/LUEMINUT.md](tyokalut/LUEMINUT.md).
+
+## Saavutettavuus
+
+Sivu noudattaa WCAG 2.1 AA -tasoa. Ratkaisut ovat pohjassa `tyokalut/template.html`:
+
+- ohituslinkki sisältöön, otsikkotasot ilman hyppyjä ja maamerkit (navigaatio, sisältö, alatunniste)
+- kaikki toiminnot näppäimistöllä: vuodet, kaavioiden pylväät, palkkiluettelot, taulukoiden lajittelu ja rivien valinta. Kohdistus säilyy samassa kohdassa, kun näkymä päivittyy.
+- toimittajan tiedot avautuvat modaalisena ikkunana: kohdistus siirtyy ikkunaan, tausta ei ole käytettävissä, ja Esc palauttaa kohdistuksen avanneeseen riviin
+- kartta on kuva, jolla on tekstivaihtoehto: Kunta-valikko ja Toimittajat kunnittain -luettelo tekevät saman kuin kartan napsauttaminen
+- ruudunlukijalle tilaviesti, kun rajaus muuttaa näkymää, ja maininta uuteen välilehteen avautuvista linkeistä
+- tekstin kontrasti vähintään 4,5:1, näkyvä kohdistuskehys, ei vaakavieritystä 320 px leveydellä, liike pois käyttöjärjestelmän asetuksen mukaan
+
+Pohjan muutosten jälkeen tarkistetaan vähintään:
+
+- automaattinen tarkistus (axe) päänäkymässä, rajatussa näkymässä ja toimittajan ikkunassa 1280 px ja 375 px leveydellä
+- käyttö pelkällä näppäimistöllä: ohituslinkki, vuoden vaihto, rajaus taulukosta, toimittajan ikkunan avaus ja sulku
+- 320 px leveä näkymä ilman vaakavieritystä
+
+Tiedossa olevat rajoitukset: sivua ei ole testattu oikeilla ruudunlukijoilla (NVDA, VoiceOver), vaan automaattisella tarkistuksella ja näppäimistöllä. Kartan värisävyjen erot eivät yksinään välitä lukuja, joten tarkat arvot ovat luettelossa. Linkitetyt Excel-tiedostot ovat kaupungin julkaisemia, eikä niiden saavutettavuus ole tämän sivun hallinnassa.
+
+## Versiointi
+
+Versionumero on muotoa pää.osa.korjaus, ja muutokset kirjataan tiedostoon [CHANGELOG.md](CHANGELOG.md). Kun sivu muuttuu:
+
+1. nosta `tyokalut/paivita.py`:n `VERSIO` ja lisää kohta tiedoston `CHANGELOG.md` alkuun (testi tarkistaa, että ne täsmäävät)
+2. aja `python tyokalut/paivita.py` ja `python -m pytest tyokalut`
+3. `git commit`, `git tag -a vX.Y.Z -m "Kuvaus"` ja `git push --follow-tags`
+
+Pelkkä dokumentaation tai työkalujen muutos ei nosta numeroa.
 
 ## Miten sivu on tehty
 
