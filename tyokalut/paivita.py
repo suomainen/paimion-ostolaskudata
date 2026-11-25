@@ -28,7 +28,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-VERSIO = '1.5.1'                        # sivun versio; nosta samalla kun lisäät kohdan tiedostoon CHANGELOG.md
+VERSIO = '1.6.0'                        # sivun versio; nosta samalla kun lisäät kohdan tiedostoon CHANGELOG.md
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent                      # repon juuri: index.html ja README.md
@@ -462,7 +462,7 @@ def kokoa_data(d, toimittajat, vuodet, pl_nimet, testi, arviot):
 
 def kokoa_sivu(data, lahteet, vuodet):
     b64 = lambda nimi: base64.b64encode((HERE / nimi).read_bytes()).decode()
-    lataukset = '\n        '.join(f'<a href="{lahteet[v]}">Ostolaskut {v}</a>' for v in vuodet)
+    lataukset = '\n        '.join(f'<a href="{lahteet[v]}"><span data-t="dl">Ostolaskut</span> {v}</a>' for v in vuodet)
     # "</" katkaisisi script-elementin, jos se sattuisi toimittajan nimeen
     data_json = json.dumps(data, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
     sivu = (HERE / 'template.html').read_text(encoding='utf-8')

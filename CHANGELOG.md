@@ -2,6 +2,13 @@
 
 Versionumero on muotoa **pää.osa.korjaus**: pää = sivun kokonaan uusi versio, osa = uusi ominaisuus tai uuden vuoden aineisto, korjaus = pieni korjaus tai tarkennus. Uusin versio ensin. Pelkkä dokumentaation tai työkalujen muutos ei nosta numeroa.
 
+## 1.6.0
+
+- Sivu myös ruotsiksi ja englanniksi: kielipainikkeet FI, SV ja EN yläpalkissa. Valinta muistetaan selaimessa ja kulkee linkin mukana (`kieli=sv` tai `kieli=en`). Käännökset ovat epävirallisia; aineiston omat arvot (tilit, toimialat, palveluluokat, toimielimet, tulosalueet) näytetään suomeksi ja merkitään suomenkielisiksi ruudunlukijalle.
+- Tumman ulkoasun vaihdin yläpalkissa. Oletus on vaalea, ja valinta muistetaan selaimessa. Kartan väriasteikko kääntyy tummassa ulkoasussa.
+- Navigaatio yläpalkin oikeaan reunaan: Yhteenveto, Analyysit, Tietoa aineistosta, Lähdeaineisto ja Lähdekoodi. Kapealla näytöllä linkit ovat valikkopainikkeen takana.
+- Sivun sisäiset linkit eivät enää hävitä näkymän tilaa osoitteesta.
+
 ## 1.5.1
 
 - Kopioi linkki tähän näkymään -painike siirretty yläpalkkiin, joka pysyy näkyvissä sivua vieritettäessä.

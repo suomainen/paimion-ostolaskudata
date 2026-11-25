@@ -4,33 +4,73 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Paimion ostolaskudata</title>
+<meta name="theme-color" content="#0f5ba1">
+<script>
+// Ulkoasu asetetaan ennen piirtoa, ettei sivu välähdä vaaleana. Oletus on aina vaalea.
+try{ if(localStorage.getItem('paimio-ostolaskut-teema')==='tumma') document.documentElement.dataset.teema='tumma'; }catch(e){}
+</script>
 <style>
 @font-face{font-family:"Rubik";font-style:normal;font-weight:300 900;font-display:swap;src:url(data:font/woff2;base64,__FONT__) format("woff2")}
 :root{
-  --navy:#072b4c; --blue:#0f5ba1; --blue-2:#3f7fbf; --yellow:#ffd166;
+  color-scheme:only light;
+  --navy:#072b4c; --blue:#0f5ba1; --yellow:#ffd166;
   --bg:#ffffff; --surface:#ffffff; --tint:#e4ebf5; --tint-2:#ecf5fd; --gray:#f2f2f2;
-  --ink:#2d2f30; --ink-2:#363636; --muted:#5a5f64; --line:#e3e3e3;
+  --ink:#2d2f30; --ink-2:#363636; --muted:#5a5f64; --line:#e3e3e3; --card-line:#ececec;
+  --head:#072b4c; --accent:#0f5ba1; --fill:#0f5ba1; --fill-hover:#072b4c; --on-fill:#ffffff; --topbar:#0f5ba1;
   --bar:#0f5ba1; --bar-dim:#c9d8ea; --edge:#7a8594; --focus:#072b4c;
+  --neg:#b3261e; --up:#1b6e3c; --tip-line:transparent;
   --radius:12px; --shadow:0 2px 10px rgba(0,0,0,.07);
+}
+/* Tumma ulkoasu: valitaan yläpalkin painikkeesta, oletus on aina vaalea */
+:root[data-teema="tumma"]{
+  color-scheme:dark;
+  --bg:#0e1621; --surface:#162231; --tint:#22344a; --tint-2:#1b2a3c; --gray:#1e2c3d;
+  --ink:#e6ebf1; --ink-2:#d5dce5; --muted:#a8b3c0; --line:#33455a; --card-line:#2a3b4f;
+  --head:#eaf2fb; --accent:#8fc4f5; --fill:#9cc8f2; --fill-hover:#c6e0f8; --on-fill:#06223d; --topbar:#0a2742;
+  --bar:#6fb1ee; --bar-dim:#2c4560; --edge:#8a97a8; --focus:#ffd166;
+  --neg:#ff9a8f; --up:#7fd6a0; --tip-line:#4a6079;
+  --shadow:0 2px 10px rgba(0,0,0,.4);
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Rubik,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.45}
-a{color:var(--blue)}
+a{color:var(--accent)}
 .wrap{max-width:1280px;margin:0 auto;padding:0 16px}
-.topbar{background:var(--blue);color:#fff;font-size:15px;position:sticky;top:0;z-index:30;box-shadow:0 2px 8px rgba(7,43,76,.25)}
+.topbar{background:var(--topbar);color:#fff;font-size:15px;position:sticky;top:0;z-index:30;box-shadow:0 2px 8px rgba(7,43,76,.25)}
 html{scroll-padding-top:76px}
-.topbar .wrap{display:flex;justify-content:flex-end;gap:8px 24px;min-height:54px;align-items:center;flex-wrap:wrap;padding-top:7px;padding-bottom:7px}
-.copybtn{font:inherit;font-size:15px;font-weight:500;display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--blue);border:0;border-radius:8px;padding:8px 14px;min-height:40px;cursor:pointer;margin-right:auto}
-.copybtn:hover{background:var(--tint-2)}
+.topbar .wrap{display:flex;gap:10px;min-height:54px;align-items:center;padding-top:7px;padding-bottom:7px;position:relative}
+.copybtn{font:inherit;font-size:15px;font-weight:500;display:inline-flex;align-items:center;gap:8px;background:#fff;color:#0f5ba1;border:0;border-radius:8px;padding:8px 14px;min-height:40px;cursor:pointer;margin-right:auto;white-space:nowrap}
+.copybtn:hover{background:#ecf5fd}
 .copybtn svg{width:18px;height:18px;flex:none}
-.copybtn.ok{background:var(--yellow);color:var(--navy)}
-.topbar a{color:#fff;text-decoration:none;font-weight:500}
-.topbar a:hover{text-decoration:underline}
+.copybtn.ok{background:var(--yellow);color:#072b4c}
+.copybtn .lyhyt{display:none}
+.nav ul{list-style:none;margin:0;padding:0;display:flex;gap:4px 20px;align-items:center}
+.nav a{color:#fff;text-decoration:none;font-weight:500;white-space:nowrap;display:inline-block;padding:8px 0}
+.nav a:hover{text-decoration:underline}
+.menu-toggle,.teemanappi{flex:none;display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;padding:0;background:transparent;color:#fff;border:1px solid rgba(255,255,255,.65);border-radius:8px;cursor:pointer}
+.menu-toggle:hover,.teemanappi:hover{background:rgba(255,255,255,.14)}
+.menu-toggle svg,.teemanappi svg{width:20px;height:20px}
+.menu-toggle{display:none}
+.teemanappi[aria-pressed="true"] svg:first-child,.teemanappi[aria-pressed="false"] svg:last-child{display:none}
+.lang{flex:none;display:inline-flex;border:1px solid rgba(255,255,255,.65);border-radius:8px;overflow:hidden}
+.lang button{font:inherit;font-size:14px;font-weight:600;letter-spacing:.02em;background:transparent;color:#fff;border:0;padding:0 10px;min-width:38px;height:38px;cursor:pointer}
+.lang button:hover{background:rgba(255,255,255,.14)}
+.lang button[aria-pressed="true"]{background:#fff;color:#0f5ba1}
+.lang button:focus-visible{outline-offset:-3px}
+@media (max-width:1180px){
+  .menu-toggle{display:inline-flex;order:5}
+  .nav{display:none;position:absolute;top:100%;right:16px;min-width:240px;background:var(--surface);border:1px solid var(--line);border-radius:0 0 12px 12px;box-shadow:0 10px 24px rgba(0,0,0,.25);padding:8px}
+  .nav.open{display:block}
+  .nav ul{flex-direction:column;align-items:stretch;gap:0}
+  .nav a{display:block;color:var(--ink);padding:12px 14px;border-radius:8px;white-space:normal}
+  .nav a:hover{background:var(--tint-2);text-decoration:none}
+  .topbar .nav a:focus-visible{outline-color:var(--focus)}
+}
 .hero{margin:20px 20px 0;position:relative}
 .hero-in{background:var(--navy) url('data:image/svg+xml;base64,__HERO__') center/cover no-repeat;border-radius:24px 24px 0 0;padding:48px max(24px,calc((100% - 1248px)/2)) 110px;position:relative;overflow:hidden;isolation:isolate}
 .hero-in::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(7,43,76,.55) 0%,rgba(7,43,76,.25) 50%,rgba(7,43,76,0) 100%)}
+.hero svg.wave path{fill:var(--bg)}
 .hero svg.wave{position:absolute;left:0;right:0;bottom:-1px;display:block;width:100%;height:70px}
 .crumbs{font-size:15px;color:#fff;display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:20px}
 .crumbs a{color:#fff;text-decoration:none}.crumbs a:hover{text-decoration:underline}
@@ -39,44 +79,44 @@ html{scroll-padding-top:76px}
 .hero p{margin:18px 0 0;font-size:16px;line-height:1.65;max-width:62ch;color:#fff}
 .hero p a{color:var(--yellow);font-weight:500}
 .yearbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:14px 0 22px}
-.yearbar .lbl{font-weight:600;color:var(--navy);font-size:16px}
+.yearbar .lbl{font-weight:600;color:var(--head);font-size:16px}
 .years{display:flex;gap:8px;flex-wrap:wrap}
-.years button{font:inherit;font-size:15px;font-weight:500;border:2px solid var(--blue);background:#fff;color:var(--blue);padding:8px 18px;border-radius:8px;cursor:pointer;min-height:44px}
+.years button{font:inherit;font-size:15px;font-weight:500;border:2px solid var(--accent);background:var(--surface);color:var(--accent);padding:8px 18px;border-radius:8px;cursor:pointer;min-height:44px}
 .years button:hover{background:var(--tint-2)}
-.years button[aria-pressed="true"]{background:var(--blue);color:#fff}
-@media (max-width:560px){.copybtn{width:100%;justify-content:center;margin-right:0}.topbar .vainleved{display:none}html{scroll-padding-top:66px}.yearbar{display:block}.yearbar .lbl{display:block;margin-bottom:8px}.years{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}.years button{padding:6px 0;font-size:14px;min-height:40px}.hero{margin:12px 8px 0}.hero-in{padding:24px 18px 60px;border-radius:16px 16px 0 0}.hero-in::before{background:rgba(7,43,76,.8)}.hero svg.wave{height:40px}}
+.years button[aria-pressed="true"]{background:var(--fill);color:var(--on-fill)}
+@media (max-width:560px){.topbar .wrap{gap:6px}.copybtn{padding:8px 10px;gap:6px;font-size:14px;min-width:0}.copybtn .pitka{display:none}.copybtn .lyhyt{display:inline}.lang button{min-width:32px;padding:0 6px;font-size:13px}html{scroll-padding-top:66px}.yearbar{display:block}.yearbar .lbl{display:block;margin-bottom:8px}.years{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}.years button{padding:6px 0;font-size:14px;min-height:40px}.hero{margin:12px 8px 0}.hero-in{padding:24px 18px 60px;border-radius:16px 16px 0 0}.hero-in::before{background:rgba(7,43,76,.8)}.hero svg.wave{height:40px}}
 main{padding:10px 16px 48px}
 .filters{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-bottom:12px}
 .filters label{display:flex;flex-direction:column;font-size:13px;color:var(--ink);font-weight:500;gap:4px;flex:1 1 180px;min-width:0}
 .filters select,.filters input{font:inherit;font-weight:400;font-size:15px;color:var(--ink);background:var(--gray);border:1px solid var(--gray);border-radius:8px;padding:9px 10px;min-height:42px;width:100%}
 a:focus-visible,[tabindex="0"]:focus-visible,select:focus-visible,input:focus-visible,button:focus-visible,.hrow:focus-visible,.col:focus-visible,main:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .topbar a:focus-visible,.topbar button:focus-visible,.hero a:focus-visible,.skip:focus-visible{outline-color:var(--yellow)}
-.neg{color:#b3261e}
-.btn{font:inherit;font-size:15px;font-weight:500;border:0;background:var(--blue);color:#fff;border-radius:8px;padding:9px 14px;min-height:42px;cursor:pointer;white-space:nowrap}
-.btn:hover{background:var(--navy)}
+.neg{color:var(--neg)}
+.btn{font:inherit;font-size:15px;font-weight:500;border:0;background:var(--fill);color:var(--on-fill);border-radius:8px;padding:9px 14px;min-height:42px;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--fill-hover)}
 .chips{display:flex;flex-wrap:wrap;gap:6px;min-height:0;margin-bottom:12px}
 .chip{display:inline-flex;align-items:center;gap:6px;background:var(--tint);color:var(--ink-2);border-radius:999px;padding:5px 6px 5px 12px;font-size:13px}
 .chip b{font-weight:500;color:var(--muted)}
 .chip button{border:0;background:var(--surface);color:var(--ink-2);width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:14px;line-height:1}
 .tabs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:6px 0 20px}
-.tabs button{font:inherit;text-align:left;border:2px solid var(--blue);background:#fff;color:var(--navy);padding:12px 16px;min-height:64px;cursor:pointer;border-radius:12px;display:flex;flex-direction:column;gap:2px;box-shadow:var(--shadow)}
-.tabs button b{font-size:18px;font-weight:600;color:var(--blue)}
+.tabs button{font:inherit;text-align:left;border:2px solid var(--accent);background:var(--surface);color:var(--head);padding:12px 16px;min-height:64px;cursor:pointer;border-radius:12px;display:flex;flex-direction:column;gap:2px;box-shadow:var(--shadow)}
+.tabs button b{font-size:18px;font-weight:600;color:var(--accent)}
 .tabs button span{font-size:13.5px;color:var(--ink)}
 .tabs button:hover{background:var(--tint-2)}
-.tabs button[aria-selected="true"]{background:var(--blue);color:#fff}
-.tabs button[aria-selected="true"] b,.tabs button[aria-selected="true"] span{color:#fff}
+.tabs button[aria-selected="true"]{background:var(--fill);color:var(--on-fill)}
+.tabs button[aria-selected="true"] b,.tabs button[aria-selected="true"] span{color:var(--on-fill)}
 @media (max-width:560px){.tabs{gap:8px}.tabs button{padding:10px 12px}.tabs button b{font-size:16px}.tabs button span{font-size:12.5px}}
 .asel{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:500;min-width:200px}
 .asel select{font:inherit;font-weight:400;font-size:15px;color:var(--ink);background:var(--gray);border:1px solid var(--gray);border-radius:8px;padding:8px 10px;min-height:42px}
-.up{color:#1b6e3c}.down{color:#b3261e}
+.up{color:var(--up)}.down{color:var(--neg)}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
 .kpi{background:var(--gray);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow)}
 .kpi .l{font-size:13.5px;color:var(--ink)}
-.kpi .v{font-size:clamp(20px,2.6vw,28px);font-weight:600;margin-top:2px;font-variant-numeric:tabular-nums;color:var(--navy)}
+.kpi .v{font-size:clamp(20px,2.6vw,28px);font-weight:600;margin-top:2px;font-variant-numeric:tabular-nums;color:var(--head)}
 .kpi .s{font-size:12.5px;color:var(--muted);margin-top:2px}
 .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
-.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid #ececec;padding:20px;min-width:0;display:flex;flex-direction:column}
-.card h2{font-size:19px;font-weight:600;margin:0 0 4px;color:var(--navy)}
+.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--card-line);padding:20px;min-width:0;display:flex;flex-direction:column}
+.card h2{font-size:19px;font-weight:600;margin:0 0 4px;color:var(--head)}
 .card .sub{font-size:12.5px;color:var(--muted);margin:0 0 12px}
 .c4{grid-column:span 4}.c5{grid-column:span 5}.c6{grid-column:span 6}.c7{grid-column:span 7}.c8{grid-column:span 8}.c12{grid-column:span 12}
 @media (max-width:1000px){.c4,.c5,.c7{grid-column:span 6}.c8{grid-column:span 12}}
@@ -108,9 +148,9 @@ a:focus-visible,[tabindex="0"]:focus-visible,select:focus-visible,input:focus-vi
 .tblwrap{overflow:auto;max-height:430px;border-radius:8px;border:1px solid var(--line)}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
 th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
-th{position:sticky;top:0;background:var(--tint);color:var(--navy);font-weight:600;cursor:pointer;user-select:none;z-index:1}
+th{position:sticky;top:0;background:var(--tint);color:var(--head);font-weight:600;cursor:pointer;user-select:none;z-index:1}
 th.num,td.num{text-align:right;font-variant-numeric:tabular-nums}
-th[aria-sort]::after{content:" ▾";color:var(--blue)}
+th[aria-sort]::after{content:" ▾";color:var(--accent)}
 th[aria-sort="ascending"]::after{content:" ▴"}
 tbody tr{cursor:pointer}
 tbody tr:hover{background:var(--tint-2)}
@@ -120,21 +160,23 @@ tfoot td{position:sticky;bottom:0;background:var(--tint);font-weight:600}
 .more{margin-top:8px;font-size:12.5px;color:var(--muted)}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:10px}
 .seg button{font:inherit;font-size:13px;border:0;background:var(--surface);color:var(--ink-2);padding:6px 12px;cursor:pointer;min-height:34px}
-.seg button[aria-pressed="true"]{background:var(--blue);color:#fff}
+.seg button[aria-pressed="true"]{background:var(--fill);color:var(--on-fill)}
 .msel select{font:inherit;font-size:14px;color:var(--ink);background:var(--gray);border:1px solid var(--gray);border-radius:8px;padding:7px 10px;min-height:38px;cursor:pointer}
 .maptools{display:flex;gap:8px;flex-wrap:wrap}
 .map{position:relative;width:100%;flex:1;min-height:480px}
 .map svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .map path.k{stroke:var(--edge);stroke-width:.5px;vector-effect:non-scaling-stroke;cursor:pointer;transition:fill .15s}
-.map path.k:hover{stroke:var(--navy);stroke-width:1.5px}
+.map path.k:hover{stroke:var(--head);stroke-width:1.5px}
 .map path.k.sel{stroke:var(--yellow);stroke-width:3px}
-.map path.mb{fill:none;stroke:var(--navy);stroke-opacity:.45;stroke-width:1px;vector-effect:non-scaling-stroke;pointer-events:none}
+.map path.k.tyhja{fill:var(--gray)}
+.legend i.tyhja{background:var(--gray);box-shadow:inset 0 0 0 1px var(--edge)}
+.map path.mb{fill:none;stroke:var(--head);stroke-opacity:.45;stroke-width:1px;vector-effect:non-scaling-stroke;pointer-events:none}
 .legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--muted);margin-top:8px;align-items:center}
 .legend span{display:inline-flex;align-items:center;gap:5px}
 .legend i{width:14px;height:14px;border-radius:3px;display:inline-block}
 @media (max-width:720px){.map{min-height:420px}}
 .cardhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
-.src{border-left:4px solid var(--blue);padding:2px 0 2px 14px;color:var(--ink-2);font-size:14px;max-width:80ch}
+.src{border-left:4px solid var(--accent);padding:2px 0 2px 14px;color:var(--ink-2);font-size:14px;max-width:80ch}
 .src p{margin:0 0 8px}
 .links{margin:0;padding-left:18px;font-size:14px}
 .links li{margin:6px 0}
@@ -142,26 +184,28 @@ tfoot td{position:sticky;bottom:0;background:var(--tint);font-weight:600}
 .dlh{font-size:14px;font-weight:600;margin:16px 0 8px}
 .dl{display:flex;flex-wrap:wrap;gap:8px}
 .dl a{display:inline-flex;align-items:center;min-height:40px;padding:8px 14px;border:1px solid var(--line);border-radius:8px;text-decoration:none;font-size:14px;background:var(--tint-2)}
-.dl a::before{content:"↓";margin-right:8px;color:var(--blue);font-weight:600}
-.dl a:hover{border-color:var(--blue)}
+.dl a::before{content:"↓";margin-right:8px;color:var(--accent);font-weight:600}
+.dl a span{margin-right:.3em}
+.dl a:hover{border-color:var(--accent)}
 html{scroll-behavior:smooth}
 .note{background:var(--tint-2);border-left:4px solid var(--yellow);padding:12px 14px;border-radius:0 8px 8px 0;font-size:13.5px;color:var(--ink-2)}
 .note ul{margin:6px 0 0;padding-left:18px}
 .note li{margin:3px 0}
-#tip{position:fixed;pointer-events:none;background:var(--navy);color:#fff;padding:7px 10px;border-radius:6px;font-size:12.5px;z-index:50;display:none;max-width:260px;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+#tip{position:fixed;pointer-events:none;background:var(--navy);color:#fff;border:1px solid var(--tip-line);padding:7px 10px;border-radius:6px;font-size:12.5px;z-index:50;display:none;max-width:260px;box-shadow:0 4px 14px rgba(0,0,0,.2)}
 #tip b{font-weight:600}
 /* drawer */
 .drawer-bg{position:fixed;inset:0;background:rgba(7,43,76,.45);display:none;z-index:40}
 .drawer{position:fixed;top:0;right:0;height:100%;width:min(640px,100%);background:var(--surface);z-index:41;transform:translateX(100%);transition:transform .2s ease;display:flex;flex-direction:column;box-shadow:-8px 0 30px rgba(0,0,0,.2)}
 .drawer{visibility:hidden}.drawer.open{transform:none;visibility:visible}
-.drawer header{background:var(--yellow);color:var(--navy)!important;color:#fff;padding:16px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.drawer header{background:var(--yellow);color:#072b4c;padding:16px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
 .drawer header h2{margin:0;font-size:18px;font-weight:600}
-.drawer header p{margin:4px 0 0;color:var(--ink);font-size:13px}
-.drawer header button{border:0;background:#fff;color:var(--navy);border-radius:8px;min-width:40px;height:40px;font-size:20px;cursor:pointer}
+.drawer header p{margin:4px 0 0;color:#2d2f30;font-size:13px}
+.drawer header button{border:0;background:#fff;color:#072b4c;border-radius:8px;min-width:40px;height:40px;font-size:20px;cursor:pointer}
 .drawer .body{padding:16px;overflow:auto;display:flex;flex-direction:column;gap:18px}
+.drawer header h2{color:#072b4c}
 .drawer h3{margin:0 0 8px;font-size:14px;font-weight:600}
 .drawer .tblwrap{max-height:none}
-footer{background:#fff;color:var(--ink);font-size:15px}
+footer{background:var(--bg);color:var(--ink);font-size:15px}
 footer .wrap{padding:28px 16px 32px;border-top:4px solid var(--tint-2);line-height:1.7}
 footer a{color:var(--ink)}
 footer .copy{text-align:center;margin-top:18px;padding-top:18px;border-top:4px solid var(--tint-2);font-size:15px}
@@ -179,109 +223,121 @@ footer .copy{text-align:center;margin-top:18px;padding-top:18px;border-top:4px s
   .years button{padding:8px 11px;font-size:14px}
   .colchart{height:190px}.colchart .col .val{font-size:10.5px}
 }
+@media (max-width:359px){.topbar .wrap{flex-wrap:wrap;justify-content:flex-end}.copybtn{flex:1 1 100%;justify-content:center;order:9;margin:0}html{scroll-padding-top:110px}.years button{font-size:12.5px}}
 </style>
 </head>
 <body>
-<a class="skip" href="#sisalto">Siirry sisältöön</a>
-<nav class="topbar" id="topbar" aria-label="Sivun linkit"><div class="wrap">
-  <button class="copybtn" id="copy" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5"/></svg><span id="copyText">Kopioi linkki tähän näkymään</span></button>
-  <a class="vainleved" href="#tietoa">Tietoa aineistosta</a>
-  <a class="vainleved" href="https://www.paimio.fi/kaupunki-ja-hallinto/talous/" target="_blank" rel="noopener">Lähdeaineisto<span class="sr"> (avautuu uuteen välilehteen)</span></a>
+<a class="skip" href="#sisalto" data-t="skip">Siirry sisältöön</a>
+<nav class="topbar" id="topbar" aria-label="Sivun linkit ja asetukset" data-ta="aria-label:topbarLabel"><div class="wrap">
+  <button class="copybtn" id="copy" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5"/></svg><span class="pitka" id="copyText">Kopioi linkki tähän näkymään</span><span class="lyhyt" id="copyShort">Kopioi linkki</span></button>
+  <button class="menu-toggle" id="menuBtn" type="button" aria-expanded="false" aria-controls="valikko" aria-label="Valikko" data-ta="aria-label:menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <div class="nav" id="valikko">
+    <ul>
+      <li><a href="#sisalto" data-nakyma="yhteenveto" data-t="tabY">Yhteenveto</a></li>
+      <li><a href="#sisalto" data-nakyma="analyysit" data-t="tabA">Analyysit</a></li>
+      <li><a href="#tietoa" data-t="about">Tietoa aineistosta</a></li>
+      <li><a href="https://www.paimio.fi/kaupunki-ja-hallinto/talous/" target="_blank" rel="noopener"><span data-t="navSource">Lähdeaineisto</span><span class="sr" data-t="nt"> (avautuu uuteen välilehteen)</span></a></li>
+      <li><a href="https://github.com/suomainen/paimion-ostolaskudata" target="_blank" rel="noopener"><span data-t="navCode">Lähdekoodi</span><span class="sr" data-t="nt"> (avautuu uuteen välilehteen)</span></a></li>
+    </ul>
+  </div>
+  <button class="teemanappi" id="teema" type="button" aria-pressed="false" aria-label="Tumma ulkoasu" title="Tumma ulkoasu" data-ta="aria-label:dark;title:dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg></button>
+  <div class="lang" id="kielet" role="group" aria-label="Kieli – Språk – Language">
+    <button type="button" data-kieli="fi" lang="fi" aria-pressed="true" aria-label="FI – suomeksi">FI</button><button type="button" data-kieli="sv" lang="sv" aria-pressed="false" aria-label="SV – på svenska">SV</button><button type="button" data-kieli="en" lang="en" aria-pressed="false" aria-label="EN – in English">EN</button>
+  </div>
 </div></nav>
 <header class="hero" id="hero">
   <div class="hero-in">
-    <nav class="crumbs" aria-label="Murupolku"><span>Avoin data</span><span class="sep">›</span><span>Talous</span><span class="sep">›</span><span aria-current="page">Ostolaskut</span></nav>
-    <h1>Paimion kaupungin ostolaskut</h1>
-    <p>Kaupungin palvelujen, aineiden, tarvikkeiden ja tavaroiden ostot tiliöintirivitasolla. Summat ovat arvonlisäverottomia. <a href="#tietoa">Tietoa aineistosta</a></p>
-    <svg class="wave" viewBox="0 0 1000 70" preserveAspectRatio="none" aria-hidden="true"><path d="M0 50 C 90 70, 220 36, 400 22 C 620 5, 800 70, 1000 10 V70 H0 Z" fill="#ffffff"/></svg>
+    <nav class="crumbs" aria-label="Murupolku" data-ta="aria-label:crumbs"><span data-t="c1">Avoin data</span><span class="sep">›</span><span data-t="c2">Talous</span><span class="sep">›</span><span aria-current="page" data-t="c3">Ostolaskut</span></nav>
+    <h1 data-t="h1">Paimion kaupungin ostolaskut</h1>
+    <p><span data-t="lead">Kaupungin palvelujen, aineiden, tarvikkeiden ja tavaroiden ostot tiliöintirivitasolla. Summat ovat arvonlisäverottomia.</span> <a href="#tietoa" data-t="about">Tietoa aineistosta</a></p>
+    <svg class="wave" viewBox="0 0 1000 70" preserveAspectRatio="none" aria-hidden="true"><path d="M0 50 C 90 70, 220 36, 400 22 C 620 5, 800 70, 1000 10 V70 H0 Z"/></svg>
   </div>
-  
 </header>
 
 <main class="wrap" id="sisalto" tabindex="-1">
-  <div class="yearbar"><span class="lbl">Vuosi</span><div class="years" id="years" role="group" aria-label="Vuosi"></div></div>
-  <section class="filters" aria-label="Rajaukset">
-    <label>Toimittaja tai Y-tunnus<input id="q" type="search" placeholder="Hae nimellä tai Y-tunnuksella" autocomplete="off"></label>
-    <label>Toimielin<select id="f-toimielin"></select></label>
-    <label>Tili<select id="f-tilil"></select></label>
-    <label>Toimittajan tyyppi<select id="f-omistus"></select></label>
-    <button class="btn" id="reset" type="button">Tyhjennä rajaukset</button>
+  <div class="yearbar"><span class="lbl" data-t="year">Vuosi</span><div class="years" id="years" role="group" aria-label="Vuosi" data-ta="aria-label:year"></div></div>
+  <section class="filters" aria-label="Rajaukset" data-ta="aria-label:filters">
+    <label><span data-t="fSup">Toimittaja tai Y-tunnus</span><input id="q" type="search" placeholder="Hae nimellä tai Y-tunnuksella" data-ta="placeholder:fSupPh" autocomplete="off"></label>
+    <label><span data-t="lToimielin">Toimielin</span><select id="f-toimielin"></select></label>
+    <label><span data-t="lTili">Tili</span><select id="f-tilil"></select></label>
+    <label><span data-t="lOm">Toimittajan tyyppi</span><select id="f-omistus"></select></label>
+    <button class="btn" id="reset" type="button" data-t="reset">Tyhjennä rajaukset</button>
   </section>
   <div class="chips" id="chips"></div>
   <p class="sr" id="live" role="status"></p>
 
-  <section class="kpis" id="kpis" aria-label="Tunnusluvut"></section>
+  <section class="kpis" id="kpis" aria-label="Tunnusluvut" data-ta="aria-label:kpis"></section>
 
-  <div class="tabs" role="tablist" aria-label="Näkymä">
-    <button type="button" role="tab" id="t-yhteenveto" aria-controls="p-yhteenveto" aria-selected="true"><b>Yhteenveto</b><span>Valitun vuoden luvut, kartta ja toimittajat</span></button>
-    <button type="button" role="tab" id="t-analyysit" aria-controls="p-analyysit" aria-selected="false" tabindex="-1"><b>Analyysit</b><span>Kehitys vuosittain, uudet toimittajat ja paikallisuus</span></button>
+  <div class="tabs" role="tablist" aria-label="Näkymä" data-ta="aria-label:view">
+    <button type="button" role="tab" id="t-yhteenveto" aria-controls="p-yhteenveto" aria-selected="true"><b data-t="tabY">Yhteenveto</b><span data-t="tabYs">Valitun vuoden luvut, kartta ja toimittajat</span></button>
+    <button type="button" role="tab" id="t-analyysit" aria-controls="p-analyysit" aria-selected="false" tabindex="-1"><b data-t="tabA">Analyysit</b><span data-t="tabAs">Kehitys vuosittain, uudet toimittajat ja paikallisuus</span></button>
   </div>
 
   <div class="grid" id="p-yhteenveto" role="tabpanel" aria-labelledby="t-yhteenveto">
     <section class="card c5">
-      <h2>Ostot vuosittain</h2>
-      <p class="sub">Vuosien vertailu. Valitse vuosi napsauttamalla pylvästä.</p>
+      <h2 data-t="hYears">Ostot vuosittain</h2>
+      <p class="sub"></p>
       <div class="colchart" id="yearChart"></div>
     </section>
     <section class="card c7">
-      <div class="cardhead"><div><h2>Ostot kuukausittain</h2>
-      <p class="sub">Tositepäivämäärän mukaan. Aineistovuoteen kuuluu myös edellisen ja seuraavan vuoden tositteita.</p></div>
-      <label class="msel"><span class="sr">Kuukausi</span><select id="f-month"></select></label></div>
+      <div class="cardhead"><div><h2 data-t="hMonths">Ostot kuukausittain</h2>
+      <p class="sub"></p></div>
+      <label class="msel"><span class="sr" data-t="lMonth">Kuukausi</span><select id="f-month"></select></label></div>
       <div class="colchart thin" id="monthChart"></div>
     </section>
 
     <section class="card c7">
-      <div class="cardhead"><div><h2>Toimittajat</h2><p class="sub">Valitse toimittaja nähdäksesi sen laskut.</p></div></div>
+      <div class="cardhead"><div><h2 data-t="hSup">Toimittajat</h2><p class="sub" data-t="sSup">Valitse toimittaja nähdäksesi sen laskut.</p></div></div>
       <div class="tblwrap"><table id="supTable"></table></div>
       <div class="more" id="supMore"></div>
     </section>
     <section class="card c5">
-      <div class="cardhead"><div><h2>Toimittajat maakunnittain</h2><p class="sub">Toimittajan osoitteen mukaan (YTJ). Napsauta rajataksesi.</p></div>
-      <div class="seg" data-for="maakunta" role="group" aria-label="Mittari"><button type="button" aria-pressed="true" data-m="eur">€</button><button type="button" aria-pressed="false" data-m="n">Toimittajia</button></div></div>
+      <div class="cardhead"><div><h2 data-t="hMaak">Toimittajat maakunnittain</h2><p class="sub" data-t="sMaak">Toimittajan osoitteen mukaan (YTJ). Napsauta rajataksesi.</p></div>
+      <div class="seg" data-for="maakunta" role="group" aria-label="Mittari" data-ta="aria-label:measure"><button type="button" aria-pressed="true" data-m="eur">€</button><button type="button" aria-pressed="false" data-m="n" data-t="mSup">Toimittajia</button></div></div>
       <div class="hbars" id="maakunta"></div>
     </section>
 
     <section class="card c7">
-      <div class="cardhead"><div><h2>Toimittajat kartalla</h2><p class="sub">Toimittajan rekisteröity kotikunta (YTJ). Se ei välttämättä ole paikka, jossa palvelu tuotetaan: valtakunnalliset yritykset näkyvät usein pääkonttorinsa kunnassa. Rajaa kuntaan valikosta tai napsauttamalla karttaa. Samat luvut ovat Toimittajat kunnittain -luettelossa.</p></div>
-      <div class="maptools"><div class="seg" data-for="kunta" role="group" aria-label="Mittari"><button type="button" aria-pressed="true" data-m="eur">€</button><button type="button" aria-pressed="false" data-m="n">Toimittajia</button></div>
-      <div class="seg" data-for="zoom" role="group" aria-label="Kartan alue"><button type="button" aria-pressed="false" data-m="fi">Suomi</button><button type="button" aria-pressed="true" data-m="vs">Varsinais-Suomi</button></div></div></div>
-      <label class="mapsel">Kunta<select id="f-kunta"></select></label>
+      <div class="cardhead"><div><h2 data-t="hMap">Toimittajat kartalla</h2><p class="sub" data-t="sMap">Toimittajan rekisteröity kotikunta (YTJ). Se ei välttämättä ole paikka, jossa palvelu tuotetaan: valtakunnalliset yritykset näkyvät usein pääkonttorinsa kunnassa. Rajaa kuntaan valikosta tai napsauttamalla karttaa. Samat luvut ovat Toimittajat kunnittain -luettelossa.</p></div>
+      <div class="maptools"><div class="seg" data-for="kunta" role="group" aria-label="Mittari" data-ta="aria-label:measure"><button type="button" aria-pressed="true" data-m="eur">€</button><button type="button" aria-pressed="false" data-m="n" data-t="mSup">Toimittajia</button></div>
+      <div class="seg" data-for="zoom" role="group" aria-label="Kartan alue" data-ta="aria-label:mapArea"><button type="button" aria-pressed="false" data-m="fi" data-t="zFi">Suomi</button><button type="button" aria-pressed="true" data-m="vs" data-t="zVs">Varsinais-Suomi</button></div></div></div>
+      <label class="mapsel"><span data-t="lKunta">Kunta</span><select id="f-kunta"></select></label>
       <div class="map" id="map"></div>
       <div class="legend" id="mapLegend"></div>
       <p class="more" id="mapNote"></p>
     </section>
     <section class="card c5">
-      <div class="cardhead"><div><h2>Toimittajat kunnittain</h2><p class="sub">20 suurinta</p></div>
-      <div class="seg" data-for="kunta" role="group" aria-label="Mittari"><button type="button" aria-pressed="true" data-m="eur">€</button><button type="button" aria-pressed="false" data-m="n">Toimittajia</button></div></div>
+      <div class="cardhead"><div><h2 data-t="hKunta">Toimittajat kunnittain</h2><p class="sub" data-t="sKunta">20 suurinta</p></div>
+      <div class="seg" data-for="kunta" role="group" aria-label="Mittari" data-ta="aria-label:measure"><button type="button" aria-pressed="true" data-m="eur">€</button><button type="button" aria-pressed="false" data-m="n" data-t="mSup">Toimittajia</button></div></div>
       <div class="hbars" id="kunta"></div>
     </section>
     <section class="card c6">
-      <div class="cardhead"><div><h2>Toimittajan tyyppi</h2><p class="sub">Yhtiömuodon mukaan (YTJ)</p></div>
-      <div class="seg" data-for="omistus" role="group" aria-label="Mittari"><button type="button" aria-pressed="true" data-m="eur">€</button><button type="button" aria-pressed="false" data-m="n">Toimittajia</button></div></div>
+      <div class="cardhead"><div><h2 data-t="lOm">Toimittajan tyyppi</h2><p class="sub" data-t="sOm">Yhtiömuodon mukaan (YTJ)</p></div>
+      <div class="seg" data-for="omistus" role="group" aria-label="Mittari" data-ta="aria-label:measure"><button type="button" aria-pressed="true" data-m="eur">€</button><button type="button" aria-pressed="false" data-m="n" data-t="mSup">Toimittajia</button></div></div>
       <div class="hbars" id="omistus"></div>
-      <h2 style="margin-top:18px">Toimielimet</h2>
+      <h2 style="margin-top:18px" data-t="hToimielin">Toimielimet</h2>
       <p class="sub" id="toimielinSub"></p>
       <div class="hbars" id="toimielin"></div>
     </section>
     <section class="card c6">
-      <div class="cardhead"><div><h2>Toimialat</h2><p class="sub">Toimittajan päätoimiala (YTJ), 15 suurinta</p></div>
-      <div class="seg" data-for="toimiala" role="group" aria-label="Mittari"><button type="button" aria-pressed="true" data-m="eur">€</button><button type="button" aria-pressed="false" data-m="n">Toimittajia</button></div></div>
+      <div class="cardhead"><div><h2 data-t="hTol">Toimialat</h2><p class="sub" data-t="sTol">Toimittajan päätoimiala (YTJ), 15 suurinta</p></div>
+      <div class="seg" data-for="toimiala" role="group" aria-label="Mittari" data-ta="aria-label:measure"><button type="button" aria-pressed="true" data-m="eur">€</button><button type="button" aria-pressed="false" data-m="n" data-t="mSup">Toimittajia</button></div></div>
       <div class="hbars" id="toimiala"></div>
     </section>
 
     <section class="card c4">
-      <h2>Tilit</h2>
-      <p class="sub">Menolajit kirjanpidon tilin mukaan. Napsauta rajataksesi.</p>
+      <h2 data-t="hTilit">Tilit</h2>
+      <p class="sub" data-t="sTilit">Menolajit kirjanpidon tilin mukaan. Napsauta rajataksesi.</p>
       <div class="tblwrap"><table id="tiliTable"></table></div>
     </section>
     <section class="card c4">
-      <h2>Tulosalueet</h2>
+      <h2 data-t="hTa">Tulosalueet</h2>
       <p class="sub" id="taSub"></p>
       <div class="tblwrap"><table id="taTable"></table></div>
     </section>
     <section class="card c4">
-      <h2>Palveluluokat</h2>
-      <p class="sub">Mihin kaupungin palveluun osto kohdistuu. Valtakunnallinen luokitus, aineistossa vuodesta 2022. Napsauta rajataksesi.</p>
+      <h2 data-t="hPl">Palveluluokat</h2>
+      <p class="sub" data-t="sPl">Mihin kaupungin palveluun osto kohdistuu. Valtakunnallinen luokitus, aineistossa vuodesta 2022. Napsauta rajataksesi.</p>
       <div class="tblwrap"><table id="plTable"></table></div>
     </section>
 
@@ -289,8 +345,8 @@ footer .copy{text-align:center;margin-top:18px;padding-top:18px;border-top:4px s
 
   <div class="grid" id="p-analyysit" role="tabpanel" aria-labelledby="t-analyysit" hidden>
     <section class="card c12">
-      <div class="cardhead"><div><h2>Kehitys vuosittain</h2><p class="sub" id="aKehSub"></p></div>
-      <label class="asel">Jaottelu<select id="f-adim"></select></label></div>
+      <div class="cardhead"><div><h2 data-t="hKeh">Kehitys vuosittain</h2><p class="sub" id="aKehSub"></p></div>
+      <label class="asel"><span data-t="lJako">Jaottelu</span><select id="f-adim"></select></label></div>
       <div class="tblwrap"><table id="aKeh"></table></div>
       <p class="more" id="aKehMore"></p>
     </section>
@@ -305,55 +361,56 @@ footer .copy{text-align:center;margin-top:18px;padding-top:18px;border-top:4px s
       <div class="tblwrap"><table id="aPois"></table></div>
     </section>
     <section class="card c7">
-      <h2>Paikallisuus tileittäin</h2>
+      <h2 data-t="hPaik">Paikallisuus tileittäin</h2>
       <p class="sub" id="aPaikSub"></p>
       <div class="tblwrap"><table id="aPaik"></table></div>
     </section>
     <section class="card c5">
-      <h2>Toimittajat ostojen koon mukaan</h2>
+      <h2 data-t="hKoko">Toimittajat ostojen koon mukaan</h2>
       <p class="sub" id="aKokoSub"></p>
       <div class="tblwrap"><table id="aKoko"></table></div>
     </section>
     <section class="card c12">
-      <h2>Paikallisuus ja keskittyneisyys vuosittain</h2>
-      <p class="sub">Paikallisuus perustuu toimittajan rekisteröityyn kotikuntaan (YTJ). Rajaukset vaikuttavat lukuihin.</p>
+      <h2 data-t="hVuodet">Paikallisuus ja keskittyneisyys vuosittain</h2>
+      <p class="sub" data-t="sVuodet">Paikallisuus perustuu toimittajan rekisteröityyn kotikuntaan (YTJ). Rajaukset vaikuttavat lukuihin.</p>
       <div class="tblwrap"><table id="aVuodet"></table></div>
     </section>
   </div>
 
   <div class="grid" style="margin-top:16px">
-    <section class="card c12" id="tietoa">
-      <h2>Tietoa aineistosta</h2>
-      <p class="sub">Paimion kaupungin kuvaus aineistosta <a href="https://www.paimio.fi/kaupunki-ja-hallinto/talous/" target="_blank" rel="noopener">Talous-sivulla<span class="sr"> (avautuu uuteen välilehteen)</span></a></p>
+    <section class="card c12" id="tietoa" tabindex="-1">
+      <h2 data-t="about">Tietoa aineistosta</h2>
+      <p class="sub" data-t="aboutSub">Paimion kaupungin kuvaus aineistosta <a href="https://www.paimio.fi/kaupunki-ja-hallinto/talous/" target="_blank" rel="noopener">Talous-sivulla<span class="sr"> (avautuu uuteen välilehteen)</span></a></p>
       <div class="src">
-        <p>Aineisto sisältää Paimion kaupungin palvelujen, aineiden, tarvikkeiden ja tavaroiden ostot sekä kuntien kirjanpidossa tiliryhmiin vuokrakulut ja muut toimintakulut kuuluvat ostot tiliöintirivitasolla.</p>
-        <p>Summat ovat arvonlisäverottomia, loppukustannuksia kaupungille. Aineistosta on poistettu yksityishenkilöille maksetut laskut.</p>
-        <p>Aineiston julkaisemisessa on noudatettu Kuntaliiton julkaisemaa <a href="https://www.kuntaliitto.fi/julkaisut/2021/2112-kuntien-ja-kuntayhtymien-ostolaskudatan-avaamisen-ohje" target="_blank" rel="noopener">Kuntien ja kuntayhtymien ostolaskudatan avaamisen ohjetta<span class="sr"> (avautuu uuteen välilehteen)</span></a>. Tiedot on poimittu kaupungin kirjanpitojärjestelmästä ja aineistoa on täydennetty YTJ:stä suomalaisten yritysten tiedoilla.</p>
-        <p>Tiedot päivitetään vuosittain tilinpäätöksen hyväksymisen jälkeen.</p>
+        <p data-t="src1">Aineisto sisältää Paimion kaupungin palvelujen, aineiden, tarvikkeiden ja tavaroiden ostot sekä kuntien kirjanpidossa tiliryhmiin vuokrakulut ja muut toimintakulut kuuluvat ostot tiliöintirivitasolla.</p>
+        <p data-t="src2">Summat ovat arvonlisäverottomia, loppukustannuksia kaupungille. Aineistosta on poistettu yksityishenkilöille maksetut laskut.</p>
+        <p data-t="src3">Aineiston julkaisemisessa on noudatettu Kuntaliiton julkaisemaa <a href="https://www.kuntaliitto.fi/julkaisut/2021/2112-kuntien-ja-kuntayhtymien-ostolaskudatan-avaamisen-ohje" target="_blank" rel="noopener">Kuntien ja kuntayhtymien ostolaskudatan avaamisen ohjetta<span class="sr"> (avautuu uuteen välilehteen)</span></a>. Tiedot on poimittu kaupungin kirjanpitojärjestelmästä ja aineistoa on täydennetty YTJ:stä suomalaisten yritysten tiedoilla.</p>
+        <p data-t="src4">Tiedot päivitetään vuosittain tilinpäätöksen hyväksymisen jälkeen.</p>
       </div>
-      <h3 class="dlh">Alkuperäiset aineistot (Excel)</h3>
+      <h3 class="dlh" data-t="hDl">Alkuperäiset aineistot (Excel)</h3>
       <div class="dl">
         __DOWNLOADS__
       </div>
-      <h3 class="dlh">Ohjeet ja lisätietoa</h3>
+      <h3 class="dlh" data-t="hLinks">Ohjeet ja lisätietoa</h3>
       <ul class="links">
-        <li><a href="https://www.kuntaliitto.fi/julkaisut/2021/2112-kuntien-ja-kuntayhtymien-ostolaskudatan-avaamisen-ohje" target="_blank" rel="noopener">Kuntien ja kuntayhtymien ostolaskudatan avaamisen ohje<span class="sr"> (avautuu uuteen välilehteen)</span></a> <span>Kuntaliitto 2021</span></li>
-        <li><a href="https://www.kuntaliitto.fi/talous/kirjanpito-ja-tilinpaatos/kuntien-ja-kuntayhtymien-ostolaskut" target="_blank" rel="noopener">Kuntien ja kuntayhtymien ostolaskut<span class="sr"> (avautuu uuteen välilehteen)</span></a> <span>Kuntaliitto: koulutusmateriaalit, tietosuojan tarkistuslista ja palveluluokituksen pohjat</span></li>
-        <li><a href="https://www.kuntaliitto.fi/laki/julkisuus-ja-tietosuoja/kunnille-saapuvat-tietopyynnot/kuntien-ostolaskujen-ja-muiden-asiakirjojen-julkisuus" target="_blank" rel="noopener">Kuntien ostolaskujen ja muiden asiakirjojen julkisuus<span class="sr"> (avautuu uuteen välilehteen)</span></a> <span>Kuntaliitto</span></li>
-        <li><a href="https://www.avoindata.fi/data/fi/dataset/kuntien-ja-kuntayhtymien-ostolaskudatan-avaamisen-ohje" target="_blank" rel="noopener">Avaamisen ohje avoindata.fi-palvelussa<span class="sr"> (avautuu uuteen välilehteen)</span></a> <span>avoindata.fi</span></li>
+        <li><a href="https://www.kuntaliitto.fi/julkaisut/2021/2112-kuntien-ja-kuntayhtymien-ostolaskudatan-avaamisen-ohje" target="_blank" rel="noopener"><span data-t="link1">Kuntien ja kuntayhtymien ostolaskudatan avaamisen ohje</span><span class="sr" data-t="nt"> (avautuu uuteen välilehteen)</span></a> <span data-t="link1s">Kuntaliitto 2021</span></li>
+        <li><a href="https://www.kuntaliitto.fi/talous/kirjanpito-ja-tilinpaatos/kuntien-ja-kuntayhtymien-ostolaskut" target="_blank" rel="noopener"><span data-t="link2">Kuntien ja kuntayhtymien ostolaskut</span><span class="sr" data-t="nt"> (avautuu uuteen välilehteen)</span></a> <span data-t="link2s">Kuntaliitto: koulutusmateriaalit, tietosuojan tarkistuslista ja palveluluokituksen pohjat</span></li>
+        <li><a href="https://www.kuntaliitto.fi/laki/julkisuus-ja-tietosuoja/kunnille-saapuvat-tietopyynnot/kuntien-ostolaskujen-ja-muiden-asiakirjojen-julkisuus" target="_blank" rel="noopener"><span data-t="link3">Kuntien ostolaskujen ja muiden asiakirjojen julkisuus</span><span class="sr" data-t="nt"> (avautuu uuteen välilehteen)</span></a> <span data-t="link3s">Kuntaliitto</span></li>
+        <li><a href="https://www.avoindata.fi/data/fi/dataset/kuntien-ja-kuntayhtymien-ostolaskudatan-avaamisen-ohje" target="_blank" rel="noopener"><span data-t="link4">Avaamisen ohje avoindata.fi-palvelussa</span><span class="sr" data-t="nt"> (avautuu uuteen välilehteen)</span></a> <span>avoindata.fi</span></li>
       </ul>
     </section>
     <section class="card c12">
       <div class="note">
-        <strong>Huomioita tästä katselusivusta</strong>
+        <strong data-t="noteH">Huomioita tästä katselusivusta</strong>
         <ul>
-          <li>Vuodesta 2023 alkaen sosiaali- ja terveyspalvelut sekä pelastustoimi siirtyivät Varsinais-Suomen hyvinvointialueelle, mikä näkyy ostojen selvänä laskuna.</li>
-          <li>Sivu ja sen koodi on tehty tekoälyavustajan avulla. Summat lasketaan suoraan kaupungin julkaisemista tiedostoista, ja vuosisummat tarkistetaan niitä vastaan jokaisella päivityksellä. Toimittajien luokittelussa ja arvioiduissa tiedoissa voi silti olla virheitä, joten tarkista olennaiset tiedot alkuperäisestä aineistosta. Korjaukset ja huomiot: <a href="mailto:oskari@summanen.org">oskari@summanen.org</a> tai <a href="https://github.com/suomainen/paimion-ostolaskudata/issues" target="_blank" rel="noopener">GitHubin issues<span class="sr"> (avautuu uuteen välilehteen)</span></a>.</li>
+          <li id="kieliNote" hidden></li>
+          <li data-t="note1">Vuodesta 2023 alkaen sosiaali- ja terveyspalvelut sekä pelastustoimi siirtyivät Varsinais-Suomen hyvinvointialueelle, mikä näkyy ostojen selvänä laskuna.</li>
+          <li data-t="note2">Sivu ja sen koodi on tehty tekoälyavustajan avulla. Summat lasketaan suoraan kaupungin julkaisemista tiedostoista, ja vuosisummat tarkistetaan niitä vastaan jokaisella päivityksellä. Toimittajien luokittelussa ja arvioiduissa tiedoissa voi silti olla virheitä, joten tarkista olennaiset tiedot alkuperäisestä aineistosta. Korjaukset ja huomiot: <a href="mailto:oskari@summanen.org">oskari@summanen.org</a> tai <a href="https://github.com/suomainen/paimion-ostolaskudata/issues" target="_blank" rel="noopener">GitHubin issues<span class="sr"> (avautuu uuteen välilehteen)</span></a>.</li>
           <li id="arvioNote"></li>
-          <li>Toimittajan kunta, maakunta, toimiala ja tyyppi on haettu PRH:n avoimesta YTJ-rajapinnasta Y-tunnuksella. Tiedot kuvaavat nykytilaa, eivät laskun aikaista tilannetta. Kunnat, kuntayhtymät, yhdistykset ja säätiöt puuttuvat rajapinnasta, joten niiden tyyppi ja kunta on päätelty nimestä tai jätetty tuntemattomaksi.</li>
-          <li>Analyysit-välilehden luvut lasketaan samoista riveistä kuin yhteenveto, ja rajaukset vaikuttavat niihin. Uusi toimittaja tarkoittaa toimittajaa, jolta ei ollut ostoja edellisen vuoden aineistossa; se on voinut olla toimittaja aiempina vuosina. Paikallisuus perustuu yrityksen rekisteröityyn kotikuntaan, joten se aliarvioi paikallisesti tuotettua palvelua valtakunnallisilla yrityksillä.</li>
-          <li>Hyvityslaskut näkyvät negatiivisina riveinä, ja ne vähentävät summia. Hyvitysten määrä näkyy Ostot yhteensä -luvun alla. Jos jonkin ryhmän summa on negatiivinen, sille ei näytetä palkkia eikä prosenttiosuutta.</li>
-          <li>Palveluluokka on Valtiokonttorin ylläpitämä kuntien yhteinen luokitus. I-alkuiset koodit (esimerkiksi I3051) eivät kuulu viralliseen luokitukseen vaan ovat kaupungin omia, todennäköisesti investointeja samalle palvelulle.</li>
+          <li data-t="note3">Toimittajan kunta, maakunta, toimiala ja tyyppi on haettu PRH:n avoimesta YTJ-rajapinnasta Y-tunnuksella. Tiedot kuvaavat nykytilaa, eivät laskun aikaista tilannetta. Kunnat, kuntayhtymät, yhdistykset ja säätiöt puuttuvat rajapinnasta, joten niiden tyyppi ja kunta on päätelty nimestä tai jätetty tuntemattomaksi.</li>
+          <li data-t="note4">Analyysit-välilehden luvut lasketaan samoista riveistä kuin yhteenveto, ja rajaukset vaikuttavat niihin. Uusi toimittaja tarkoittaa toimittajaa, jolta ei ollut ostoja edellisen vuoden aineistossa; se on voinut olla toimittaja aiempina vuosina. Paikallisuus perustuu yrityksen rekisteröityyn kotikuntaan, joten se aliarvioi paikallisesti tuotettua palvelua valtakunnallisilla yrityksillä.</li>
+          <li data-t="note5">Hyvityslaskut näkyvät negatiivisina riveinä, ja ne vähentävät summia. Hyvitysten määrä näkyy Ostot yhteensä -luvun alla. Jos jonkin ryhmän summa on negatiivinen, sille ei näytetä palkkia eikä prosenttiosuutta.</li>
+          <li data-t="note6">Palveluluokka on Valtiokonttorin ylläpitämä kuntien yhteinen luokitus. I-alkuiset koodit (esimerkiksi I3051) eivät kuulu viralliseen luokitukseen vaan ovat kaupungin omia, todennäköisesti investointeja samalle palvelulle.</li>
         </ul>
       </div>
     </section>
@@ -362,17 +419,17 @@ footer .copy{text-align:center;margin-top:18px;padding-top:18px;border-top:4px s
 
 <footer id="footer">
   <div class="wrap">
-    Lähde: <a href="https://www.paimio.fi/kaupunki-ja-hallinto/talous/" target="_blank" rel="noopener">Paimion kaupunki, ostolaskudata __YEARS__<span class="sr"> (avautuu uuteen välilehteen)</span></a>. Toimittajatiedot: <a href="https://avoindata.prh.fi/" target="_blank" rel="noopener">PRH / YTJ avoin data<span class="sr"> (avautuu uuteen välilehteen)</span></a>, kuntaluokitus ja kuntarajat <a href="https://www.stat.fi/fi/luokitukset" target="_blank" rel="noopener">Tilastokeskus<span class="sr"> (avautuu uuteen välilehteen)</span></a> (CC BY 4.0).<br>
-    Epävirallinen katselusivu kaupungin julkaisemasta avoimesta datasta, ei Paimion kaupungin julkaisu. Tehty tekoälyavustajan avulla, joten tiedoissa voi olla virheitä. Päivitetty <span id="built"></span>.<br>
-    Koonnut Oskari Summanen, <a href="https://summanen.org" target="_blank" rel="noopener">summanen.org<span class="sr"> (avautuu uuteen välilehteen)</span></a> · <a href="https://github.com/suomainen/paimion-ostolaskudata" target="_blank" rel="noopener">Lähdekoodi GitHubissa<span class="sr"> (avautuu uuteen välilehteen)</span></a> · <a href="https://github.com/suomainen/paimion-ostolaskudata/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Versio __VERSION__<span class="sr"> (avautuu uuteen välilehteen)</span></a>
+    <span data-t="foot1">Lähde: <a href="https://www.paimio.fi/kaupunki-ja-hallinto/talous/" target="_blank" rel="noopener">Paimion kaupunki, ostolaskudata __YEARS__<span class="sr"> (avautuu uuteen välilehteen)</span></a>. Toimittajatiedot: <a href="https://avoindata.prh.fi/" target="_blank" rel="noopener">PRH / YTJ avoin data<span class="sr"> (avautuu uuteen välilehteen)</span></a>, kuntaluokitus ja kuntarajat <a href="https://www.stat.fi/fi/luokitukset" target="_blank" rel="noopener">Tilastokeskus<span class="sr"> (avautuu uuteen välilehteen)</span></a> (CC BY 4.0).</span><br>
+    <span data-t="foot2">Epävirallinen katselusivu kaupungin julkaisemasta avoimesta datasta, ei Paimion kaupungin julkaisu. Tehty tekoälyavustajan avulla, joten tiedoissa voi olla virheitä.</span> <span data-t="updated">Päivitetty</span> <span id="built"></span>.<br>
+    <span data-t="foot3">Koonnut Oskari Summanen</span>, <a href="https://summanen.org" target="_blank" rel="noopener">summanen.org<span class="sr" data-t="nt"> (avautuu uuteen välilehteen)</span></a> · <a href="https://github.com/suomainen/paimion-ostolaskudata" target="_blank" rel="noopener"><span data-t="footCode">Lähdekoodi GitHubissa</span><span class="sr" data-t="nt"> (avautuu uuteen välilehteen)</span></a> · <a href="https://github.com/suomainen/paimion-ostolaskudata/blob/main/CHANGELOG.md" target="_blank" rel="noopener"><span data-t="version">Versio</span> __VERSION__<span class="sr" data-t="nt"> (avautuu uuteen välilehteen)</span></a>
   </div>
 </footer>
 
 <div id="tip" aria-hidden="true"></div>
 <div class="drawer-bg" id="dbg"></div>
 <div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="dTitle">
-  <header><div><h2 id="dTitle"></h2><p id="dSub"></p></div><button id="dClose" type="button" aria-label="Sulje toimittajan tiedot">×</button></header>
-  <div class="body" id="dBody" tabindex="0" role="region" aria-label="Toimittajan tiedot"></div>
+  <header><div><h2 id="dTitle"></h2><p id="dSub"></p></div><button id="dClose" type="button" aria-label="Sulje toimittajan tiedot" data-ta="aria-label:dClose">×</button></header>
+  <div class="body" id="dBody" tabindex="0" role="region" aria-label="Toimittajan tiedot" data-ta="aria-label:dRegion"></div>
 </div>
 
 <script>
@@ -381,20 +438,257 @@ const Y = DATA.years, D = DATA.dims, SUP = DATA.sup, R = DATA.rows;
 // Rivin sarakkeet (sama järjestys kuin paivita.py:n RIVI) ja toimittajan sarakkeet
 const C = {Y:0, YM:1, S:2, TILI:3, TE:4, TA:5, SNT:6, TOS:7, ARVIO:8, PL:9};
 const P = {NIMI:0, YT:1, KUNTA:2, MAAK:3, TOL:4, OM:5};
-const fmtE = new Intl.NumberFormat('fi-FI',{maximumFractionDigits:0});
-const fmt2 = new Intl.NumberFormat('fi-FI',{minimumFractionDigits:2,maximumFractionDigits:2});
 const eur = v => fmtE.format(Math.round(v)) + ' €';
-const short = v => { const a=Math.abs(v); return a>=1e6 ? (v/1e6).toLocaleString('fi-FI',{maximumFractionDigits:1})+' M€' : a>=1e3 ? (v/1e3).toLocaleString('fi-FI',{maximumFractionDigits:0})+' t€' : fmtE.format(v)+' €'; };
+const short = v => { const a=Math.abs(v); return a>=1e6 ? (v/1e6).toLocaleString(LOC,{maximumFractionDigits:1})+' '+t('milj') : a>=1e3 ? (v/1e3).toLocaleString(LOC,{maximumFractionDigits:0})+' '+t('tuh') : fmtE.format(v)+' €'; };
 const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const $ = id => document.getElementById(id);
 const eurCell = r => r.eur<0 ? `<span class="neg">${fmtE.format(Math.round(r.eur))}</span>` : fmtE.format(Math.round(r.eur));
 const S = {view:'yhteenveto', adim:'toimiala', year:null, month:null, q:'', toimielin:null, tilil:null, tulosalue:null, palveluluokka:null, omistus:null, kunta:null, maakunta:null, toimiala:null};
 const mode = {maakunta:'eur',kunta:'eur',omistus:'eur',toimiala:'eur',zoom:'vs'};
-const LABEL = {month:'Kuukausi',toimielin:'Toimielin',tilil:'Tili',tulosalue:'Tulosalue',palveluluokka:'Palveluluokka',omistus:'Tyyppi',kunta:'Kunta',maakunta:'Maakunta',toimiala:'Toimiala',q:'Haku'};
 const COLIDX = {tilil:C.TILI, toimielin:C.TE, tulosalue:C.TA, palveluluokka:C.PL};
 const SUPIDX = {kunta:P.KUNTA, maakunta:P.MAAK, toimiala:P.TOL, omistus:P.OM};
 const paimioIdx=D.kunta.indexOf('Paimio'), vsIdx=D.maakunta.indexOf('Varsinais-Suomi');
 const supLower = SUP.map(s=>(s[P.NIMI]+' '+s[P.YT]).toLowerCase());
+
+// ---------- kielet ----------
+// Suomenkieliset kiinteät tekstit ovat HTML:ssä (data-t, data-ta) ja luetaan sieltä; tässä ovat
+// suomeksi vain koodissa muodostettavat tekstit. Ruotsin ja englannin käännökset ovat epävirallisia.
+// Aineiston omat arvot (tilit, toimialat, palveluluokat, toimielimet) näytetään aina suomeksi.
+const KIELET=['fi','sv','en'], LOKAALI={fi:'fi-FI',sv:'sv-FI',en:'en-GB'};
+const PRH_URL='https://avoindata.prh.fi/', TK_URL='https://www.stat.fi/fi/luokitukset', PAIMIO_URL='https://www.paimio.fi/kaupunki-ja-hallinto/talous/', OHJE_URL='https://www.kuntaliitto.fi/julkaisut/2021/2112-kuntien-ja-kuntayhtymien-ostolaskudatan-avaamisen-ohje', ISSUES_URL='https://github.com/suomainen/paimion-ostolaskudata/issues';
+const ulos=(url,teksti)=>`<a href="${url}" target="_blank" rel="noopener">${teksti}{nt}</a>`;
+const T={
+fi:{
+  title:'Paimion ostolaskudata', nt:' (avautuu uuteen välilehteen)', milj:'M€', tuh:'t€',
+  kk:['tammikuu','helmikuu','maaliskuu','huhtikuu','toukokuu','kesäkuu','heinäkuu','elokuu','syyskuu','lokakuu','marraskuu','joulukuu'],
+  all:'Kaikki', noRows:'Ei rivejä valinnalla.', nSup:n=>`${n} toimittajaa`, nRows:n=>`${n} riviä`,
+  allMonths:'Kaikki kuukaudet', otherDates:'Muiden vuosien päivämäärät', otherDatesL:'muiden vuosien päivämäärät',
+  mapName:'Kuntakartta', noSup:'Ei toimittajia', noPurch:'ei ostoja', under:'alle', over:'yli',
+  mapLabel:(sel,top)=>`Kuntakartta: toimittajien ostot kotikunnittain${sel?', valittu '+sel:''}. Suurimmat: ${top}. Kaikki kunnat ovat Kunta-valikossa ja Toimittajat kunnittain -luettelossa.`,
+  logScale:'Asteikko on logaritminen.', outside:s=>` Kartan ulkopuolella: ${s}.`,
+  l:{month:'Kuukausi',toimielin:'Toimielin',tilil:'Tili',tulosalue:'Tulosalue',palveluluokka:'Palveluluokka',omistus:'Tyyppi',kunta:'Kunta',maakunta:'Maakunta',toimiala:'Toimiala',q:'Haku'},
+  rmFilter:'Poista rajaus', rmSearch:'Poista haku',
+  kTot:'Ostot yhteensä', credits:s=>` · hyvityksiä ${s}`, kSup:'Toimittajia', kSupS:'eri toimittajaa', kTos:'Tositteita', kAvg:'Keskimääräinen rivi', kVat:'alv 0 %', kPaimio:'Paimiolaiset toimittajat', kVs:'Varsinais-Suomesta',
+  yearSub:'Vuosien vertailu. Valitse vuosi napsauttamalla pylvästä.', yearSubOther:'Vuosien vertailu, muiden vuosien päivämäärät.', yearSubMonth:kk=>`Vuosien vertailu, ${kk} kunakin vuonna.`,
+  monthSub:yy=>`Tositepäivämäärän mukaan, ${yy}. Napsauta kuukautta rajataksesi.`, monthOther:s=>` Muiden vuosien päivämäärillä ${s}.`, monthSubAll:'Tositepäivämäärän mukaan, kaikki vuodet. Valitse vuosi tarkentaaksesi.',
+  hSupplier:'Toimittaja', noYt:'ei Y-tunnusta', noYtC:'Ei Y-tunnusta', hKuntaCol:'Kunta', hRows:'Rivejä', hEur:'Ostot €', total:'Yhteensä', hSups:'Toimittajia',
+  supMoreLim:(lim,n)=>`Näytetään ${lim} / ${n} toimittajaa. Tarkenna hakua nähdäksesi muut.`, supCount:n=>`${n} toimittajaa.`,
+  est:p=>`Osa luvuista arvioitu palveluluokan perusteella (${p} euroista), koska kaupungin aineistossa tieto puuttuu.`,
+  noToimielin:'Valinnalla ei ole toimielintietoa.', noTa:'Ei tulosaluetietoa valinnalla.', noPl:'Valitun vuoden aineistossa ei ole palveluluokkaa.',
+  live:(jakso,tot,sups,n)=>`${jakso}: ostot ${tot}, ${sups} toimittajaa, ${n} riviä.`, updatedView:'Näkymä päivitetty. ',
+  adim:{toimiala:'Toimiala',tilil:'Tili',palveluluokka:'Palveluluokka',toimielin:'Toimielin',kunta:'Toimittajan kunta',maakunta:'Toimittajan maakunta',omistus:'Toimittajan tyyppi'},
+  koko:['Hyvityksiä enemmän kuin ostoja','alle 1 000 €','1 000 – 9 999 €','10 000 – 99 999 €','100 000 € tai enemmän'],
+  selYear:'valittu vuosi ', change:(a,b)=>`Muutos ${a}→${b}`,
+  kehSub:'Ostot tuhansina euroina, kaikki vuodet. Valitse rivi rajataksesi koko raportin siihen.', kehSubPl:' Palveluluokka on aineistossa vuodesta 2022.', kehSubTe:' Osa vuosista on arvioitu, ks. huomiot.',
+  kehMore:(lim,n)=>`Näytetään ${lim} suurinta / ${n}. Rajaa tai lajittele nähdäksesi muut.`,
+  newH:y=>`Uudet toimittajat ${y}`, goneH:y=>`Poistuneet toimittajat ${y}`,
+  noCompare:y=>`Vertailuvuotta ei ole: ${y} on aineiston ensimmäinen vuosi.`, noCompareS:'Ei vertailua.',
+  newSub:(n,edel,sum,y)=>`${n} toimittajaa, joilta ei ollut ostoja vuonna ${edel}. Ostot heiltä ${sum} vuonna ${y}.`,
+  goneSub:(n,edel,sum,y)=>`${n} toimittajaa, joilta ostettiin vuonna ${edel} mutta ei enää vuonna ${y}. Ostot heiltä olivat ${sum}.`,
+  purchY:y=>`Ostot ${y} €`, noNew:'Ei uusia toimittajia valinnalla.', noGone:'Ei poistuneita toimittajia valinnalla.',
+  paikSub:y=>`Vuosi ${y}. Paimion ulkopuolelle -sarake kertoo, paljonko tilin ostoista tehtiin muualle rekisteröidyiltä toimittajilta. Valitse rivi rajataksesi.`,
+  hOut:'Paimion ulkopuolelle €', hFromPaimio:'Paimiosta', hFromVs:'Varsinais-Suomesta',
+  kokoSub:y=>`Toimittajat ryhmiteltynä sen mukaan, paljonko kaupunki osti heiltä vuonna ${y}.`,
+  hKokoCol:'Ostot toimittajalta', hSupShare:'Osuus toimittajista', hEurShare:'Osuus euroista', hYearCol:'Vuosi', hTop10:'10 suurimman toimittajan osuus',
+  dYears:'Ostot vuosittain', dTilit:'Tilit', dRows:'Laskurivit', dKk:'Kk', dTosite:'Tosite', dTe:'Toimielin / tulosalue', dSum:'Summa €', estSr:' (arvioitu)',
+  d500:'Näytetään 500 uusinta riviä.', dStar:'* Toimielin ja tulosalue arvioitu palveluluokan perusteella.',
+  copyL:'Kopioi linkki tähän näkymään', copyS:'Kopioi linkki', copiedL:'Linkki kopioitu – liitä se viestiin', copiedS:'Linkki kopioitu', copyFailL:'Kopioi osoite selaimen osoiteriviltä', copyFailS:'Kopioi osoiteriviltä',
+  liveCopied:'Linkki tähän näkymään kopioitu leikepöydälle.', liveCopyFail:'Kopiointi ei onnistunut. Kopioi osoite selaimen osoiteriviltä.',
+  liveLang:'Sivun kieli on suomi.', liveDark:'Tumma ulkoasu käytössä.', liveLight:'Vaalea ulkoasu käytössä.',
+  arvioNimi:{toimielin:'toimielin',tulosalue:'tulosalue'},
+  arvioOsa:(v,nimi,vuodet,katt)=>`vuoden ${v} ${nimi} on arvioitu vuosien ${vuodet} perusteella (${katt} euroista saatiin arvioitua)`,
+  arvioTesti:(nimi,osuv,katt)=>`${nimi} osui oikein ${osuv}:ssa arvioiduista euroista (arvio kattoi ${katt})`,
+  arvio:(osat,kynnys,testivuosi,testit)=>`Kaupungin aineistosta puuttuu osalta vuosista toimielin ja tulosalue. Ne on arvioitu palveluluokan, tilin ja toimittajan perusteella: ${osat}. Arvio tehdään vain, kun vähintään ${kynnys} aiempien vuosien euroista on kuulunut samaan luokkaan, ja muut rivit jäävät ilman tietoa. `
+    +(testit? `Menetelmä testataan jokaisella päivityksellä arvioimalla samalla tavalla vuosi ${testivuosi}, jonka oikeat tiedot tunnetaan: ${testit}. `:'')+'Toimittajan laskuriveillä arvioidut on merkitty tähdellä.',
+  kieliNote:'',
+},
+sv:{
+  title:'Pemars inköpsfakturor', nt:' (öppnas i en ny flik)', milj:'mn €', tuh:'t€',
+  kk:['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'],
+  all:'Alla', noRows:'Inga rader med det här urvalet.', nSup:n=>`${n} leverantörer`, nRows:n=>`${n} rader`,
+  allMonths:'Alla månader', otherDates:'Datum under andra år', otherDatesL:'datum under andra år',
+  mapName:'Kommunkarta', noSup:'Inga leverantörer', noPurch:'inga inköp', under:'under', over:'över',
+  mapLabel:(sel,top)=>`Kommunkarta: inköp enligt leverantörens hemkommun${sel?', vald '+sel:''}. Störst: ${top}. Alla kommuner finns i menyn Kommun och i listan Leverantörer per kommun.`,
+  logScale:'Skalan är logaritmisk.', outside:s=>` Utanför kartan: ${s}.`,
+  l:{month:'Månad',toimielin:'Organ',tilil:'Konto',tulosalue:'Resultatområde',palveluluokka:'Serviceklass',omistus:'Typ',kunta:'Kommun',maakunta:'Landskap',toimiala:'Näringsgren',q:'Sökning'},
+  rmFilter:'Ta bort avgränsningen', rmSearch:'Ta bort sökningen',
+  kTot:'Inköp totalt', credits:s=>` · krediteringar ${s}`, kSup:'Leverantörer', kSupS:'olika leverantörer', kTos:'Verifikat', kAvg:'Genomsnittlig rad', kVat:'moms 0 %', kPaimio:'Leverantörer från Pemar', kVs:'Från Egentliga Finland',
+  yearSub:'Jämförelse mellan åren. Välj år genom att klicka på en stapel.', yearSubOther:'Jämförelse mellan åren, datum under andra år.', yearSubMonth:kk=>`Jämförelse mellan åren, ${kk} varje år.`,
+  monthSub:yy=>`Enligt verifikatdatum, ${yy}. Klicka på en månad för att avgränsa.`, monthOther:s=>` Med datum under andra år ${s}.`, monthSubAll:'Enligt verifikatdatum, alla år. Välj ett år för att se närmare.',
+  hSupplier:'Leverantör', noYt:'inget FO-nummer', noYtC:'Inget FO-nummer', hKuntaCol:'Kommun', hRows:'Rader', hEur:'Inköp €', total:'Totalt', hSups:'Leverantörer',
+  supMoreLim:(lim,n)=>`Visar ${lim} / ${n} leverantörer. Precisera sökningen för att se de övriga.`, supCount:n=>`${n} leverantörer.`,
+  est:p=>`En del av siffrorna har uppskattats utifrån serviceklassen (${p} av eurobeloppet), eftersom uppgiften saknas i stadens material.`,
+  noToimielin:'Urvalet saknar uppgift om organ.', noTa:'Urvalet saknar uppgift om resultatområde.', noPl:'Materialet för det valda året saknar serviceklass.',
+  live:(jakso,tot,sups,n)=>`${jakso}: inköp ${tot}, ${sups} leverantörer, ${n} rader.`, updatedView:'Vyn har uppdaterats. ',
+  adim:{toimiala:'Näringsgren',tilil:'Konto',palveluluokka:'Serviceklass',toimielin:'Organ',kunta:'Leverantörens kommun',maakunta:'Leverantörens landskap',omistus:'Typ av leverantör'},
+  koko:['Mer krediteringar än inköp','under 1 000 €','1 000 – 9 999 €','10 000 – 99 999 €','100 000 € eller mer'],
+  selYear:'valt år ', change:(a,b)=>`Förändring ${a}→${b}`,
+  kehSub:'Inköp i tusen euro, alla år. Välj en rad för att avgränsa hela rapporten till den.', kehSubPl:' Serviceklassen finns i materialet från och med 2022.', kehSubTe:' En del av åren är uppskattade, se anmärkningarna.',
+  kehMore:(lim,n)=>`Visar de ${lim} största / ${n}. Avgränsa eller sortera för att se de övriga.`,
+  newH:y=>`Nya leverantörer ${y}`, goneH:y=>`Leverantörer som fallit bort ${y}`,
+  noCompare:y=>`Det finns inget jämförelseår: ${y} är materialets första år.`, noCompareS:'Ingen jämförelse.',
+  newSub:(n,edel,sum,y)=>`${n} leverantörer som staden inte köpte av år ${edel}. Inköpen av dem var ${sum} år ${y}.`,
+  goneSub:(n,edel,sum,y)=>`${n} leverantörer som staden köpte av år ${edel} men inte längre år ${y}. Inköpen av dem var ${sum}.`,
+  purchY:y=>`Inköp ${y} €`, noNew:'Inga nya leverantörer med det här urvalet.', noGone:'Inga bortfallna leverantörer med det här urvalet.',
+  paikSub:y=>`År ${y}. Kolumnen Utanför Pemar visar hur mycket av kontots inköp som gjordes av leverantörer registrerade på annan ort. Välj en rad för att avgränsa.`,
+  hOut:'Utanför Pemar €', hFromPaimio:'Från Pemar', hFromVs:'Från Egentliga Finland',
+  kokoSub:y=>`Leverantörerna grupperade enligt hur mycket staden köpte av dem år ${y}.`,
+  hKokoCol:'Inköp av leverantören', hSupShare:'Andel av leverantörerna', hEurShare:'Andel av eurobeloppet', hYearCol:'År', hTop10:'De 10 största leverantörernas andel',
+  dYears:'Inköp per år', dTilit:'Konton', dRows:'Fakturarader', dKk:'Mån', dTosite:'Verifikat', dTe:'Organ / resultatområde', dSum:'Belopp €', estSr:' (uppskattad)',
+  d500:'Visar de 500 senaste raderna.', dStar:'* Organ och resultatområde har uppskattats utifrån serviceklassen.',
+  copyL:'Kopiera länk till den här vyn', copyS:'Kopiera länk', copiedL:'Länken kopierad – klistra in den i ett meddelande', copiedS:'Länken kopierad', copyFailL:'Kopiera adressen från webbläsarens adressfält', copyFailS:'Kopiera från adressfältet',
+  liveCopied:'Länken till den här vyn har kopierats till urklipp.', liveCopyFail:'Kopieringen misslyckades. Kopiera adressen från webbläsarens adressfält.',
+  liveLang:'Sidans språk är svenska.', liveDark:'Mörkt utseende används.', liveLight:'Ljust utseende används.',
+  arvioNimi:{toimielin:'organ',tulosalue:'resultatområde'},
+  arvioOsa:(v,nimi,vuodet,katt)=>`${nimi} för år ${v} har uppskattats utifrån åren ${vuodet} (${katt} av eurobeloppet kunde uppskattas)`,
+  arvioTesti:(nimi,osuv,katt)=>`${nimi} blev rätt för ${osuv} av det uppskattade eurobeloppet (uppskattningen täckte ${katt})`,
+  arvio:(osat,kynnys,testivuosi,testit)=>`I stadens material saknas organ och resultatområde för en del av åren. De har uppskattats utifrån serviceklass, konto och leverantör: ${osat}. En uppskattning görs bara när minst ${kynnys} av de tidigare årens eurobelopp har hört till samma klass, och övriga rader lämnas utan uppgift. `
+    +(testit? `Metoden testas vid varje uppdatering genom att på samma sätt uppskatta år ${testivuosi}, där de rätta uppgifterna är kända: ${testit}. `:'')+'På leverantörens fakturarader är uppskattade uppgifter märkta med en asterisk.',
+  kieliNote:'Kontonamn, näringsgrenar, serviceklasser, organ och resultatområden kommer direkt ur källmaterialet och visas på finska. Den svenska översättningen av sidan är inofficiell och har gjorts med hjälp av en AI-assistent.',
+  // kiinteät tekstit (HTML:n data-t ja data-ta)
+  skip:'Hoppa till innehållet', topbarLabel:'Sidans länkar och inställningar', menu:'Meny', tabY:'Översikt', tabA:'Analyser', about:'Om materialet', navSource:'Källmaterial', navCode:'Källkod', dark:'Mörkt utseende',
+  crumbs:'Länkstig', c1:'Öppna data', c2:'Ekonomi', c3:'Inköpsfakturor', h1:'Pemar stads inköpsfakturor',
+  lead:'Stadens inköp av tjänster, material, förnödenheter och varor på konteringsradnivå. Beloppen är exklusive moms.',
+  year:'År', filters:'Avgränsningar', fSup:'Leverantör eller FO-nummer', fSupPh:'Sök på namn eller FO-nummer', lToimielin:'Organ', lTili:'Konto', lOm:'Typ av leverantör', reset:'Töm avgränsningarna',
+  kpis:'Nyckeltal', view:'Vy', tabYs:'Det valda årets siffror, karta och leverantörer', tabAs:'Utveckling per år, nya leverantörer och lokal andel',
+  hYears:'Inköp per år', hMonths:'Inköp per månad', lMonth:'Månad', hSup:'Leverantörer', sSup:'Välj en leverantör för att se dess fakturor.',
+  hMaak:'Leverantörer per landskap', sMaak:'Enligt leverantörens adress (FODS). Klicka för att avgränsa.', measure:'Mått', mSup:'Leverantörer',
+  hMap:'Leverantörer på kartan', sMap:'Leverantörens registrerade hemkommun (FODS). Den är inte nödvändigtvis den ort där tjänsten produceras: riksomfattande företag syns ofta i den kommun där huvudkontoret finns. Avgränsa till en kommun i menyn eller genom att klicka på kartan. Samma siffror finns i listan Leverantörer per kommun.',
+  mapArea:'Kartans område', zFi:'Finland', zVs:'Egentliga Finland', lKunta:'Kommun', hKunta:'Leverantörer per kommun', sKunta:'De 20 största',
+  sOm:'Enligt bolagsform (FODS)', hToimielin:'Organ', hTol:'Näringsgrenar', sTol:'Leverantörens huvudsakliga näringsgren (FODS), de 15 största',
+  hTilit:'Konton', sTilit:'Utgiftsslag enligt bokföringskonto. Klicka för att avgränsa.', hTa:'Resultatområden', hPl:'Serviceklasser',
+  sPl:'Vilken av stadens tjänster inköpet gäller. Riksomfattande klassificering, i materialet från och med 2022. Klicka för att avgränsa.',
+  hKeh:'Utveckling per år', lJako:'Indelning', hPaik:'Lokal andel per konto', hKoko:'Leverantörer enligt inköpens storlek', hVuodet:'Lokal andel och koncentration per år',
+  sVuodet:'Den lokala andelen bygger på leverantörens registrerade hemkommun (FODS). Avgränsningarna påverkar siffrorna.',
+  aboutSub:`Pemar stads beskrivning av materialet på ${ulos(PAIMIO_URL,'sidan Talous (på finska)')}. Inofficiell översättning.`,
+  src1:'Materialet omfattar Pemar stads inköp av tjänster, material, förnödenheter och varor samt de inköp som i kommunernas bokföring hör till kontogrupperna hyreskostnader och övriga verksamhetskostnader, på konteringsradnivå.',
+  src2:'Beloppen är exklusive moms och utgör slutliga kostnader för staden. Fakturor som betalats till privatpersoner har tagits bort ur materialet.',
+  src3:`Vid publiceringen har man följt Kommunförbundets ${ulos(OHJE_URL,'anvisning om öppnande av kommunernas och samkommunernas inköpsfakturadata (på finska)')}. Uppgifterna har hämtats ur stadens bokföringssystem och kompletterats med uppgifter om finländska företag ur FODS.`,
+  src4:'Uppgifterna uppdateras årligen efter att bokslutet har godkänts.',
+  hDl:'Ursprungligt material (Excel)', dl:'Inköpsfakturor', hLinks:'Anvisningar och mer information',
+  link1:'Anvisning om öppnande av kommunernas och samkommunernas inköpsfakturadata (på finska)', link1s:'Kommunförbundet 2021',
+  link2:'Kommunernas och samkommunernas inköpsfakturor (på finska)', link2s:'Kommunförbundet: utbildningsmaterial, checklista för dataskydd och mallar för serviceklassificeringen',
+  link3:'Offentligheten för kommunernas inköpsfakturor och andra handlingar (på finska)', link3s:'Kommunförbundet', link4:'Anvisningen i tjänsten avoindata.fi',
+  noteH:'Anmärkningar om den här sidan',
+  note1:'Från och med 2023 överfördes social- och hälsovården samt räddningsväsendet till Egentliga Finlands välfärdsområde, vilket syns som en tydlig minskning av inköpen.',
+  note2:`Sidan och dess kod har gjorts med hjälp av en AI-assistent. Summorna räknas direkt ur de filer som staden har publicerat, och årssummorna kontrolleras mot dem vid varje uppdatering. Klassificeringen av leverantörer och de uppskattade uppgifterna kan ändå innehålla fel, så kontrollera väsentliga uppgifter i det ursprungliga materialet. Rättelser och kommentarer: <a href="mailto:oskari@summanen.org">oskari@summanen.org</a> eller ${ulos(ISSUES_URL,'issues på GitHub')}.`,
+  note3:'Leverantörens kommun, landskap, näringsgren och typ har hämtats med FO-nummer ur Patent- och registerstyrelsens öppna FODS-gränssnitt. Uppgifterna beskriver nuläget, inte situationen när fakturan skrevs. Kommuner, samkommuner, föreningar och stiftelser saknas i gränssnittet, så deras typ och kommun har härletts ur namnet eller lämnats okända.',
+  note4:'Siffrorna på fliken Analyser räknas ur samma rader som översikten, och avgränsningarna påverkar dem. En ny leverantör är en leverantör som staden inte köpte av enligt föregående års material; den kan ha varit leverantör under tidigare år. Den lokala andelen bygger på företagets registrerade hemkommun och underskattar därför tjänster som riksomfattande företag producerar lokalt.',
+  note5:'Kreditfakturor syns som negativa rader och minskar summorna. Krediteringarnas belopp visas under nyckeltalet Inköp totalt. Om summan för en grupp är negativ visas varken stapel eller procentandel för den.',
+  note6:'Serviceklassen är en gemensam klassificering för kommunerna som upprätthålls av Statskontoret. Koder som börjar med I (till exempel I3051) hör inte till den officiella klassificeringen utan är stadens egna, sannolikt investeringar i samma tjänst.',
+  foot1:`Källa: ${ulos(PAIMIO_URL,'Pemar stad, inköpsfakturadata {years}')}. Leverantörsuppgifter: ${ulos(PRH_URL,'PRS / FODS öppna data')}, kommunindelning och kommungränser ${ulos(TK_URL,'Statistikcentralen')} (CC BY 4.0).`,
+  foot2:'Inofficiell sida för att granska öppna data som staden har publicerat, inte Pemar stads publikation. Gjord med hjälp av en AI-assistent, så uppgifterna kan innehålla fel.',
+  updated:'Uppdaterad', foot3:'Sammanställd av Oskari Summanen', footCode:'Källkod på GitHub', version:'Version', dClose:'Stäng leverantörens uppgifter', dRegion:'Leverantörens uppgifter',
+},
+en:{
+  title:'Paimio purchase invoices', nt:' (opens in a new tab)', milj:'M€', tuh:'k€',
+  kk:['January','February','March','April','May','June','July','August','September','October','November','December'],
+  all:'All', noRows:'No rows with this selection.', nSup:n=>`${n} suppliers`, nRows:n=>`${n} rows`,
+  allMonths:'All months', otherDates:'Dates in other years', otherDatesL:'dates in other years',
+  mapName:'Map of municipalities', noSup:'No suppliers', noPurch:'no purchases', under:'under', over:'over',
+  mapLabel:(sel,top)=>`Map of municipalities: purchases by the supplier's home municipality${sel?', selected '+sel:''}. Largest: ${top}. All municipalities are in the Municipality menu and in the Suppliers by municipality list.`,
+  logScale:'The scale is logarithmic.', outside:s=>` Outside the map: ${s}.`,
+  l:{month:'Month',toimielin:'Body',tilil:'Account',tulosalue:'Result area',palveluluokka:'Service class',omistus:'Type',kunta:'Municipality',maakunta:'Region',toimiala:'Industry',q:'Search'},
+  rmFilter:'Remove filter', rmSearch:'Remove search',
+  kTot:'Total purchases', credits:s=>` · credits ${s}`, kSup:'Suppliers', kSupS:'different suppliers', kTos:'Vouchers', kAvg:'Average row', kVat:'VAT 0%', kPaimio:'Suppliers from Paimio', kVs:'From Southwest Finland',
+  yearSub:'Comparison of years. Select a year by clicking a column.', yearSubOther:'Comparison of years, dates in other years.', yearSubMonth:kk=>`Comparison of years, ${kk} in each year.`,
+  monthSub:yy=>`By voucher date, ${yy}. Click a month to filter.`, monthOther:s=>` With dates in other years ${s}.`, monthSubAll:'By voucher date, all years. Select a year to look closer.',
+  hSupplier:'Supplier', noYt:'no Business ID', noYtC:'No Business ID', hKuntaCol:'Municipality', hRows:'Rows', hEur:'Purchases €', total:'Total', hSups:'Suppliers',
+  supMoreLim:(lim,n)=>`Showing ${lim} / ${n} suppliers. Narrow the search to see the rest.`, supCount:n=>`${n} suppliers.`,
+  est:p=>`Some of the figures are estimated from the service class (${p} of the euro amount), because the information is missing from the city's data.`,
+  noToimielin:'The selection has no information on the body.', noTa:'The selection has no information on the result area.', noPl:'The data for the selected year has no service class.',
+  live:(jakso,tot,sups,n)=>`${jakso}: purchases ${tot}, ${sups} suppliers, ${n} rows.`, updatedView:'View updated. ',
+  adim:{toimiala:'Industry',tilil:'Account',palveluluokka:'Service class',toimielin:'Body',kunta:"Supplier's municipality",maakunta:"Supplier's region",omistus:'Supplier type'},
+  koko:['More credits than purchases','under €1,000','€1,000 – 9,999','€10,000 – 99,999','€100,000 or more'],
+  selYear:'selected year ', change:(a,b)=>`Change ${a}→${b}`,
+  kehSub:'Purchases in thousands of euros, all years. Select a row to filter the whole report by it.', kehSubPl:' The service class is in the data from 2022 onwards.', kehSubTe:' Some of the years are estimated, see the notes.',
+  kehMore:(lim,n)=>`Showing the ${lim} largest / ${n}. Filter or sort to see the rest.`,
+  newH:y=>`New suppliers ${y}`, goneH:y=>`Suppliers no longer used ${y}`,
+  noCompare:y=>`There is no comparison year: ${y} is the first year in the data.`, noCompareS:'No comparison.',
+  newSub:(n,edel,sum,y)=>`${n} suppliers with no purchases in ${edel}. Purchases from them were ${sum} in ${y}.`,
+  goneSub:(n,edel,sum,y)=>`${n} suppliers that the city bought from in ${edel} but no longer in ${y}. Purchases from them were ${sum}.`,
+  purchY:y=>`Purchases ${y} €`, noNew:'No new suppliers with this selection.', noGone:'No discontinued suppliers with this selection.',
+  paikSub:y=>`Year ${y}. The Outside Paimio column shows how much of the account's purchases came from suppliers registered elsewhere. Select a row to filter.`,
+  hOut:'Outside Paimio €', hFromPaimio:'From Paimio', hFromVs:'From Southwest Finland',
+  kokoSub:y=>`Suppliers grouped by how much the city bought from them in ${y}.`,
+  hKokoCol:'Purchases from the supplier', hSupShare:'Share of suppliers', hEurShare:'Share of euros', hYearCol:'Year', hTop10:'Share of the 10 largest suppliers',
+  dYears:'Purchases by year', dTilit:'Accounts', dRows:'Invoice rows', dKk:'Month', dTosite:'Voucher', dTe:'Body / result area', dSum:'Amount €', estSr:' (estimated)',
+  d500:'Showing the 500 most recent rows.', dStar:'* Body and result area estimated from the service class.',
+  copyL:'Copy link to this view', copyS:'Copy link', copiedL:'Link copied – paste it into a message', copiedS:'Link copied', copyFailL:"Copy the address from the browser's address bar", copyFailS:'Copy from address bar',
+  liveCopied:'The link to this view was copied to the clipboard.', liveCopyFail:"Copying failed. Copy the address from the browser's address bar.",
+  liveLang:'The page language is English.', liveDark:'Dark appearance is on.', liveLight:'Light appearance is on.',
+  arvioNimi:{toimielin:'body',tulosalue:'result area'},
+  arvioOsa:(v,nimi,vuodet,katt)=>`the ${nimi} for ${v} is estimated from the years ${vuodet} (${katt} of the euro amount could be estimated)`,
+  arvioTesti:(nimi,osuv,katt)=>`the ${nimi} was correct for ${osuv} of the estimated euro amount (the estimate covered ${katt})`,
+  arvio:(osat,kynnys,testivuosi,testit)=>`The city's data lacks the body and the result area for some years. They are estimated from the service class, account and supplier: ${osat}. An estimate is made only when at least ${kynnys} of the euro amount in earlier years belonged to the same class; other rows are left without the information. `
+    +(testit? `The method is tested at every update by estimating ${testivuosi}, for which the correct values are known, in the same way: ${testit}. `:'')+"On a supplier's invoice rows, estimated values are marked with an asterisk.",
+  kieliNote:'Account names, industries, service classes, bodies and result areas come straight from the source data and are shown in Finnish. The English translation of the page is unofficial and was made with an AI assistant.',
+  skip:'Skip to content', topbarLabel:'Page links and settings', menu:'Menu', tabY:'Summary', tabA:'Analyses', about:'About the data', navSource:'Source data', navCode:'Source code', dark:'Dark appearance',
+  crumbs:'Breadcrumb', c1:'Open data', c2:'Finances', c3:'Purchase invoices', h1:'City of Paimio purchase invoices',
+  lead:"The city's purchases of services, materials, supplies and goods at posting-row level. The amounts exclude VAT.",
+  year:'Year', filters:'Filters', fSup:'Supplier or Business ID', fSupPh:'Search by name or Business ID', lToimielin:'Body', lTili:'Account', lOm:'Supplier type', reset:'Clear filters',
+  kpis:'Key figures', view:'View', tabYs:"The selected year's figures, map and suppliers", tabAs:'Development by year, new suppliers and local share',
+  hYears:'Purchases by year', hMonths:'Purchases by month', lMonth:'Month', hSup:'Suppliers', sSup:'Select a supplier to see its invoices.',
+  hMaak:'Suppliers by region', sMaak:"By the supplier's address (YTJ business register). Click to filter.", measure:'Measure', mSup:'Suppliers',
+  hMap:'Suppliers on the map', sMap:"The supplier's registered home municipality (YTJ business register). It is not necessarily where the service is produced: nationwide companies often appear in the municipality of their head office. Filter by municipality from the menu or by clicking the map. The same figures are in the Suppliers by municipality list.",
+  mapArea:'Map area', zFi:'Finland', zVs:'Southwest Finland', lKunta:'Municipality', hKunta:'Suppliers by municipality', sKunta:'The 20 largest',
+  sOm:'By legal form (YTJ business register)', hToimielin:'Bodies', hTol:'Industries', sTol:"The supplier's main industry (YTJ business register), the 15 largest",
+  hTilit:'Accounts', sTilit:'Expense types by bookkeeping account. Click to filter.', hTa:'Result areas', hPl:'Service classes',
+  sPl:'Which of the city’s services the purchase relates to. A national classification, in the data from 2022 onwards. Click to filter.',
+  hKeh:'Development by year', lJako:'Breakdown', hPaik:'Local share by account', hKoko:'Suppliers by size of purchases', hVuodet:'Local share and concentration by year',
+  sVuodet:"The local share is based on the supplier's registered home municipality (YTJ business register). Filters affect the figures.",
+  aboutSub:`The City of Paimio's description of the data on its ${ulos(PAIMIO_URL,'Talous page (in Finnish)')}. Unofficial translation.`,
+  src1:'The data contains the City of Paimio’s purchases of services, materials, supplies and goods, as well as the purchases that belong to the account groups rental expenses and other operating expenses in municipal bookkeeping, at posting-row level.',
+  src2:'The amounts exclude VAT and are final costs to the city. Invoices paid to private individuals have been removed from the data.',
+  src3:`The data is published in accordance with the Association of Finnish Municipalities' ${ulos(OHJE_URL,'guideline on opening the purchase invoice data of municipalities and joint municipal authorities (in Finnish)')}. The information is extracted from the city's bookkeeping system and supplemented with information on Finnish companies from the YTJ business register.`,
+  src4:'The information is updated annually after the financial statements have been approved.',
+  hDl:'Original data (Excel)', dl:'Purchase invoices', hLinks:'Guidelines and further information',
+  link1:'Guideline on opening the purchase invoice data of municipalities and joint municipal authorities (in Finnish)', link1s:'Association of Finnish Municipalities 2021',
+  link2:'Purchase invoices of municipalities and joint municipal authorities (in Finnish)', link2s:'Association of Finnish Municipalities: training material, data protection checklist and service classification templates',
+  link3:'Publicity of municipal purchase invoices and other documents (in Finnish)', link3s:'Association of Finnish Municipalities', link4:'The guideline on avoindata.fi',
+  noteH:'Notes on this page',
+  note1:'From 2023 onwards, social and health services and rescue services were transferred to the Wellbeing Services County of Southwest Finland, which shows as a clear drop in purchases.',
+  note2:`The page and its code were made with the help of an AI assistant. The sums are calculated directly from the files published by the city, and the yearly totals are checked against them at every update. The classification of suppliers and the estimated values may still contain errors, so check anything essential against the original data. Corrections and comments: <a href="mailto:oskari@summanen.org">oskari@summanen.org</a> or ${ulos(ISSUES_URL,'GitHub issues')}.`,
+  note3:"The supplier's municipality, region, industry and type are retrieved by Business ID from the open YTJ interface of the Finnish Patent and Registration Office (PRH). The information describes the present situation, not the situation at the time of the invoice. Municipalities, joint municipal authorities, associations and foundations are missing from the interface, so their type and municipality are inferred from the name or left unknown.",
+  note4:'The figures on the Analyses tab are calculated from the same rows as the summary, and filters affect them. A new supplier is one with no purchases in the previous year’s data; it may have been a supplier in earlier years. The local share is based on the company’s registered home municipality, so it underestimates services produced locally by nationwide companies.',
+  note5:'Credit notes appear as negative rows and reduce the sums. The amount of credits is shown under the Total purchases figure. If the sum of a group is negative, no bar or percentage is shown for it.',
+  note6:'The service class is a classification shared by Finnish municipalities and maintained by the State Treasury. Codes starting with I (for example I3051) are not part of the official classification but the city’s own, probably investments in the same service.',
+  foot1:`Source: ${ulos(PAIMIO_URL,'City of Paimio, purchase invoice data {years}')}. Supplier information: ${ulos(PRH_URL,'PRH / YTJ open data')}, municipal classification and boundaries ${ulos(TK_URL,'Statistics Finland')} (CC BY 4.0).`,
+  foot2:'An unofficial page for viewing open data published by the city, not a publication of the City of Paimio. Made with the help of an AI assistant, so the information may contain errors.',
+  updated:'Updated', foot3:'Compiled by Oskari Summanen', footCode:'Source code on GitHub', version:'Version', dClose:'Close supplier details', dRegion:'Supplier details',
+}};
+// Aineiston arvojen käännökset: yleiset luokat, maakunnat ja kaksikielisten kuntien ruotsinkieliset nimet
+const ARVOT={
+sv:{'Ei tiedossa':'Okänd','Ulkomaat':'Utlandet','Julkinen sektori':'Offentlig sektor','Järjestö tai säätiö':'Organisation eller stiftelse','Yritys':'Företag',
+  'Ahvenanmaa':'Åland','Etelä-Karjala':'Södra Karelen','Etelä-Pohjanmaa':'Södra Österbotten','Etelä-Savo':'Södra Savolax','Kainuu':'Kajanaland','Kanta-Häme':'Egentliga Tavastland','Keski-Pohjanmaa':'Mellersta Österbotten','Keski-Suomi':'Mellersta Finland','Kymenlaakso':'Kymmenedalen','Lappi':'Lappland','Pirkanmaa':'Birkaland','Pohjanmaa':'Österbotten','Pohjois-Karjala':'Norra Karelen','Pohjois-Pohjanmaa':'Norra Österbotten','Pohjois-Savo':'Norra Savolax','Päijät-Häme':'Päijänne-Tavastland','Uusimaa':'Nyland','Varsinais-Suomi':'Egentliga Finland',
+  'Paimio':'Pemar','Turku':'Åbo','Kaarina':'S:t Karins','Parainen':'Pargas','Kemiönsaari':'Kimitoön','Naantali':'Nådendal','Raisio':'Reso','Lieto':'Lundo','Sauvo':'Sagu','Masku':'Masko','Mynämäki':'Virmo','Nousiainen':'Nousis','Uusikaupunki':'Nystad','Laitila':'Letala','Taivassalo':'Tövsala','Kustavi':'Gustavs','Pöytyä':'Pöytis','Marttila':'S:t Mårtens','Koski Tl':'Koskis',
+  'Helsinki':'Helsingfors','Espoo':'Esbo','Vantaa':'Vanda','Kauniainen':'Grankulla','Kirkkonummi':'Kyrkslätt','Lohja':'Lojo','Raasepori':'Raseborg','Hanko':'Hangö','Inkoo':'Ingå','Siuntio':'Sjundeå','Sipoo':'Sibbo','Porvoo':'Borgå','Loviisa':'Lovisa','Tuusula':'Tusby','Järvenpää':'Träskända','Kerava':'Kervo','Hyvinkää':'Hyvinge','Vihti':'Vichtis',
+  'Tampere':'Tammerfors','Oulu':'Uleåborg','Pori':'Björneborg','Rauma':'Raumo','Vaasa':'Vasa','Mustasaari':'Korsholm','Kokkola':'Karleby','Pietarsaari':'Jakobstad','Uusikaarlepyy':'Nykarleby','Närpiö':'Närpes','Kristiinankaupunki':'Kristinestad','Kaskinen':'Kaskö','Lahti':'Lahtis','Hämeenlinna':'Tavastehus','Mikkeli':'S:t Michel','Savonlinna':'Nyslott','Lappeenranta':'Villmanstrand','Hamina':'Fredrikshamn','Kajaani':'Kajana','Tornio':'Torneå','Raahe':'Brahestad','Iisalmi':'Idensalmi','Maarianhamina':'Mariehamn','Ulvila':'Ulvsby','Eurajoki':'Euraåminne','Kokemäki':'Kumo','Huittinen':'Vittis','Ikaalinen':'Ikalis'},
+en:{'Ei tiedossa':'Unknown','Ulkomaat':'Abroad','Julkinen sektori':'Public sector','Järjestö tai säätiö':'Organisation or foundation','Yritys':'Company',
+  'Ahvenanmaa':'Åland','Etelä-Karjala':'South Karelia','Etelä-Pohjanmaa':'South Ostrobothnia','Etelä-Savo':'South Savo','Keski-Pohjanmaa':'Central Ostrobothnia','Keski-Suomi':'Central Finland','Lappi':'Lapland','Pohjanmaa':'Ostrobothnia','Pohjois-Karjala':'North Karelia','Pohjois-Pohjanmaa':'North Ostrobothnia','Pohjois-Savo':'North Savo','Varsinais-Suomi':'Southwest Finland'}};
+const SUOMEKSI=new Set(['toimiala','tilil','palveluluokka','toimielin','tulosalue']);   // näiden arvot merkitään lang="fi" muunkielisellä sivulla
+let KIELI='fi', LOC='fi-FI', fmtE, fmt2, MN;
+function t(k,...a){ let v=T[KIELI][k]; if(v===undefined) v=T.fi[k]; return typeof v==='function'? v(...a) : v; }
+const arvo=v=> (KIELI!=='fi' && ARVOT[KIELI][v]) || v;
+const dn=(key,i)=> arvo(D[key][i]);
+const la=(key,i)=> KIELI!=='fi' && SUOMEKSI.has(key) && !ARVOT[KIELI][D[key][i]] ? ' lang="fi"' : '';
+const isoAlku=s=>s[0].toUpperCase()+s.slice(1);
+function asetaLokaali(){
+  LOC=LOKAALI[KIELI]; MN=T[KIELI].kk;
+  fmtE=new Intl.NumberFormat(LOC,{maximumFractionDigits:0});
+  fmt2=new Intl.NumberFormat(LOC,{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+// Kiinteät tekstit: suomi luetaan talteen HTML:stä ensimmäisellä kerralla
+function kaannaKiinteat(){
+  const html=k=>String(t(k)).replace(/\{nt\}/g,`<span class="sr">${t('nt')}</span>`).replace('{years}',`${Y[0]}–${Y[Y.length-1]}`);
+  document.querySelectorAll('[data-t]').forEach(el=>{ const k=el.dataset.t; if(T.fi[k]===undefined) T.fi[k]=el.innerHTML; el.innerHTML=html(k); });
+  document.querySelectorAll('[data-ta]').forEach(el=>{ for(const pari of el.dataset.ta.split(';')){ const [attr,k]=pari.split(':'); if(T.fi[k]===undefined) T.fi[k]=el.getAttribute(attr); el.setAttribute(attr,t(k)); } });
+  document.documentElement.lang=KIELI; document.title=t('title');
+  document.querySelectorAll('#kielet button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.kieli===KIELI));
+  const kn=$('kieliNote'); kn.textContent=t('kieliNote'); kn.hidden=KIELI==='fi';
+  const [pv,kk,v]=DATA.built.split('.').map(Number); $('built').textContent= KIELI==='fi'? DATA.built : new Date(v,kk-1,pv).toLocaleDateString(LOC,{day:'numeric',month:'long',year:'numeric'});
+  $('copyText').textContent=t('copyL'); $('copyShort').textContent=t('copyS');
+}
 
 // Näkymän tila osoitteessa. Arvot tallennetaan nimillä ja koodeilla (ei järjestysnumeroilla),
 // jotta linkki vie samaan näkymään myös aineiston päivityksen jälkeen.
@@ -414,9 +708,13 @@ function lueOsoite(){
   if(NAKYMAT.includes(h.get('nakyma'))) S.view=h.get('nakyma');
   if(h.has('jako')) S.adim=h.get('jako');
   for(const k of Object.keys(mode)){ const v=h.get(k==='zoom'?'alue':'mittari_'+k); if((k==='zoom'?['fi','vs']:['eur','n']).includes(v)) mode[k]=v; }
+  if(KIELET.includes(h.get('kieli'))) KIELI=h.get('kieli');
   if(h.has('toimittaja')){ const i=SUP.findIndex(s=>s[P.YT]===h.get('toimittaja')); if(i>=0) avattava=i; }
 }
+// Kieli: osoitteen kieli-parametri, muuten selaimeen tallennettu valinta, muuten suomi
+try{ const k=localStorage.getItem('paimio-ostolaskut-kieli'); if(KIELET.includes(k)) KIELI=k; }catch(e){}
 try{ lueOsoite(); }catch(e){}
+asetaLokaali();
 function saveHash(){
   const p=new URLSearchParams();
   if(S.year!==null) p.set('vuosi',Y[S.year]);
@@ -429,6 +727,7 @@ function saveHash(){
   for(const k of ['maakunta','kunta','omistus','toimiala']) if(mode[k]==='n') p.set('mittari_'+k,'n');
   if(mode.zoom==='fi') p.set('alue','fi');
   if(auki!==null && SUP[auki][P.YT]) p.set('toimittaja',SUP[auki][P.YT]);
+  if(KIELI!=='fi') p.set('kieli',KIELI);
   history.replaceState(null,'','#'+p.toString());
 }
 
@@ -444,7 +743,7 @@ function match(r, skip){
 
 function fillSelect(id,key){
   const el=$(id); const vals=D[key];
-  el.innerHTML='<option value="">Kaikki</option>'+vals.map((v,i)=>v==='–'?'':`<option value="${i}">${esc(v)}</option>`).join('');
+  el.innerHTML=`<option value="">${t('all')}</option>`+vals.map((v,i)=>v==='–'?'':`<option value="${i}"${la(key,i)}>${esc(arvo(v))}</option>`).join('');
   el.value = S[key]===null?'':S[key];
   el.onchange=()=>{ S[key]= el.value===''?null:+el.value; update(); };
 }
@@ -484,16 +783,16 @@ function hbars(el,key,agg,limit){
   if(limit) arr=arr.slice(0,limit);
   const max=Math.max(1,...arr.map(a=>a[m]));
   el.innerHTML = arr.length? arr.map(a=>{
-    const v=a[m]; const pct= (total && v>=0)? (v/total*100).toLocaleString('fi-FI',{maximumFractionDigits:1})+' %' : '–';
+    const v=a[m]; const pct= (total && v>=0)? (v/total*100).toLocaleString(LOC,{maximumFractionDigits:1})+' %' : '–';
     return `<div class="hrow ${S[key]===a.k?'on':''}" data-k="${a.k}" tabindex="0" role="button" aria-pressed="${S[key]===a.k}">
-      <span class="n" title="${esc(D[key][a.k])}">${esc(D[key][a.k])}</span>
+      <span class="n" title="${esc(dn(key,a.k))}"${la(key,a.k)}>${esc(dn(key,a.k))}</span>
       <span class="track"><span class="fill" style="width:${Math.max(0,v)/max*100}%;display:block"></span></span>
-      <span class="v${v<0?' neg':''}">${m==='eur'?short(v):fmtE.format(v)}<small>${pct}</small></span></div>`;}).join('') : '<p class="sub">Ei rivejä valinnalla.</p>';
+      <span class="v${v<0?' neg':''}">${m==='eur'?short(v):fmtE.format(v)}<small>${pct}</small></span></div>`;}).join('') : `<p class="sub">${t('noRows')}</p>`;
   el.querySelectorAll('.hrow').forEach(r=>{
     const k=+r.dataset.k; const a=arr.find(x=>x.k===k);
     const act=()=>{ S[key]= S[key]===k?null:k; update(); };
     r.onclick=act; r.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();act();} };
-    r.onmousemove=e=>showTip(e,`<b>${esc(D[key][k])}</b><br>${eur(a.eur)}<br>${fmtE.format(a.n)} toimittajaa`);
+    r.onmousemove=e=>showTip(e,`<b>${esc(dn(key,k))}</b><br>${eur(a.eur)}<br>${t('nSup',fmtE.format(a.n))}`);
     r.onmouseleave=hideTip;
   });
 }
@@ -503,7 +802,7 @@ function table(el, cols, rows, state, onRow, foot){
   const sorted=[...rows].sort((a,b)=>{ const x=a[sk],y=b[sk]; return (typeof x==='string'? x.localeCompare(y,'fi'): x-y)*(dir==='asc'?1:-1); });
   const shown=sorted.slice(0,state.limit||sorted.length);
   el.innerHTML = `<thead><tr>${cols.map(c=>`<th class="${c.num?'num':''}" ${sk===c.k?`aria-sort="${dir==='asc'?'ascending':'descending'}"`:''} scope="col"><button type="button" class="sortbtn" data-sort="${c.k}">${c.t}</button></th>`).join('')}</tr></thead>
-   <tbody>${shown.map((r,i)=>`<tr data-i="${i}">${cols.map((c,ci)=>{ const sis=c.f?c.f(r):esc(r[c.k]); return `<td class="${c.num?'num':''} ${c.cls||''}">${onRow&&ci===0?`<button type="button" class="rowbtn" data-i="${i}" ${state.sel?`aria-pressed="${!!state.sel(r)}"`:''}>${sis}</button>`:sis}</td>`; }).join('')}</tr>`).join('')}</tbody>
+   <tbody>${shown.map((r,i)=>`<tr data-i="${i}">${cols.map((c,ci)=>{ const sis=c.f?c.f(r):esc(r[c.k]); return `<td class="${c.num?'num':''} ${c.cls||''}"${c.dim?la(c.dim,r.k):''}>${onRow&&ci===0?`<button type="button" class="rowbtn" data-i="${i}" ${state.sel?`aria-pressed="${!!state.sel(r)}"`:''}>${sis}</button>`:sis}</td>`; }).join('')}</tr>`).join('')}</tbody>
    ${foot?`<tfoot><tr>${foot.map((f,i)=>`<td class="${cols[i].num?'num':''}">${f}</td>`).join('')}</tr></tfoot>`:''}`;
   el.querySelectorAll('.sortbtn').forEach(b=>b.onclick=()=>{ const k=b.dataset.sort; if(state.sort===k) state.dir= state.dir==='asc'?'desc':'asc'; else { state.sort=k; state.dir= cols.find(c=>c.k===k).num?'desc':'asc'; } table(el,cols,rows,state,onRow,foot); el.querySelector(`.sortbtn[data-sort="${k}"]`).focus(); });
   // rivin painike on ensimmäisessä solussa; napsautus missä tahansa rivillä toimii samoin
@@ -512,15 +811,16 @@ function table(el, cols, rows, state, onRow, foot){
 }
 const supState={sort:'eur',dir:'desc',limit:200}, tiliState={sort:'eur',dir:'desc',sel:r=>S.tilil===r.k}, taState={sort:'eur',dir:'desc',sel:r=>S.tulosalue===r.k}, plState={sort:'eur',dir:'desc',sel:r=>S.palveluluokka===r.k};
 
-const MN=['tammikuu','helmikuu','maaliskuu','huhtikuu','toukokuu','kesäkuu','heinäkuu','elokuu','syyskuu','lokakuu','marraskuu','joulukuu'];
-function monthLabel(m){ return m===0?'muiden vuosien päivämäärät':(MN[m-1][0].toUpperCase()+MN[m-1].slice(1)+(S.year!==null?' '+Y[S.year]:'')); }
-function monthSelect(){ const el=$('f-month'); el.innerHTML='<option value="">Kaikki kuukaudet</option>'+MN.map((n,i)=>`<option value="${i+1}">${n[0].toUpperCase()+n.slice(1)}</option>`).join('')+'<option value="0">Muiden vuosien päivämäärät</option>'; el.onchange=()=>{ S.month= el.value===''?null:+el.value; update(); }; }
+function monthLabel(m){ return m===0?t('otherDatesL'):(isoAlku(MN[m-1])+(S.year!==null?' '+Y[S.year]:'')); }
+function monthSelect(){ const el=$('f-month'); el.innerHTML=`<option value="">${t('allMonths')}</option>`+MN.map((n,i)=>`<option value="${i+1}">${isoAlku(n)}</option>`).join('')+`<option value="0">${t('otherDates')}</option>`; el.onchange=()=>{ S.month= el.value===''?null:+el.value; update(); }; }
 
 const MAP = __MAP__;
 const MAPIDX = MAP.k.map(k=>D.kunta.indexOf(k[0]));
-const RAMP=['#d6e3f3','#a9c4e2','#6f9ccf','#3f7fbf','#0f5ba1','#072b4c'];
+// Väriasteikko: vaaleassa ulkoasussa tumma on suurin, tummassa vaalea on suurin
+const RAMPIT={vaalea:['#d6e3f3','#a9c4e2','#6f9ccf','#3f7fbf','#0f5ba1','#072b4c'], tumma:['#27425f','#2f5d8c','#3f7fbf','#6fa3d8','#a9c9ea','#e6f1fb']};
+const tumma=()=>document.documentElement.dataset.teema==='tumma';
 function initMap(){
-  $('map').innerHTML=`<svg viewBox="0 0 ${MAP.w} ${MAP.h}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Kuntakartta"><g>${MAP.k.map((k,i)=>`<path class="k" d="${k[1]}" data-i="${i}"/>`).join('')}</g><path class="mb" d="${MAP.m}"/></svg>`;
+  $('map').innerHTML=`<svg viewBox="0 0 ${MAP.w} ${MAP.h}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${t('mapName')}"><g>${MAP.k.map((k,i)=>`<path class="k" d="${k[1]}" data-i="${i}"/>`).join('')}</g><path class="mb" d="${MAP.m}"/></svg>`;
   $('map').querySelectorAll('path.k').forEach(p=>{
     const i=+p.dataset.i, di=MAPIDX[i];
     const valitse=()=>{ if(di<0) return; S.kunta= S.kunta===di?null:di; update(); };
@@ -532,7 +832,7 @@ function drawMap(agg){
   const svg=$('map').querySelector('svg'); if(!svg) return;
   const vb= mode.zoom==='vs'? MAP.vs : [0,0,MAP.w,MAP.h];
   svg.setAttribute('viewBox', vb.join(' '));
-  const m=mode.kunta||'eur';
+  const m=mode.kunta||'eur', RAMP=RAMPIT[tumma()?'tumma':'vaalea'];
   const val=i=>{ const o=agg.get(i); return o? (m==='eur'?o.eur:o.sup.size):0; };
   const vals=MAP.k.map((k,i)=>MAPIDX[i]>=0?val(MAPIDX[i]):0);
   const pos=vals.filter(v=>v>0); const lo=Math.max(m==='eur'?100:1,Math.min(...pos,Infinity)), hi=Math.max(...pos,1);
@@ -541,24 +841,25 @@ function drawMap(agg){
   const fmt=v=> m==='eur'? short(v) : fmtE.format(Math.round(v));
   $('map').querySelectorAll('path.k').forEach(p=>{
     const i=+p.dataset.i, v=vals[i], c=cls(v);
-    p.style.fill= c<0? '#eeeeee' : RAMP[c];
+    p.style.fill= c<0? '' : RAMP[c]; p.classList.toggle('tyhja',c<0);
     p.classList.toggle('sel', MAPIDX[i]>=0 && S.kunta===MAPIDX[i]);
     const o=MAPIDX[i]>=0?agg.get(MAPIDX[i]):null;
-    p.onmousemove=e=>showTip(e, `<b>${esc(MAP.k[i][0])}</b><br>${o? eur(o.eur)+'<br>'+fmtE.format(o.sup.size)+' toimittajaa' : 'Ei toimittajia'}`);
+    p.onmousemove=e=>showTip(e, `<b>${esc(arvo(MAP.k[i][0]))}</b><br>${o? eur(o.eur)+'<br>'+t('nSup',fmtE.format(o.sup.size)) : t('noSup')}`);
   });
-  const karki=[...agg.entries()].filter(([k,o])=>o.eur>0 && !['Ei tiedossa','Ulkomaat'].includes(D.kunta[k])).sort((a,b)=>b[1].eur-a[1].eur).slice(0,5).map(([k,o])=>`${D.kunta[k]} ${short(o.eur)}`);
-  svg.setAttribute('aria-label', `Kuntakartta: toimittajien ostot kotikunnittain${S.kunta!==null?', valittu '+D.kunta[S.kunta]:''}. Suurimmat: ${karki.join(', ')||'ei ostoja'}. Kaikki kunnat ovat Kunta-valikossa ja Toimittajat kunnittain -luettelossa.`);
+  const karki=[...agg.entries()].filter(([k,o])=>o.eur>0 && !['Ei tiedossa','Ulkomaat'].includes(D.kunta[k])).sort((a,b)=>b[1].eur-a[1].eur).slice(0,5).map(([k,o])=>`${dn('kunta',k)} ${short(o.eur)}`);
+  svg.setAttribute('aria-label', t('mapLabel', S.kunta!==null? dn('kunta',S.kunta) : '', karki.join(', ')||t('noPurch')));
   const nice=v=>{ const e=Math.pow(10,Math.floor(Math.log10(v))-1); return Math.round(v/e)*e; };
   const step=k=>nice(Math.exp(L0+(L1-L0)*k/RAMP.length));
-  $('mapLegend').innerHTML= (pos.length && L1<=L0)? `<span><i style="background:#eeeeee"></i>ei ostoja</span><span><i style="background:${RAMP[RAMP.length-1]}"></i>${fmt(hi)}</span>` : pos.length? `<span><i style="background:#eeeeee"></i>ei ostoja</span>`+RAMP.map((c,k)=>`<span><i style="background:${c}"></i>${k===0?'alle '+fmt(step(1)):(k===RAMP.length-1?'yli '+fmt(step(k)):fmt(step(k))+'–'+fmt(step(k+1)))}</span>`).join('') : '';
-  const out=['Ei tiedossa','Ulkomaat'].map(n=>{ const o=agg.get(D.kunta.indexOf(n)); return o? `${n}: ${fmt(m==='eur'?o.eur:o.sup.size)}`:null; }).filter(Boolean);
-  $('mapNote').textContent = 'Asteikko on logaritminen.' + (out.length? ' Kartan ulkopuolella: '+out.join(', ')+'.':'');
+  const tyhja=`<span><i class="tyhja"></i>${t('noPurch')}</span>`;
+  $('mapLegend').innerHTML= (pos.length && L1<=L0)? `${tyhja}<span><i style="background:${RAMP[RAMP.length-1]}"></i>${fmt(hi)}</span>` : pos.length? tyhja+RAMP.map((c,k)=>`<span><i style="background:${c}"></i>${k===0?t('under')+' '+fmt(step(1)):(k===RAMP.length-1?t('over')+' '+fmt(step(k)):fmt(step(k))+'–'+fmt(step(k+1)))}</span>`).join('') : '';
+  const out=['Ei tiedossa','Ulkomaat'].map(n=>{ const o=agg.get(D.kunta.indexOf(n)); return o? `${arvo(n)}: ${fmt(m==='eur'?o.eur:o.sup.size)}`:null; }).filter(Boolean);
+  $('mapNote').textContent = t('logScale') + (out.length? t('outside',out.join(', ')):'');
 }
 function chips(){
   const c=[];
-  for(const k of ['toimielin','tilil','tulosalue','palveluluokka','omistus','kunta','maakunta','toimiala']) if(S[k]!==null) c.push(`<span class="chip"><b>${LABEL[k]}:</b> ${esc(D[k][S[k]])}<button aria-label="Poista rajaus" data-k="${k}">×</button></span>`);
-  if(S.month!==null) c.push(`<span class="chip"><b>Kuukausi:</b> ${esc(monthLabel(S.month))}<button aria-label="Poista rajaus" data-k="month">×</button></span>`);
-  if(S.q) c.push(`<span class="chip"><b>Haku:</b> ${esc(S.q)}<button aria-label="Poista haku" data-k="q">×</button></span>`);
+  for(const k of ['toimielin','tilil','tulosalue','palveluluokka','omistus','kunta','maakunta','toimiala']) if(S[k]!==null) c.push(`<span class="chip"><b>${t('l')[k]}:</b> <span${la(k,S[k])}>${esc(dn(k,S[k]))}</span><button aria-label="${t('rmFilter')}" data-k="${k}">×</button></span>`);
+  if(S.month!==null) c.push(`<span class="chip"><b>${t('l').month}:</b> ${esc(monthLabel(S.month))}<button aria-label="${t('rmFilter')}" data-k="month">×</button></span>`);
+  if(S.q) c.push(`<span class="chip"><b>${t('l').q}:</b> ${esc(S.q)}<button aria-label="${t('rmSearch')}" data-k="q">×</button></span>`);
   $('chips').innerHTML=c.join('');
   $('chips').querySelectorAll('button').forEach(b=>b.onclick=()=>{ const k=b.dataset.k; S[k]= k==='q'?'':null; if(k==='q') $('q').value=''; update(); });
 }
@@ -572,7 +873,7 @@ function currentFocusKey(){
 }
 function restoreFocus(key){ if(!key) return; const el=document.querySelector(key); if(el && el!==document.activeElement) el.focus({preventScroll:true}); }
 
-let ekaPiirto=true;
+let ekaPiirto=true, ilmoitus='';   // ilmoitus: seuraavan piirron tilaviestin alku (kielen tai ulkoasun vaihto)
 function update(){
   const focusKey=currentFocusKey();
   saveHash(); yearsNav(); chips();
@@ -603,39 +904,39 @@ function update(){
   // KPIs
   const yl = S.year===null? `${Y[0]}–${Y[Y.length-1]}` : Y[S.year];
   $('kpis').innerHTML = [
-    ['Ostot yhteensä', short(tot), (S.month!==null? monthLabel(S.month) : yl) + (hyv<0? ` · hyvityksiä ${short(hyv)}`:'')],
-    ['Toimittajia', fmtE.format(sups.size), 'eri toimittajaa'],
-    ['Tositteita', fmtE.format(tos.size), fmtE.format(n)+' riviä'],
-    ['Keskimääräinen rivi', eur(n?tot/n:0), 'alv 0 %'],
-    ['Paimiolaiset toimittajat', tot? (paimio/tot*100).toLocaleString('fi-FI',{maximumFractionDigits:1})+' %':'–', short(paimio)],
-    ['Varsinais-Suomesta', tot? (vs/tot*100).toLocaleString('fi-FI',{maximumFractionDigits:1})+' %':'–', short(vs)],
+    [t('kTot'), short(tot), (S.month!==null? monthLabel(S.month) : yl) + (hyv<0? t('credits',short(hyv)):'')],
+    [t('kSup'), fmtE.format(sups.size), t('kSupS')],
+    [t('kTos'), fmtE.format(tos.size), t('nRows',fmtE.format(n))],
+    [t('kAvg'), eur(n?tot/n:0), t('kVat')],
+    [t('kPaimio'), tot? (paimio/tot*100).toLocaleString(LOC,{maximumFractionDigits:1})+' %':'–', short(paimio)],
+    [t('kVs'), tot? (vs/tot*100).toLocaleString(LOC,{maximumFractionDigits:1})+' %':'–', short(vs)],
   ].map(k=>`<div class="kpi"><div class="l">${k[0]}</div><div class="v">${k[1]}</div><div class="s">${k[2]}</div></div>`).join('');
   // year chart
-  $('yearChart').parentElement.querySelector('.sub').textContent = S.month===null ? 'Vuosien vertailu. Valitse vuosi napsauttamalla pylvästä.' : (S.month===0 ? 'Vuosien vertailu, muiden vuosien päivämäärät.' : `Vuosien vertailu, ${MN[S.month-1]} kunakin vuonna.`);
+  $('yearChart').parentElement.querySelector('.sub').textContent = S.month===null ? t('yearSub') : (S.month===0 ? t('yearSubOther') : t('yearSubMonth',MN[S.month-1]));
   colChart($('yearChart'), Y.map((y,i)=>({label:String(y),v:yearAgg[i],i,on:S.year===i,dim:S.year!==null&&S.year!==i})), {values:true, click:it=>{ S.year=it.i; update(); }});
   // month chart
   let mk=[...months.keys()].sort((a,b)=>a-b);
   if(S.year!==null){ const yy=Y[S.year]; const inYear=mk.filter(m=>Math.floor(m/100)===yy); const other=mk.filter(m=>Math.floor(m/100)!==yy);
-    const items=[]; for(let mm=1;mm<=12;mm++){ const key=yy*100+mm; items.push({label:`${MN[mm-1][0].toUpperCase()+MN[mm-1].slice(1)} ${yy}`,tick:String(mm),mm,v:months.get(key)||0,on:S.month===mm,dim:S.month!==null&&S.month!==mm}); }
+    const items=[]; for(let mm=1;mm<=12;mm++){ const key=yy*100+mm; items.push({label:`${isoAlku(MN[mm-1])} ${yy}`,tick:String(mm),mm,v:months.get(key)||0,on:S.month===mm,dim:S.month!==null&&S.month!==mm}); }
     const ov=other.reduce((s,m)=>s+months.get(m),0);
     colChart($('monthChart'), items, {click:it=>{ S.month= S.month===it.mm?null:it.mm; update(); }});
     $('monthChart').insertAdjacentHTML('afterend','');
-    $('monthChart').parentElement.querySelector('.sub').textContent = `Tositepäivämäärän mukaan, ${yy}. Napsauta kuukautta rajataksesi.` + (ov? ` Muiden vuosien päivämäärillä ${short(ov)}.`:'');
+    $('monthChart').parentElement.querySelector('.sub').textContent = t('monthSub',yy) + (ov? t('monthOther',short(ov)):'');
   } else {
     const byY=new Map(); for(const m of mk){ const yy=Math.floor(m/100); if(yy>=Y[0]&&yy<=Y[Y.length-1]) byY.set(m,months.get(m)); }
     const items=[]; for(const yy of Y) for(let mm=1;mm<=12;mm++){ const key=yy*100+mm; items.push({label:`${mm}/${yy}`,tick: mm===1?String(yy):'',v:byY.get(key)||0}); }
     colChart($('monthChart'), items, {});
-    $('monthChart').parentElement.querySelector('.sub').textContent='Tositepäivämäärän mukaan, kaikki vuodet. Valitse vuosi tarkentaaksesi.';
+    $('monthChart').parentElement.querySelector('.sub').textContent=t('monthSubAll');
   }
   // suppliers
-  const srows=[...supAgg.entries()].map(([s,o])=>({s,name:SUP[s][P.NIMI],yt:SUP[s][P.YT],kunta:D.kunta[SUP[s][P.KUNTA]],eur:o.eur,n:o.n}));
+  const srows=[...supAgg.entries()].map(([s,o])=>({s,name:SUP[s][P.NIMI],yt:SUP[s][P.YT],kunta:dn('kunta',SUP[s][P.KUNTA]),eur:o.eur,n:o.n}));
   const cnt=table($('supTable'),[
-    {k:'name',t:'Toimittaja',cls:'name',f:r=>`${esc(r.name)}<span class="yt">${esc(r.yt||'ei Y-tunnusta')}</span>`},
-    {k:'kunta',t:'Kunta'},
-    {k:'n',t:'Rivejä',num:true,f:r=>fmtE.format(r.n)},
-    {k:'eur',t:'Ostot €',num:true,f:eurCell}],
-    srows, supState, r=>openSup(r.s), ['Yhteensä','',fmtE.format(n),fmtE.format(Math.round(tot))]);
-  $('supMore').textContent = cnt>supState.limit? `Näytetään ${supState.limit} / ${fmtE.format(cnt)} toimittajaa. Tarkenna hakua nähdäksesi muut.` : `${fmtE.format(cnt)} toimittajaa.`;
+    {k:'name',t:t('hSupplier'),cls:'name',f:r=>`${esc(r.name)}<span class="yt">${esc(r.yt||t('noYt'))}</span>`},
+    {k:'kunta',t:t('hKuntaCol')},
+    {k:'n',t:t('hRows'),num:true,f:r=>fmtE.format(r.n)},
+    {k:'eur',t:t('hEur'),num:true,f:eurCell}],
+    srows, supState, r=>openSup(r.s), [t('total'),'',fmtE.format(n),fmtE.format(Math.round(tot))]);
+  $('supMore').textContent = cnt>supState.limit? t('supMoreLim',supState.limit,fmtE.format(cnt)) : t('supCount',fmtE.format(cnt));
   // dims
   hbars($('maakunta'),'maakunta',dimAgg.maakunta,12);
   hbars($('kunta'),'kunta',dimAgg.kunta,20);
@@ -644,25 +945,27 @@ function update(){
   hbars($('omistus'),'omistus',dimAgg.omistus);
   hbars($('toimiala'),'toimiala',dimAgg.toimiala,15);
   hbars($('toimielin'),'toimielin',ieAgg);
-  const estTxt = est>0 ? `Osa luvuista arvioitu palveluluokan perusteella (${(est/totAbs*100).toLocaleString('fi-FI',{maximumFractionDigits:0})} % euroista), koska kaupungin aineistossa tieto puuttuu.` : '';
+  const estTxt = est>0 ? t('est',(est/totAbs*100).toLocaleString(LOC,{maximumFractionDigits:0})+' %') : '';
   $('toimielinSub').textContent = estTxt; $('taSub').textContent = estTxt;
-  if(ieAgg.size===0) $('toimielin').innerHTML='<p class="sub">Valinnalla ei ole toimielintietoa.</p>';
+  if(ieAgg.size===0) $('toimielin').innerHTML=`<p class="sub">${t('noToimielin')}</p>`;
   const trows=[...tiliAgg.entries()].map(([k,o])=>({k,name:D.tilil[k],eur:o.eur,sup:o.sup.size}));
-  table($('tiliTable'),[{k:'name',t:'Tili',cls:'name'},{k:'sup',t:'Toimittajia',num:true,f:r=>fmtE.format(r.sup)},{k:'eur',t:'Ostot €',num:true,f:eurCell}],
+  const dcols=(dim,otsikko)=>[{k:'name',t:otsikko,cls:'name',dim},{k:'sup',t:t('hSups'),num:true,f:r=>fmtE.format(r.sup)},{k:'eur',t:t('hEur'),num:true,f:eurCell}];
+  table($('tiliTable'),dcols('tilil',t('l').tilil),
     trows,tiliState,r=>{ S.tilil= S.tilil===r.k?null:r.k; update(); });
   const arows=[...taAgg.entries()].map(([k,o])=>({k,name:D.tulosalue[k],eur:o.eur,sup:o.sup.size}));
-  if(arows.length) table($('taTable'),[{k:'name',t:'Tulosalue',cls:'name'},{k:'sup',t:'Toimittajia',num:true,f:r=>fmtE.format(r.sup)},{k:'eur',t:'Ostot €',num:true,f:eurCell}],
+  if(arows.length) table($('taTable'),dcols('tulosalue',t('l').tulosalue),
     arows,taState,r=>{ S.tulosalue= S.tulosalue===r.k?null:r.k; update(); });
-  else $('taTable').innerHTML='<tbody><tr><td>Ei tulosaluetietoa valinnalla.</td></tr></tbody>';
+  else $('taTable').innerHTML=`<tbody><tr><td>${t('noTa')}</td></tr></tbody>`;
   const prows=[...plAgg.entries()].map(([k,o])=>({k,name:D.palveluluokka[k],eur:o.eur,sup:o.sup.size}));
-  if(prows.length) table($('plTable'),[{k:'name',t:'Palveluluokka',cls:'name'},{k:'sup',t:'Toimittajia',num:true,f:r=>fmtE.format(r.sup)},{k:'eur',t:'Ostot €',num:true,f:eurCell}],
+  if(prows.length) table($('plTable'),dcols('palveluluokka',t('l').palveluluokka),
     prows,plState,r=>{ S.palveluluokka= S.palveluluokka===r.k?null:r.k; update(); });
-  else $('plTable').innerHTML='<tbody><tr><td>Valitun vuoden aineistossa ei ole palveluluokkaa.</td></tr></tbody>';
+  else $('plTable').innerHTML=`<tbody><tr><td>${t('noPl')}</td></tr></tbody>`;
   naytaNakyma(); if(S.view==='analyysit') analyysit();
   $('f-adim').value=S.adim;
   restoreFocus(focusKey);
-  const tila=`${S.month!==null? monthLabel(S.month) : yl}: ostot ${short(tot)}, ${fmtE.format(sups.size)} toimittajaa, ${fmtE.format(n)} riviä.`;
-  if(ekaPiirto) ekaPiirto=false; else $('live').textContent='Näkymä päivitetty. '+tila;
+  const tila=t('live', S.month!==null? monthLabel(S.month) : yl, short(tot), fmtE.format(sups.size), fmtE.format(n));
+  if(ekaPiirto) ekaPiirto=false; else $('live').textContent=(ilmoitus||t('updatedView'))+tila;
+  ilmoitus='';
 }
 
 // ---------- välilehdet ----------
@@ -676,16 +979,16 @@ NAKYMAT.forEach((n,i)=>{ const tab=$('t-'+n);
 
 // ---------- analyysit ----------
 const ADIM={
-  toimiala:{t:'Toimiala', get:r=>SUP[r[C.S]][P.TOL]}, tilil:{t:'Tili', get:r=>r[C.TILI]},
-  palveluluokka:{t:'Palveluluokka', get:r=>r[C.PL]}, toimielin:{t:'Toimielin', get:r=>r[C.TE]},
-  kunta:{t:'Toimittajan kunta', get:r=>SUP[r[C.S]][P.KUNTA]}, maakunta:{t:'Toimittajan maakunta', get:r=>SUP[r[C.S]][P.MAAK]},
-  omistus:{t:'Toimittajan tyyppi', get:r=>SUP[r[C.S]][P.OM]},
+  toimiala:{get:r=>SUP[r[C.S]][P.TOL]}, tilil:{get:r=>r[C.TILI]},
+  palveluluokka:{get:r=>r[C.PL]}, toimielin:{get:r=>r[C.TE]},
+  kunta:{get:r=>SUP[r[C.S]][P.KUNTA]}, maakunta:{get:r=>SUP[r[C.S]][P.MAAK]},
+  omistus:{get:r=>SUP[r[C.S]][P.OM]},
 };
 if(!ADIM[S.adim]) S.adim='toimiala';
-const KOKOLUOKAT=[[-Infinity,0,'Hyvityksiä enemmän kuin ostoja'],[0,1e3,'alle 1 000 €'],[1e3,1e4,'1 000 – 9 999 €'],[1e4,1e5,'10 000 – 99 999 €'],[1e5,Infinity,'100 000 € tai enemmän']];
+const KOKOLUOKAT=[[-Infinity,0],[0,1e3],[1e3,1e4],[1e4,1e5],[1e5,Infinity]];   // nimet: t('koko')
 const aState={keh:{sort:'cur',dir:'desc',limit:40,sel:r=>S[S.adim]===r.k}, uudet:{sort:'eur',dir:'desc',limit:100}, pois:{sort:'eur',dir:'desc',limit:100},
   paik:{sort:'ulos',dir:'desc',sel:r=>S.tilil===r.k}, koko:{sort:'i',dir:'asc'}, vuodet:{sort:'y',dir:'asc'}};
-const pros=(a,b)=> b? (a/b*100).toLocaleString('fi-FI',{maximumFractionDigits:1})+' %' : '–';
+const pros=(a,b)=> b? (a/b*100).toLocaleString(LOC,{maximumFractionDigits:1})+' %' : '–';
 const tuh=v=> fmtE.format(Math.round(v/1000));
 const numCell=k=>r=> r[k]<0? `<span class="neg">${fmtE.format(Math.round(r[k]))}</span>` : fmtE.format(Math.round(r[k]));
 function analyysit(){
@@ -701,45 +1004,45 @@ function analyysit(){
     if(y===yi){ let o=tilit.get(r[C.TILI]); if(!o){ o={eur:0,paimio:0,vs:0,sup:new Set()}; tilit.set(r[C.TILI],o); } o.eur+=e; o.sup.add(s); if(sp[P.KUNTA]===paimioIdx) o.paimio+=e; if(sp[P.MAAK]===vsIdx) o.vs+=e; }
   }
   // 1. kehitys vuosittain
-  const krows=[...byDim.entries()].filter(([k])=>D[dim][k]!=='–').map(([k,a])=>{ const o={k,name:D[dim][k],cur:a[yi],d:edel!==null? a[yi]-a[pi] : 0}; Y.forEach((y,i)=>o['y'+i]=a[i]); return o; });
-  const kcols=[{k:'name',t:ADIM[dim].t,cls:'name'}].concat(Y.map((y,i)=>({k:'y'+i,t:(i===yi?'<span class="sr">valittu vuosi </span>':'')+y,num:true,f:r=>{ const v=r['y'+i]; const s=v? tuh(v) : '–'; return i===yi? `<b>${s}</b>` : (v<0? `<span class="neg">${s}</span>` : s); }})));
-  if(edel!==null) kcols.push({k:'d',t:`Muutos ${edel}→${vuosi}`,num:true,f:r=> r.d? `<span class="${r.d>0?'up':'down'}">${r.d>0?'+':'−'}${tuh(Math.abs(r.d))}</span>` : '–'});
+  const krows=[...byDim.entries()].filter(([k])=>D[dim][k]!=='–').map(([k,a])=>{ const o={k,name:dn(dim,k),cur:a[yi],d:edel!==null? a[yi]-a[pi] : 0}; Y.forEach((y,i)=>o['y'+i]=a[i]); return o; });
+  const kcols=[{k:'name',t:t('adim')[dim],cls:'name',dim}].concat(Y.map((y,i)=>({k:'y'+i,t:(i===yi?`<span class="sr">${t('selYear')}</span>`:'')+y,num:true,f:r=>{ const v=r['y'+i]; const s=v? tuh(v) : '–'; return i===yi? `<b>${s}</b>` : (v<0? `<span class="neg">${s}</span>` : s); }})));
+  if(edel!==null) kcols.push({k:'d',t:t('change',edel,vuosi),num:true,f:r=> r.d? `<span class="${r.d>0?'up':'down'}">${r.d>0?'+':'−'}${tuh(Math.abs(r.d))}</span>` : '–'});
   const kn=table($('aKeh'),kcols,krows,aState.keh, COLIDX[dim]!==undefined||SUPIDX[dim]!==undefined ? r=>{ S[dim]= S[dim]===r.k?null:r.k; update(); } : null);
-  $('aKehSub').textContent=`Ostot tuhansina euroina, kaikki vuodet. Valitse rivi rajataksesi koko raportin siihen.`+(dim==='palveluluokka'?' Palveluluokka on aineistossa vuodesta 2022.':'')+(dim==='toimielin'&&DATA.arviot.toimielin?' Osa vuosista on arvioitu, ks. huomiot.':'');
-  $('aKehMore').textContent= kn>aState.keh.limit? `Näytetään ${aState.keh.limit} suurinta / ${fmtE.format(kn)}. Rajaa tai lajittele nähdäksesi muut.` : '';
+  $('aKehSub').textContent=t('kehSub')+(dim==='palveluluokka'?t('kehSubPl'):'')+(dim==='toimielin'&&DATA.arviot.toimielin?t('kehSubTe'):'');
+  $('aKehMore').textContent= kn>aState.keh.limit? t('kehMore',aState.keh.limit,fmtE.format(kn)) : '';
   // 2. uudet ja poistuneet toimittajat
   const uudet=[], pois=[];
   if(edel!==null) for(const [s,b] of supY){ const nyt=b.n[yi]>0, ennen=b.n[pi]>0;
-    if(nyt&&!ennen) uudet.push({s,name:SUP[s][P.NIMI],kunta:D.kunta[SUP[s][P.KUNTA]],eur:b.eur[yi]});
-    if(!nyt&&ennen) pois.push({s,name:SUP[s][P.NIMI],kunta:D.kunta[SUP[s][P.KUNTA]],eur:b.eur[pi]}); }
-  const scol=otsikko=>[{k:'name',t:'Toimittaja',cls:'name'},{k:'kunta',t:'Kunta'},{k:'eur',t:otsikko,num:true,f:eurCell}];
+    if(nyt&&!ennen) uudet.push({s,name:SUP[s][P.NIMI],kunta:dn('kunta',SUP[s][P.KUNTA]),eur:b.eur[yi]});
+    if(!nyt&&ennen) pois.push({s,name:SUP[s][P.NIMI],kunta:dn('kunta',SUP[s][P.KUNTA]),eur:b.eur[pi]}); }
+  const scol=otsikko=>[{k:'name',t:t('hSupplier'),cls:'name'},{k:'kunta',t:t('hKuntaCol')},{k:'eur',t:otsikko,num:true,f:eurCell}];
   const sum=a=>a.reduce((x,r)=>x+r.eur,0), tyhja=teksti=>`<tbody><tr><td>${teksti}</td></tr></tbody>`;
-  $('aUudetH').textContent=`Uudet toimittajat ${vuosi}`; $('aPoisH').textContent=`Poistuneet toimittajat ${vuosi}`;
-  if(edel===null){ const m=`Vertailuvuotta ei ole: ${vuosi} on aineiston ensimmäinen vuosi.`; $('aUudetSub').textContent=m; $('aPoisSub').textContent=m; $('aUudet').innerHTML=tyhja('Ei vertailua.'); $('aPois').innerHTML=tyhja('Ei vertailua.'); }
+  $('aUudetH').textContent=t('newH',vuosi); $('aPoisH').textContent=t('goneH',vuosi);
+  if(edel===null){ const m=t('noCompare',vuosi); $('aUudetSub').textContent=m; $('aPoisSub').textContent=m; $('aUudet').innerHTML=tyhja(t('noCompareS')); $('aPois').innerHTML=tyhja(t('noCompareS')); }
   else {
-    $('aUudetSub').textContent=`${fmtE.format(uudet.length)} toimittajaa, joilta ei ollut ostoja vuonna ${edel}. Ostot heiltä ${short(sum(uudet))} vuonna ${vuosi}.`;
-    $('aPoisSub').textContent=`${fmtE.format(pois.length)} toimittajaa, joilta ostettiin vuonna ${edel} mutta ei enää vuonna ${vuosi}. Ostot heiltä olivat ${short(sum(pois))}.`;
-    uudet.length? table($('aUudet'),scol(`Ostot ${vuosi} €`),uudet,aState.uudet,r=>openSup(r.s)) : $('aUudet').innerHTML=tyhja('Ei uusia toimittajia valinnalla.');
-    pois.length? table($('aPois'),scol(`Ostot ${edel} €`),pois,aState.pois,r=>openSup(r.s)) : $('aPois').innerHTML=tyhja('Ei poistuneita toimittajia valinnalla.');
+    $('aUudetSub').textContent=t('newSub',fmtE.format(uudet.length),edel,short(sum(uudet)),vuosi);
+    $('aPoisSub').textContent=t('goneSub',fmtE.format(pois.length),edel,short(sum(pois)),vuosi);
+    uudet.length? table($('aUudet'),scol(t('purchY',vuosi)),uudet,aState.uudet,r=>openSup(r.s)) : $('aUudet').innerHTML=tyhja(t('noNew'));
+    pois.length? table($('aPois'),scol(t('purchY',edel)),pois,aState.pois,r=>openSup(r.s)) : $('aPois').innerHTML=tyhja(t('noGone'));
   }
   // 3. paikallisuus tileittäin
   const prows=[...tilit.entries()].map(([k,o])=>({k,name:D.tilil[k],eur:o.eur,ulos:o.eur-o.paimio,pp:o.eur>0?o.paimio/o.eur:-1,vp:o.eur>0?o.vs/o.eur:-1,paimio:o.paimio,vs:o.vs,sup:o.sup.size}));
-  $('aPaikSub').textContent=`Vuosi ${vuosi}. Paimion ulkopuolelle -sarake kertoo, paljonko tilin ostoista tehtiin muualle rekisteröidyiltä toimittajilta. Valitse rivi rajataksesi.`;
-  prows.length? table($('aPaik'),[{k:'name',t:'Tili',cls:'name'},{k:'eur',t:'Ostot €',num:true,f:eurCell},{k:'ulos',t:'Paimion ulkopuolelle €',num:true,f:numCell('ulos')},
-    {k:'pp',t:'Paimiosta',num:true,f:r=>r.pp<0?'–':pros(r.paimio,r.eur)},{k:'vp',t:'Varsinais-Suomesta',num:true,f:r=>r.vp<0?'–':pros(r.vs,r.eur)},{k:'sup',t:'Toimittajia',num:true,f:r=>fmtE.format(r.sup)}],
-    prows,aState.paik,r=>{ S.tilil= S.tilil===r.k?null:r.k; update(); }) : $('aPaik').innerHTML=tyhja('Ei rivejä valinnalla.');
+  $('aPaikSub').textContent=t('paikSub',vuosi);
+  prows.length? table($('aPaik'),[{k:'name',t:t('l').tilil,cls:'name',dim:'tilil'},{k:'eur',t:t('hEur'),num:true,f:eurCell},{k:'ulos',t:t('hOut'),num:true,f:numCell('ulos')},
+    {k:'pp',t:t('hFromPaimio'),num:true,f:r=>r.pp<0?'–':pros(r.paimio,r.eur)},{k:'vp',t:t('hFromVs'),num:true,f:r=>r.vp<0?'–':pros(r.vs,r.eur)},{k:'sup',t:t('hSups'),num:true,f:r=>fmtE.format(r.sup)}],
+    prows,aState.paik,r=>{ S.tilil= S.tilil===r.k?null:r.k; update(); }) : $('aPaik').innerHTML=tyhja(t('noRows'));
   // 4. toimittajat ostojen koon mukaan
-  const luokat=KOKOLUOKAT.map((l,i)=>({i,name:l[2],n:0,eur:0})); let nTot=0, eTot=0;
+  const luokat=KOKOLUOKAT.map((l,i)=>({i,name:t('koko')[i],n:0,eur:0})); let nTot=0, eTot=0;
   for(const b of supY.values()){ if(!b.n[yi]) continue; const v=b.eur[yi]; const l=luokat[KOKOLUOKAT.findIndex(x=>v>=x[0]&&v<x[1])]; l.n++; l.eur+=v; nTot++; eTot+=v; }
-  $('aKokoSub').textContent=`Toimittajat ryhmiteltynä sen mukaan, paljonko kaupunki osti heiltä vuonna ${vuosi}.`;
-  table($('aKoko'),[{k:'i',t:'Ostot toimittajalta',cls:'name',f:r=>esc(r.name)},{k:'n',t:'Toimittajia',num:true,f:r=>fmtE.format(r.n)},{k:'np',t:'Osuus toimittajista',num:true,f:r=>pros(r.n,nTot)},
-    {k:'eur',t:'Ostot €',num:true,f:eurCell},{k:'ep',t:'Osuus euroista',num:true,f:r=>r.eur<0?'–':pros(r.eur,eTot)}],
+  $('aKokoSub').textContent=t('kokoSub',vuosi);
+  table($('aKoko'),[{k:'i',t:t('hKokoCol'),cls:'name',f:r=>esc(r.name)},{k:'n',t:t('hSups'),num:true,f:r=>fmtE.format(r.n)},{k:'np',t:t('hSupShare'),num:true,f:r=>pros(r.n,nTot)},
+    {k:'eur',t:t('hEur'),num:true,f:eurCell},{k:'ep',t:t('hEurShare'),num:true,f:r=>r.eur<0?'–':pros(r.eur,eTot)}],
     luokat.filter(l=>l.n).map(l=>({...l,np:l.n/(nTot||1),ep:l.eur/(eTot||1)})),aState.koko);
   // 5. vuodet
   const vrows=vuodet.map((v,i)=>{ const es=[...supY.values()].filter(b=>b.n[i]>0).map(b=>b.eur[i]).sort((a,b)=>b-a); const top=es.slice(0,10).reduce((x,y)=>x+y,0);
     return {y:v.y,eur:v.eur,n:es.length,pp:v.eur>0?v.paimio/v.eur:0,vp:v.eur>0?v.vs/v.eur:0,tp:v.eur>0?top/v.eur:0,paimio:v.paimio,vs:v.vs,top}; });
-  table($('aVuodet'),[{k:'y',t:'Vuosi',cls:'name',f:r=> r.y===vuosi? `<b>${r.y}</b>` : r.y},{k:'eur',t:'Ostot €',num:true,f:eurCell},{k:'n',t:'Toimittajia',num:true,f:r=>fmtE.format(r.n)},
-    {k:'pp',t:'Paimiosta',num:true,f:r=>pros(r.paimio,r.eur)},{k:'vp',t:'Varsinais-Suomesta',num:true,f:r=>pros(r.vs,r.eur)},{k:'tp',t:'10 suurimman toimittajan osuus',num:true,f:r=>pros(r.top,r.eur)}],
+  table($('aVuodet'),[{k:'y',t:t('hYearCol'),cls:'name',f:r=> r.y===vuosi? `<b>${r.y}</b>` : r.y},{k:'eur',t:t('hEur'),num:true,f:eurCell},{k:'n',t:t('hSups'),num:true,f:r=>fmtE.format(r.n)},
+    {k:'pp',t:t('hFromPaimio'),num:true,f:r=>pros(r.paimio,r.eur)},{k:'vp',t:t('hFromVs'),num:true,f:r=>pros(r.vs,r.eur)},{k:'tp',t:t('hTop10'),num:true,f:r=>pros(r.top,r.eur)}],
     vrows,aState.vuodet);
 }
 
@@ -752,15 +1055,16 @@ function openSup(s){
   const cur=rows.filter(r=>S.year===null||r[C.Y]===S.year);
   const tili=new Map(); cur.forEach(r=>tili.set(r[C.TILI],(tili.get(r[C.TILI])||0)+r[C.SNT]/100));
   $('dTitle').textContent=sp[P.NIMI];
-  $('dSub').textContent=[sp[P.YT]||'Ei Y-tunnusta', D.kunta[sp[P.KUNTA]], D.omistus[sp[P.OM]], D.toimiala[sp[P.TOL]]].filter(x=>x&&x!=='Ei tiedossa'&&!x.includes('ei toimialatietoa')).join(' · ');
-  const list=[...cur].sort((a,b)=>b[1]-a[1]||b[6]-a[6]);
+  const tiedossa=x=>x&&x!=='Ei tiedossa'&&!x.includes('ei toimialatietoa'), tol=D.toimiala[sp[P.TOL]];
+  $('dSub').innerHTML=[sp[P.YT]||t('noYtC'), ...[D.kunta[sp[P.KUNTA]], D.omistus[sp[P.OM]]].filter(tiedossa).map(arvo)].map(esc).concat(tiedossa(tol)? [`<span${la('toimiala',sp[P.TOL])}>${esc(arvo(tol))}</span>`] : []).join(' · ');
+  const list=[...cur].sort((a,b)=>b[1]-a[1]||b[6]-a[6]), fiLang=KIELI!=='fi'?' lang="fi"':'';
   $('dBody').innerHTML=`
-   <div><h3>Ostot vuosittain</h3><div class="colchart" id="dYear" style="height:170px"></div></div>
-   <div><h3>Tilit${S.year!==null?' '+Y[S.year]:''}</h3><div class="hbars" id="dTili"></div></div>
-   <div><h3>Laskurivit${S.year!==null?' '+Y[S.year]:''} (${fmtE.format(list.length)})</h3>
-   <div class="tblwrap" tabindex="0" role="region" aria-label="Laskurivit"><table><thead><tr><th scope="col">Kk</th><th scope="col">Tosite</th><th scope="col">Tili</th><th scope="col">Toimielin / tulosalue</th><th scope="col" class="num">Summa €</th></tr></thead><tbody>
-   ${list.slice(0,500).map(r=>`<tr style="cursor:default"><td>${r[C.YM]?(r[C.YM]%100)+'/'+Math.floor(r[C.YM]/100):'–'}</td><td>${r[C.TOS]||''}</td><td style="white-space:normal">${esc(D.tilil[r[C.TILI]])}</td><td style="white-space:normal">${esc([D.toimielin[r[C.TE]],D.tulosalue[r[C.TA]]].filter(x=>x!=='–').join(' / ')||'–')}${r[C.ARVIO]?' <span aria-hidden="true">*</span><span class="sr"> (arvioitu)</span>':''}</td><td class="num">${fmt2.format(r[C.SNT]/100)}</td></tr>`).join('')}
-   </tbody></table></div>${list.length>500?'<p class="more">Näytetään 500 uusinta riviä.</p>':''}${list.some(r=>r[C.ARVIO])?'<p class="more">* Toimielin ja tulosalue arvioitu palveluluokan perusteella.</p>':''}</div>`;
+   <div><h3>${t('dYears')}</h3><div class="colchart" id="dYear" style="height:170px"></div></div>
+   <div><h3>${t('dTilit')}${S.year!==null?' '+Y[S.year]:''}</h3><div class="hbars" id="dTili"></div></div>
+   <div><h3>${t('dRows')}${S.year!==null?' '+Y[S.year]:''} (${fmtE.format(list.length)})</h3>
+   <div class="tblwrap" tabindex="0" role="region" aria-label="${t('dRows')}"><table><thead><tr><th scope="col">${t('dKk')}</th><th scope="col">${t('dTosite')}</th><th scope="col">${t('l').tilil}</th><th scope="col">${t('dTe')}</th><th scope="col" class="num">${t('dSum')}</th></tr></thead><tbody>
+   ${list.slice(0,500).map(r=>`<tr style="cursor:default"><td>${r[C.YM]?(r[C.YM]%100)+'/'+Math.floor(r[C.YM]/100):'–'}</td><td>${r[C.TOS]||''}</td><td style="white-space:normal"${fiLang}>${esc(D.tilil[r[C.TILI]])}</td><td style="white-space:normal"><span${fiLang}>${esc([D.toimielin[r[C.TE]],D.tulosalue[r[C.TA]]].filter(x=>x!=='–').join(' / ')||'–')}</span>${r[C.ARVIO]?` <span aria-hidden="true">*</span><span class="sr">${t('estSr')}</span>`:''}</td><td class="num">${fmt2.format(r[C.SNT]/100)}</td></tr>`).join('')}
+   </tbody></table></div>${list.length>500?`<p class="more">${t('d500')}</p>`:''}${list.some(r=>r[C.ARVIO])?`<p class="more">${t('dStar')}</p>`:''}</div>`;
   colChart($('dYear'), Y.map((y,i)=>({label:String(y),v:byY[i],dim:S.year!==null&&S.year!==i})), {values:true});
   const tm=new Map([...tili.entries()].map(([k,v])=>[k,{eur:v,sup:new Set([s])}]));
   const save=mode.tilil; mode.tilil='eur'; hbars($('dTili'),'tilil',tm,10); mode.tilil=save;
@@ -781,31 +1085,61 @@ $('dClose').onclick=closeSup; $('dbg').onclick=closeSup; addEventListener('keydo
 document.querySelectorAll('.seg').forEach(g=>g.querySelectorAll('button').forEach(b=>b.onclick=()=>{ mode[g.dataset.for]=b.dataset.m; g.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b)); update(); }));
 let qt; $('q').value=S.q||''; $('q').oninput=e=>{ clearTimeout(qt); qt=setTimeout(()=>{ S.q=e.target.value.trim().toLowerCase(); update(); },200); };
 $('reset').onclick=()=>{ for(const k in S) if(!['year','view','adim'].includes(k)) S[k]= k==='q'?'':null; $('q').value=''; update(); };
-const KOPIOI='Kopioi linkki tähän näkymään'; let kopioAjastin;
+let kopioAjastin;
+const kopioTeksti=(pitka,lyhyt)=>{ $('copyText').textContent=t(pitka); $('copyShort').textContent=t(lyhyt); };
 $('copy').onclick=async()=>{
   let ok=false;
   try{ await navigator.clipboard.writeText(location.href); ok=true; }catch(e){}
-  $('copyText').textContent= ok? 'Linkki kopioitu – liitä se viestiin' : 'Kopioi osoite selaimen osoiteriviltä';
+  ok? kopioTeksti('copiedL','copiedS') : kopioTeksti('copyFailL','copyFailS');
   $('copy').classList.toggle('ok',ok);
-  $('live').textContent= ok? 'Linkki tähän näkymään kopioitu leikepöydälle.' : 'Kopiointi ei onnistunut. Kopioi osoite selaimen osoiteriviltä.';
-  clearTimeout(kopioAjastin); kopioAjastin=setTimeout(()=>{ $('copyText').textContent=KOPIOI; $('copy').classList.remove('ok'); },3500);
+  $('live').textContent= t(ok?'liveCopied':'liveCopyFail');
+  clearTimeout(kopioAjastin); kopioAjastin=setTimeout(()=>{ kopioTeksti('copyL','copyS'); $('copy').classList.remove('ok'); },3500);
 };
 if(S.year===null||isNaN(S.year)||!(S.year in Y)) S.year=Y.length-1;
-initMap(); monthSelect(); fillSelect('f-toimielin','toimielin'); fillSelect('f-tilil','tilil'); fillSelect('f-omistus','omistus'); fillSelect('f-kunta','kunta');
-$('f-adim').innerHTML=Object.entries(ADIM).map(([k,a])=>`<option value="${k}">${a.t}</option>`).join(''); $('f-adim').onchange=e=>{ S.adim=e.target.value; update(); };
-$('built').textContent=DATA.built;
-(function arvioNote(){
-  const pct=v=>(v*100).toLocaleString('fi-FI',{maximumFractionDigits:0})+' %';
-  const nimi={toimielin:'toimielin',tulosalue:'tulosalue'}, osat=[], testit=[];
+$('f-adim').onchange=e=>{ S.adim=e.target.value; update(); };
+function arvioNote(){
+  const pct=v=>(v*100).toLocaleString(LOC,{maximumFractionDigits:0})+' %';
+  const nimi=t('arvioNimi'), osat=[], testit=[];
   for(const k of ['toimielin','tulosalue']){
-    for(const [v,a] of Object.entries(DATA.arviot[k]||{})) osat.push(`vuoden ${v} ${nimi[k]} on arvioitu vuosien ${a.opetusvuodet.join('–')} perusteella (${pct(a.kattavuus)} euroista saatiin arvioitua)`);
-    const b=DATA.backtest[k]; if(b) testit.push(`${nimi[k]} osui oikein ${pct(b.osuvuus)}:ssa arvioiduista euroista (arvio kattoi ${pct(b.kattavuus)})`);
+    for(const [v,a] of Object.entries(DATA.arviot[k]||{})) osat.push(t('arvioOsa',v,nimi[k],a.opetusvuodet.join('–'),pct(a.kattavuus)));
+    const b=DATA.backtest[k]; if(b) testit.push(t('arvioTesti',nimi[k],pct(b.osuvuus),pct(b.kattavuus)));
   }
-  const li=$('arvioNote'); if(!osat.length){ li.remove(); return; }
-  li.textContent=`Kaupungin aineistosta puuttuu osalta vuosista toimielin ja tulosalue. Ne on arvioitu palveluluokan, tilin ja toimittajan perusteella: ${osat.join('; ')}. Arvio tehdään vain, kun vähintään ${pct(DATA.kynnys)} aiempien vuosien euroista on kuulunut samaan luokkaan, ja muut rivit jäävät ilman tietoa. `
-    + (testit.length? `Menetelmä testataan jokaisella päivityksellä arvioimalla samalla tavalla vuosi ${DATA.backtest.toimielin.testivuosi}, jonka oikeat tiedot tunnetaan: ${testit.join(', ')}. `:'')
-    + 'Toimittajan laskuriveillä arvioidut on merkitty tähdellä.';
-})();
+  const li=$('arvioNote'); if(!osat.length){ li.hidden=true; return; }
+  li.textContent=t('arvio',osat.join('; '),pct(DATA.kynnys),testit.length? DATA.backtest.toimielin.testivuosi : '',testit.join(', '));
+}
+// Kaikki kielestä riippuva, jota update() ei piirrä uudelleen
+function kaanna(){
+  asetaLokaali(); kaannaKiinteat();
+  initMap(); monthSelect(); fillSelect('f-toimielin','toimielin'); fillSelect('f-tilil','tilil'); fillSelect('f-omistus','omistus'); fillSelect('f-kunta','kunta');
+  $('f-adim').innerHTML=Object.keys(ADIM).map(k=>`<option value="${k}">${t('adim')[k]}</option>`).join('');
+  arvioNote();
+}
+document.querySelectorAll('#kielet button').forEach(b=>b.onclick=()=>{
+  if(b.dataset.kieli===KIELI) return;
+  KIELI=b.dataset.kieli; try{ localStorage.setItem('paimio-ostolaskut-kieli',KIELI); }catch(e){}
+  kaanna(); ilmoitus=t('liveLang')+' '; update();
+});
+// Ulkoasu: oletus vaalea, valinta muistetaan selaimessa (asetetaan sivun alussa ennen piirtoa)
+function naytaTeema(){ const on=tumma(); $('teema').setAttribute('aria-pressed',on); document.querySelector('meta[name="theme-color"]').content= on?'#0a2742':'#0f5ba1'; }
+$('teema').onclick=()=>{
+  const on=!tumma(); if(on) document.documentElement.dataset.teema='tumma'; else delete document.documentElement.dataset.teema;
+  try{ on? localStorage.setItem('paimio-ostolaskut-teema','tumma') : localStorage.removeItem('paimio-ostolaskut-teema'); }catch(e){}
+  naytaTeema(); ilmoitus=t(on?'liveDark':'liveLight')+' '; update();
+};
+// Valikko kapealla näytöllä ja sivun sisäiset linkit (osoitteen tila ei saa hävitä ankkurilinkistä)
+const valikko=$('valikko'), menuBtn=$('menuBtn');
+function suljeValikko(kohdista){ if(!valikko.classList.contains('open')) return; valikko.classList.remove('open'); menuBtn.setAttribute('aria-expanded','false'); if(kohdista) menuBtn.focus(); }
+menuBtn.onclick=()=>{ const on=valikko.classList.toggle('open'); menuBtn.setAttribute('aria-expanded',on); if(on) valikko.querySelector('a').focus(); };
+addEventListener('keydown',e=>{ if(e.key==='Escape') suljeValikko(true); });
+addEventListener('click',e=>{ if(!valikko.contains(e.target) && !menuBtn.contains(e.target)) suljeValikko(false); });
+valikko.addEventListener('focusout',e=>{ if(e.relatedTarget && !valikko.contains(e.relatedTarget) && e.relatedTarget!==menuBtn) suljeValikko(false); });
+document.querySelectorAll('#topbar a[href^="#"], #hero a[href^="#"]').forEach(a=>a.onclick=e=>{
+  e.preventDefault(); suljeValikko(false);
+  let kohde=$(a.getAttribute('href').slice(1));
+  if(a.dataset.nakyma){ S.view=a.dataset.nakyma; update(); kohde=$('t-'+S.view); }
+  kohde.scrollIntoView({block:'start'}); kohde.focus({preventScroll:true});
+});
+kaanna(); naytaTeema();
 update();
 if(avattava!==null) openSup(avattava);
 </script>

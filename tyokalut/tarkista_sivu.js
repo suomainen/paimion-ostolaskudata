@@ -1,5 +1,5 @@
 // Selaintarkistus valmiille index.html:lle: saavutettavuus (axe), näppäimistökäyttö,
-// linkkien pysyvyys ja analyysien luvut.
+// linkkien pysyvyys, kielet ja ulkoasu sekä analyysien luvut.
 //
 // Asennus kerran repon juuressa:   npm install --no-save playwright axe-core && npx playwright install chromium
 // Ajo:                             node tyokalut/tarkista_sivu.js
@@ -75,6 +75,68 @@ const kohdistus = sivu => sivu.evaluate(() => { const a = document.activeElement
   await avaa(s, '#year=2'); tarkista(await s.evaluate(() => S.year === 2), 'vanha linkkimuoto (year=järjestysnumero) toimii');
   const yt = await s.evaluate(() => SUP.find(x => x[P.YT])[P.YT]);
   await avaa(s, '#toimittaja=' + yt); tarkista(await s.evaluate(() => document.getElementById('drawer').classList.contains('open')), 'linkki avaa toimittajan ikkunan');
+
+  console.log('\nKielet ja ulkoasu');
+  for (const leveys of LEVEYDET) {
+    const k = await selain.newPage({ viewport: { width: leveys, height: 900 } });
+    const virh = []; k.on('pageerror', e => virh.push(e.message));
+    for (const kieli of ['sv', 'en']) {
+      await avaa(k, '#kieli=' + kieli); await axe(k, `${kieli}, yhteenveto ${leveys} px`);
+      await avaa(k, `#kieli=${kieli}&nakyma=analyysit&vuosi=2024&tili=4340`); await axe(k, `${kieli}, analyysit ${leveys} px`);
+    }
+    await avaa(k); await k.click('#teema'); await k.waitForTimeout(300); await axe(k, `tumma ulkoasu, yhteenveto ${leveys} px`);
+    await avaa(k, '#nakyma=analyysit&kunta=Paimio'); await axe(k, `tumma ulkoasu, analyysit ${leveys} px`);
+    await avaa(k); await k.click('#supTable .rowbtn'); await k.waitForTimeout(300); await axe(k, `tumma ulkoasu, toimittajan ikkuna ${leveys} px`);
+    if (leveys < 1000) { await avaa(k); await k.click('#menuBtn'); await k.waitForTimeout(200); await axe(k, `valikko auki ${leveys} px`); }
+    tarkista(virh.length === 0, `ei JavaScript-virheitä (${leveys} px)`, virh.join('; '));
+    await k.close();
+  }
+  const k = await selain.newPage({ viewport: { width: 1280, height: 900 } });
+  await avaa(k);
+  const puuttuvat = await k.evaluate(() => {
+    const avaimet = new Set([...Object.keys(T.fi)]);
+    document.querySelectorAll('[data-t]').forEach(e => avaimet.add(e.dataset.t));
+    document.querySelectorAll('[data-ta]').forEach(e => e.dataset.ta.split(';').forEach(p => avaimet.add(p.split(':')[1])));
+    const out = [];
+    for (const kieli of ['sv', 'en']) for (const a of avaimet) {
+      const v = T[kieli][a], f = T.fi[a];
+      if (v === undefined || typeof v !== typeof f) out.push(kieli + ':' + a);
+      else if (f && typeof f === 'object') for (const x of Object.keys(f)) if (v[x] === undefined) out.push(`${kieli}:${a}.${x}`);
+    }
+    return out;
+  });
+  tarkista(puuttuvat.length === 0, 'jokaisella tekstillä on ruotsin ja englannin käännös', puuttuvat.join(', '));
+  tarkista(await k.evaluate(() => document.documentElement.lang === 'fi' && document.getElementById('kieliNote').hidden), 'oletuskieli on suomi');
+  await k.click('#kielet [data-kieli="sv"]'); await k.waitForTimeout(300);
+  const sv = await k.evaluate(() => ({ lang: document.documentElement.lang, h1: document.querySelector('h1').textContent, hash: location.hash, painettu: document.querySelector('#kielet [data-kieli="sv"]').getAttribute('aria-pressed'),
+    kpi: document.querySelector('.kpi .l').textContent, th: document.querySelector('#supTable th').textContent, fi: !!document.querySelector('#tiliTable td.name[lang="fi"]'), live: document.getElementById('live').textContent, title: document.title }));
+  tarkista(sv.lang === 'sv' && sv.h1.includes('inköpsfakturor') && sv.kpi === 'Inköp totalt' && sv.th === 'Leverantör' && sv.painettu === 'true' && sv.title.includes('inköpsfakturor'), 'kielen vaihto ruotsiksi kääntää otsikot, tunnusluvut ja taulukot', JSON.stringify(sv));
+  tarkista(sv.hash.includes('kieli=sv'), 'kieli tallentuu osoitteeseen', sv.hash);
+  tarkista(sv.fi, 'suomenkieliset aineiston arvot on merkitty lang="fi"');
+  tarkista(sv.live.startsWith('Sidans språk är svenska'), 'kielen vaihdosta tilaviesti ruudunlukijalle', sv.live);
+  await avaa(k); tarkista(await k.evaluate(() => document.documentElement.lang) === 'sv', 'kielivalinta muistetaan selaimessa');
+  await avaa(k, '#kieli=en&kunta=Turku'); 
+  const en = await k.evaluate(() => ({ lang: document.documentElement.lang, kunta: D.kunta[S.kunta], hash: decodeURIComponent(location.hash), eur: document.querySelector('.kpi .v').textContent }));
+  tarkista(en.lang === 'en' && en.kunta === 'Turku' && en.hash.includes('kunta=Turku') && /^\d+\.\d M€$/.test(en.eur), 'osoitteen kieli ohittaa muistetun, rajaukset pysyvät suomenkielisillä nimillä ja luvut muotoillaan kielen mukaan', JSON.stringify(en));
+  await k.click('#kielet [data-kieli="fi"]'); await k.waitForTimeout(300);
+  tarkista(await k.evaluate(() => document.documentElement.lang === 'fi' && document.querySelector('h1').textContent === 'Paimion kaupungin ostolaskut' && !location.hash.includes('kieli=')), 'paluu suomeen palauttaa alkuperäiset tekstit');
+  await k.click('#teema'); await k.waitForTimeout(200);
+  tarkista(await k.evaluate(() => document.documentElement.dataset.teema === 'tumma' && document.getElementById('teema').getAttribute('aria-pressed') === 'true'), 'tumma ulkoasu kytkeytyy painikkeesta');
+  await avaa(k); tarkista(await k.evaluate(() => document.documentElement.dataset.teema === 'tumma' && getComputedStyle(document.body).backgroundColor !== 'rgb(255, 255, 255)'), 'ulkoasun valinta muistetaan selaimessa');
+  await k.click('#teema'); await k.waitForTimeout(200);
+  tarkista(await k.evaluate(() => !document.documentElement.dataset.teema && getComputedStyle(document.body).backgroundColor === 'rgb(255, 255, 255)'), 'paluu vaaleaan ulkoasuun');
+  await avaa(k, '#vuosi=2023&tili=4340'); await k.click('#valikko a[data-nakyma="analyysit"]'); await k.waitForTimeout(300);
+  const nav = await k.evaluate(() => ({ hash: location.hash, view: S.view, f: document.activeElement.id }));
+  tarkista(nav.view === 'analyysit' && nav.hash.includes('vuosi=2023') && nav.hash.includes('tili=4340') && nav.f === 't-analyysit', 'yläpalkin linkki vaihtaa välilehden ja säilyttää rajaukset osoitteessa', JSON.stringify(nav));
+  await k.close();
+  const m = await selain.newPage({ viewport: { width: 375, height: 700 } });
+  await avaa(m); await m.focus('#menuBtn'); await m.keyboard.press('Enter'); await m.waitForTimeout(200);
+  tarkista(await m.evaluate(() => document.getElementById('menuBtn').getAttribute('aria-expanded') === 'true' && document.activeElement.closest('#valikko') !== null), 'valikko avautuu näppäimistöllä ja kohdistus siirtyy siihen');
+  await m.keyboard.press('Escape'); await m.waitForTimeout(200);
+  tarkista(await kohdistus(m) === 'BUTTON#menuBtn.menu-toggle' && await m.evaluate(() => getComputedStyle(document.getElementById('valikko')).display === 'none'), 'Esc sulkee valikon ja palauttaa kohdistuksen painikkeeseen');
+  for (const kieli of ['sv', 'en']) for (const w of [320, 375]) { await m.setViewportSize({ width: w, height: 700 }); await avaa(m, '#kieli=' + kieli + '&nakyma=analyysit');
+    tarkista(await m.evaluate(() => document.documentElement.scrollWidth) <= w, `ei vaakavieritystä ${w} px leveydellä (${kieli})`); }
+  await m.close();
 
   console.log('\nAnalyysien luvut');
   await avaa(s, '#nakyma=analyysit&vuosi=2025');

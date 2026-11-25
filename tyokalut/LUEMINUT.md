@@ -79,6 +79,10 @@ Jos kaupunki julkaisee tiedoston nimellä, jota skripti ei tunnista, lisää oso
 
 Ulkoasu ja toiminnot ovat tiedostossa `template.html`. Paikkamerkit `__DATA__`, `__MAP__`, `__FONT__`, `__HERO__`, `__DOWNLOADS__`, `__YEARS__` ja `__VERSION__` korvataan ajon aikana. Skripti pysähtyy, jos jokin niistä puuttuu.
 
+Tekstit ja kielet: suomenkieliset kiinteät tekstit ovat HTML:ssä, ja jokaisella käännettävällä elementillä on avain (`data-t="avain"`, attribuuteille `data-ta="aria-label:avain"`). Ruotsin ja englannin tekstit ovat samoilla avaimilla skriptin taulukossa `T`, jossa ovat myös koodissa muodostettavat tekstit kaikilla kolmella kielellä (funktio `t`). Kun lisäät tekstin, lisää avain kaikkiin kieliin; `tarkista_sivu.js` ilmoittaa puuttuvasta käännöksestä. Aineiston arvoja ei käännetä, paitsi taulukon `ARVOT` yleiset luokat, maakunnat ja kuntien ruotsinkieliset nimet.
+
+Värit ovat CSS-muuttujina kohdassa `:root`, ja tumma ulkoasu määrittelee ne uudelleen kohdassa `:root[data-teema="tumma"]`. Käytä uusissa tyyleissä muuttujia, älä kiinteitä värejä.
+
 Näkymän tila tallennetaan osoitteeseen funktioissa `lueOsoite` ja `saveHash`. Jos lisäät rajauksen tai valinnan, lisää se molempiin ja tarkistukseen `tarkista_sivu.js`, jotta vanhat linkit pysyvät toimivina.
 
 Datan rivit ovat taulukoita, joiden sarakkeet on nimetty kahdessa paikassa: `paivita.py`:n `RIVI` ja `template.html`:n `const C`. Jos lisäät sarakkeen, lisää se molempiin.

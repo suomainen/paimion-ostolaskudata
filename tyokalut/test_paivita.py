@@ -165,7 +165,7 @@ def test_sivulla_on_sama_versio():
     sivu = p.ROOT / 'index.html'
     if not sivu.exists():
         pytest.skip('index.html puuttuu')
-    assert f'>Versio {p.VERSIO}<' in sivu.read_text(encoding='utf-8')
+    assert f'>Versio</span> {p.VERSIO}<' in sivu.read_text(encoding='utf-8')
 
 
 # ---------- valmis sivu vastaa lähdetiedostoja ----------

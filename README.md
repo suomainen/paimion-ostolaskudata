@@ -31,6 +31,8 @@ Tämä sivu on aloitteen tekijän tekemä esimerkkitoteutus. Se näyttää, milt
 - Pysyvät linkit: näkymän tila (vuosi, rajaukset, välilehti, avattu toimittaja) on sivun osoitteessa nimillä ja koodeilla, joten linkki vie samaan näkymään myös aineiston päivityksen jälkeen. Linkin saa yläpalkin painikkeesta Kopioi linkki tähän näkymään, joka pysyy näkyvissä koko ajan.
 - Analyysit-välilehti: ostojen kehitys vuosittain valitulla jaottelulla (esimerkiksi toimiala tai tili), uudet ja poistuneet toimittajat, paikallisuus tileittäin, toimittajat ostojen koon mukaan sekä paikallisuus ja keskittyneisyys vuosittain
 - Palveluluokat: mihin kaupungin palveluun ostot kohdistuvat (Valtiokonttorin kuntien yhteinen luokitus, aineistossa vuodesta 2022)
+- Kolme kieltä: suomi, ruotsi ja englanti. Kielen voi vaihtaa yläpalkista, ja valinta kulkee linkin mukana. Ruotsin ja englannin käännökset ovat epävirallisia, ja aineiston omat arvot (tilit, toimialat, palveluluokat, toimielimet, tulosalueet) näytetään aina suomeksi.
+- Vaalea ja tumma ulkoasu, vaihdin yläpalkissa
 - Toimii puhelimella, tabletilla ja tietokoneella sekä näppäimistöllä ja ruudunlukijalla (WCAG 2.1 AA)
 
 ## Käyttö
@@ -96,15 +98,16 @@ Sivu noudattaa WCAG 2.1 AA -tasoa. Ratkaisut ovat pohjassa `tyokalut/template.ht
 - toimittajan tiedot avautuvat modaalisena ikkunana: kohdistus siirtyy ikkunaan, tausta ei ole käytettävissä, ja Esc palauttaa kohdistuksen avanneeseen riviin
 - kartta on kuva, jolla on tekstivaihtoehto: Kunta-valikko ja Toimittajat kunnittain -luettelo tekevät saman kuin kartan napsauttaminen
 - ruudunlukijalle tilaviesti, kun rajaus muuttaa näkymää, ja maininta uuteen välilehteen avautuvista linkeistä
-- tekstin kontrasti vähintään 4,5:1, näkyvä kohdistuskehys, ei vaakavieritystä 320 px leveydellä, liike pois käyttöjärjestelmän asetuksen mukaan
+- sivun kieli on merkitty (`lang`) ja vaihtuu kielivalinnan mukana; muunkielisellä sivulla suomeksi näytettävät aineiston arvot on merkitty suomenkielisiksi
+- tekstin kontrasti vähintään 4,5:1 sekä vaaleassa että tummassa ulkoasussa, näkyvä kohdistuskehys, ei vaakavieritystä 320 px leveydellä, liike pois käyttöjärjestelmän asetuksen mukaan
 
 Pohjan muutosten jälkeen tarkistetaan vähintään:
 
-- automaattinen tarkistus (axe) yhteenvedossa, rajatussa näkymässä, analyyseissä ja toimittajan ikkunassa 1280 px ja 375 px leveydellä
+- automaattinen tarkistus (axe) yhteenvedossa, rajatussa näkymässä, analyyseissä ja toimittajan ikkunassa 1280 px ja 375 px leveydellä, lisäksi tummassa ulkoasussa sekä ruotsiksi ja englanniksi
 - käyttö pelkällä näppäimistöllä: ohituslinkki, välilehdet nuolinäppäimillä, rajaus taulukosta, toimittajan ikkunan avaus ja sulku
 - 320 px leveä näkymä ilman vaakavieritystä
 
-Nämä ajaa `tyokalut/tarkista_sivu.js`, joka tarkistaa lisäksi linkkien pysyvyyden ja analyysien luvut:
+Nämä ajaa `tyokalut/tarkista_sivu.js`, joka tarkistaa lisäksi linkkien pysyvyyden, analyysien luvut, kielen ja ulkoasun vaihdon sekä sen, että jokaiselle tekstille on käännös:
 
 ```
 npm install --no-save playwright axe-core
