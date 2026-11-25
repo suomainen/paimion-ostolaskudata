@@ -23,8 +23,9 @@ Tämä sivu on aloitteen tekijän tekemä esimerkkitoteutus. Se näyttää, milt
 - Toimittajalista hakutoiminnolla. Toimittajaa napsauttamalla näkyvät sen ostot vuosittain, tileittäin ja laskuriveittäin.
 - Kuntakartta, jossa kunnat on väritetty toimittajien ostosumman tai toimittajamäärän mukaan. Kartan voi rajata koko Suomeen tai Varsinais-Suomeen, ja kuntaa napsauttamalla raportti rajautuu siihen.
 - Jakaumat maakunnittain, kunnittain, toimialoittain ja toimittajan tyypin mukaan (yritys, julkinen sektori, järjestö tai säätiö)
-- Rajaukset toimielimen, tilin, tulosalueen, kunnan, maakunnan ja toimialan mukaan. Rajaukset voi yhdistää, ja ne tallentuvat osoiteriville, joten näkymän voi jakaa linkkinä.
-- Toimii puhelimella, tabletilla ja tietokoneella
+- Rajaukset toimielimen, tilin, tulosalueen, palveluluokan, kunnan, maakunnan ja toimialan mukaan. Rajaukset voi yhdistää, ja ne tallentuvat osoiteriville, joten näkymän voi jakaa linkkinä.
+- Palveluluokat: mihin kaupungin palveluun ostot kohdistuvat (Valtiokonttorin kuntien yhteinen luokitus, aineistossa vuodesta 2022)
+- Toimii puhelimella, tabletilla ja tietokoneella sekä pelkällä näppäimistöllä
 
 ## Käyttö
 
@@ -33,7 +34,7 @@ Sivu on yksi itsenäinen `index.html`-tiedosto, johon data on upotettu. Palvelin
 - **Paikallisesti:** avaa `index.html` selaimessa.
 - **GitHub Pagesissa:** Settings → Pages → Source: *Deploy from a branch*, haara `main`, kansio `/ (root)`.
 
-Sivu ei hae mitään verkosta. Data, Rubik-fontti ja otsikkokuva on upotettu tiedostoon (base64), joten sivu toimii myös ilman verkkoyhteyttä. Rubik-fontti on julkaistu [SIL Open Font License 1.1](https://openfontlicense.org) -lisenssillä.
+Sivu ei hae mitään verkosta. Data, kuntakartta, Rubik-fontti ja otsikkokuva on upotettu tiedostoon, joten sivu toimii myös ilman verkkoyhteyttä. Rubik-fontti on julkaistu [SIL Open Font License 1.1](https://openfontlicense.org) -lisenssillä.
 
 ## Aineisto
 
@@ -67,15 +68,18 @@ Toimittajien kunta, maakunta, päätoimiala ja yhtiömuoto haettiin Y-tunnuksell
 ## Rajoitukset ja huomiot
 
 - **Sote-siirto 2023:** Vuodesta 2023 alkaen sosiaali- ja terveyspalvelut sekä pelastustoimi siirtyivät Varsinais-Suomen hyvinvointialueelle. Siksi ostot laskevat selvästi vuodesta 2022 vuoteen 2023.
-- **Vuosi 2025:** Aineistossa ei ole toimielin- eikä tulosaluetietoa. Ne on arvioitu palveluluokan perusteella kahden edellisen vuoden aineistosta, ja arvio tehdään vain, kun vähintään 80 % aiempien euroista on kuulunut samaan luokkaan. Takautuvassa testissä toimielin osui oikein 99 %:ssa arvioiduista euroista, ja arvio kattaa noin 90 % vuoden 2025 euroista. Arvioidut rivit on merkitty sivulla.
+- **Vuosi 2025:** Aineistossa ei ole toimielin- eikä tulosaluetietoa. Ne on arvioitu palveluluokan, tilin ja toimittajan perusteella vuosien 2023–2024 aineistosta. Arvio tehdään vain, kun vähintään 80 % aiempien vuosien euroista on kuulunut samaan luokkaan; muut rivit jäävät ilman tietoa. Toimielin saatiin arvioitua 90 %:lle ja tulosalue 87 %:lle vuoden 2025 euroista. Arvioidut rivit on merkitty sivulla.
+- **Arvion luotettavuus:** `paivita.py` testaa menetelmän jokaisella ajolla arvioimalla samalla tavalla vuoden 2024, jonka oikeat tiedot tunnetaan, vuosien 2022–2023 perusteella. Viimeisimmässä ajossa toimielin osui oikein 99,2 %:ssa arvioiduista euroista (arvio kattoi 90,8 % euroista) ja tulosalue 96,3 %:ssa (kattavuus 96,2 %). Luvut näkyvät myös sivun huomioissa.
 - **Tositepäivämäärät:** Vuoden aineistoon kuuluu myös edellisen ja seuraavan vuoden päivämäärällä olevia tositteita, koska aineisto on rajattu tilikauden mukaan.
-- **YTJ-tiedot kuvaavat nykytilaa**, eivät laskun aikaista tilannetta. Esimerkiksi toimittajan kotikunta tai toimiala on voinut muuttua.
+- **YTJ-tiedot kuvaavat nykytilaa**, eivät laskun aikaista tilannetta. Esimerkiksi toimittajan kotikunta tai toimiala on voinut muuttua. Tiedot haetaan uudelleen vuoden välein.
+- **Kotikunta on yrityksen rekisteröity osoite**, ei välttämättä paikka, jossa palvelu tuotetaan. Valtakunnalliset yritykset näkyvät usein pääkonttorinsa kunnassa, mikä kasvattaa esimerkiksi Helsingin ja Uudenmaan osuutta.
 - **Puuttuvat YTJ-tiedot:** PRH:n avoimessa rajapinnassa ei ole kuntia, kuntayhtymiä, yhdistyksiä, säätiöitä eikä osaa toiminimistä. Niiden osuus ostojen euroista on noin 45 %. Näiden toimittajien tyyppi ja kunta on päätelty nimestä, esimerkiksi "Liedon kunta" → Lieto. Muutaman kuntayhtymän kotikunta on asetettu käsin. Loput on merkitty "Ei tiedossa".
-- **Hyvityslaskut** näkyvät negatiivisina riveinä ja vähentävät summia.
+- **Hyvityslaskut** näkyvät negatiivisina riveinä ja vähentävät summia. Hyvitysten määrä näkyy Ostot yhteensä -luvun alla. Jos jonkin ryhmän summa on negatiivinen, sille ei näytetä palkkia eikä prosenttiosuutta.
+- **Palveluluokan I-alkuiset koodit** (esimerkiksi I3051) eivät kuulu viralliseen luokitukseen. Ne ovat kaupungin omia, todennäköisesti investointeja samalle palvelulle.
 
 ## Päivittäminen
 
-Sivu kootaan kansion `tyokalut` skriptillä `paivita.py`. Kun kaupunki julkaisee uuden vuoden aineiston, lisää sen osoite tiedostoon `tyokalut/lahteet.json` ja aja `python tyokalut/paivita.py`. Tarkemmat ohjeet ovat tiedostossa [tyokalut/LUEMINUT.md](tyokalut/LUEMINUT.md).
+Sivu kootaan kansion `tyokalut` skriptillä: `python tyokalut/paivita.py`. Skripti tarkistaa kaupungin Talous-sivulta uudet vuodet, lataa aineistot, ajaa arvioinnin takautuvan testin ja kokoaa `index.html`:n. Testit ajetaan komennolla `python -m pytest tyokalut`. Tarkemmat ohjeet ovat tiedostossa [tyokalut/LUEMINUT.md](tyokalut/LUEMINUT.md).
 
 ## Miten sivu on tehty
 
@@ -91,4 +95,4 @@ Sivu on tehty yhdessä Clauden kanssa, Anthropicin tekoälyavustajalla, jota kä
 
 Sivun koodi on julkaistu MIT-lisenssillä (katso `LICENSE`).
 
-Lisenssi ei koske aineistoja. Ostolaskudata on Paimion kaupungin julkaisemaa avointa dataa, ja toimittajatiedot ovat PRH:n avointa dataa. Niihin sovelletaan kunkin julkaisijan käyttöehtoja. Otsikkokuva on Paimion kaupungin ja peräisin osoitteesta paimio.fi.
+Lisenssi ei koske aineistoja. Ostolaskudata on Paimion kaupungin julkaisemaa avointa dataa, toimittajatiedot ovat PRH:n avointa dataa ja kuntarajat Tilastokeskuksen avointa dataa (CC BY 4.0). Niihin sovelletaan kunkin julkaisijan käyttöehtoja. Otsikkokuva on tehty tämän repon koodilla (`tyokalut/tee_kuva.py`) ja kuuluu MIT-lisenssin piiriin.

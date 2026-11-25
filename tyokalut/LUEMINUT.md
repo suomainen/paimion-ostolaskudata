@@ -1,54 +1,76 @@
 # Työkalut: sivun päivitys
 
-Näillä tiedostoilla kootaan repon juuren `index.html` uudelleen, kun kaupunki julkaisee uuden vuoden ostolaskudatan.
+Näillä tiedostoilla kootaan repon juuren `index.html` uudelleen, kun kaupunki julkaisee uutta ostolaskudataa.
 
 ## Kansiorakenne
 
 ```
 paimion-ostolaskudata/        (GitHub-repo = paikallinen kansio "sivusto")
-├── index.html                valmis sivu
+├── index.html                valmis sivu (koottu tiedosto, älä muokkaa käsin)
 ├── README.md
+├── requirements.txt          Python-kirjastot
 ├── .gitignore                jättää lahdedata-kansion pois GitHubista
 └── tyokalut/
     ├── paivita.py            koko päivitys yhdellä ajolla
-    ├── lahteet.json          vuosien Excel-tiedostojen osoitteet paimio.fi:ssä
+    ├── test_paivita.py       testit
     ├── template.html         sivun pohja (HTML, CSS, JavaScript)
-    ├── kartta.json           kunta- ja maakuntarajat SVG-muodossa (Tilastokeskus 2025, 1:4,5 milj.)
-    ├── prh_valimuisti.json   PRH:sta jo haetut toimittajatiedot
-    ├── rubik-latin.woff2     Rubik-fontti (SIL OFL 1.1)
-    └── hero.jpg              otsikkokuva (Paimion kaupunki, paimio.fi)
+    ├── lahteet.json          vuosien Excel-tiedostojen osoitteet paimio.fi:ssä
+    ├── prh_valimuisti.json   PRH:sta haetut toimittajatiedot ja hakupäivät
+    ├── palveluluokat.json    palveluluokkien nimet (Valtiokonttorin koodisto)
+    ├── tunnistamattomat.csv  toimittajat, joiden kunta tai tyyppi jäi tunnistamatta (skripti kirjoittaa)
+    ├── tee_kartta.py         tekee tiedoston kartta.json Tilastokeskuksen rajapinnasta
+    ├── kartta.json           kunta- ja maakuntarajat SVG-polkuina (Tilastokeskus 2025, 1:4,5 milj., CC BY 4.0)
+    ├── tee_kuva.py           tekee otsikkokuvan hero.svg
+    ├── hero.svg              otsikkokuva (koodilla tehty, MIT)
+    └── rubik-latin.woff2     Rubik-fontti (SIL OFL 1.1)
 ```
 
-Skripti etsii kaupungin Excel-tiedostot kansiosta `lahdedata`, joko repon juuresta tai sen vierestä. Jos kansiota ei löydy, skripti luo sen repon juureen ja lataa tiedostot `lahteet.json`:n osoitteista. Kansio ei mene GitHubiin, koska se on lueteltu `.gitignore`-tiedostossa.
+Kaupungin Excel-tiedostot ovat kansiossa `lahdedata`, joko repon juuressa tai sen vieressä. Jos kansiota ei ole, skripti luo sen repon juureen ja lataa tiedostot. Kansio ei mene GitHubiin.
 
-## Uuden vuoden lisääminen
+## Päivitys
 
-1. Etsi uuden vuoden Excel-tiedoston osoite kaupungin [Talous-sivulta](https://www.paimio.fi/kaupunki-ja-hallinto/talous/). Löydät sen hiiren oikealla painikkeella → Kopioi linkin osoite.
-2. Lisää osoite tiedostoon `lahteet.json`, esimerkiksi:
-   ```json
-   "2026": "https://www.paimio.fi/uploads/2027/06/xxxxxxxx-ostolaskut_vuodelta_2026.xlsx"
+1. Asenna kirjastot kerran:
    ```
-3. Asenna tarvittavat kirjastot, jos niitä ei vielä ole:
+   pip install -r requirements.txt
    ```
-   pip install pandas openpyxl pillow
+2. Aja skripti repon juuressa:
    ```
-4. Aja skripti tässä kansiossa:
+   python tyokalut/paivita.py
    ```
-   python paivita.py
+   Skripti tekee seuraavat asiat ja tulostaa jokaisesta rivin:
+   - tarkistaa kaupungin Talous-sivulta, onko siellä uusia vuosia, ja lisää ne tiedostoon `lahteet.json`
+   - lataa puuttuvat Excelit ja tulostaa rivimäärät ja summat vuosittain
+   - ajaa takautuvan testin arviointimenetelmälle ja arvioi puuttuvat toimielimet ja tulosalueet
+   - hakee PRH:sta uudet toimittajat sekä ne, joiden tiedot ovat yli vuoden vanhoja
+   - kirjoittaa tiedoston `tunnistamattomat.csv`
+   - kokoaa `index.html`:n
+3. Aja testit. Ne tarkistavat muun muassa, että sivun vuosisummat vastaavat Exceleitä sentilleen:
    ```
-   Skripti lataa puuttuvat Excelit kansioon `lahdedata`, hakee PRH:sta vain uudet toimittajat, kokoaa `index.html`:n repon juureen ja tulostaa lopuksi rivimäärät ja summat vuosittain.
-5. Tarkista sivu selaimessa ja vertaa uuden vuoden summaa Excel-tiedostoon.
-6. Lataa `index.html` ja muuttuneet `tyokalut`-tiedostot (`lahteet.json`, `prh_valimuisti.json`) GitHubiin ja päivitä tarvittaessa `README.md`:n vuositaulukko.
+   pip install pytest
+   python -m pytest tyokalut
+   ```
+4. Avaa `index.html` selaimessa ja katso, että uusi vuosi näyttää järkevältä.
+5. Käy `tunnistamattomat.csv`:n alku läpi. Jos listan kärjessä on uusi iso toimittaja, lisää sen kotikunta `paivita.py`:n `KUNTA_KASIN`-sanakirjaan.
+6. Lataa GitHubiin `index.html` ja muuttuneet `tyokalut`-tiedostot. Päivitä `README.md`:n vuositaulukko ja testitulokset.
+
+Jos kaupunki julkaisee tiedoston nimellä, jota skripti ei tunnista, lisää osoite käsin tiedostoon `lahteet.json`:
+
+```json
+"2026": "https://www.paimio.fi/uploads/2027/06/xxxxxxxx-ostolaskut_vuodelta_2026.xlsx"
+```
 
 ## Jos jokin menee pieleen
 
-- **"Sarakkeita ei tunnistettu":** kaupunki on muuttanut sarakkeiden nimiä. Lisää uusi nimi `paivita.py`:n `MAP`-sanakirjaan pienillä kirjaimilla ja ilman välilyöntejä, viivoja ja pisteitä. Esimerkiksi sarake "Summa €" lisätään muodossa `'summa€':'summa'`.
-- **Kuntien ja maakuntien nimet:** skripti käyttää Tilastokeskuksen vuoden 2025 luokitusta. Kuntaliitosten jälkeen vaihda `LUOKITUS`-muuttujan arvoksi uudempi, esimerkiksi `'20260101'`.
-- **Toimittajan kunta näkyy "Ei tiedossa":** PRH:n avoimessa rajapinnassa ei ole kuntia, kuntayhtymiä, yhdistyksiä eikä säätiöitä. Lisää Y-tunnus ja kunta `MANUAL`-sanakirjaan tai kunnan genetiivimuoto `GEN`-sanakirjaan.
-- **Vanhentuneet toimittajatiedot:** jos haluat hakea kaikkien toimittajien tiedot PRH:sta uudelleen, poista `prh_valimuisti.json`. Haku kestää muutaman minuutin.
+- **"Sarakkeita ei tunnistettu":** kaupunki on muuttanut sarakkeiden nimiä. Lisää uusi nimi `paivita.py`:n `SARAKKEET`-sanakirjaan pienillä kirjaimilla ja ilman välilyöntejä, viivoja ja pisteitä. Esimerkiksi sarake "Summa €" lisätään muodossa `'summa€': 'summa'`.
+- **Takautuvan testin osuvuus putoaa:** kaupungin organisaatio tai kirjauskäytäntö on todennäköisesti muuttunut. Arvioihin ei silloin kannata luottaa. Kynnystä voi nostaa vakiolla `ARVIO_KYNNYS`, jolloin arvioita tehdään vähemmän mutta varmemmin.
+- **Kuntajako muuttuu:** aja `python tyokalut/tee_kartta.py 2026` ja vaihda `paivita.py`:n `LUOKITUS`-vakion arvoksi `'20260101'`.
+- **Toimittajan kunta näkyy "Ei tiedossa":** PRH:n avoimessa rajapinnassa ei ole kuntia, kuntayhtymiä, yhdistyksiä eikä säätiöitä. Lisää Y-tunnus ja kunta `KUNTA_KASIN`-sanakirjaan tai kunnan genetiivimuoto `KUNTA_GENETIIVI`-sanakirjaan.
+- **Toimittajatiedot halutaan hakea heti uudelleen:** poista `prh_valimuisti.json`. Haku kestää muutaman minuutin. Muuten tiedot päivittyvät itsestään vuoden välein, ja rajapinnasta puuttuvia yritetään uudelleen 90 päivän välein.
 
 ## Sivun muokkaaminen
 
-Ulkoasu ja toiminnot ovat tiedostossa `template.html`. Paikkamerkit `__DATA__`, `__MAP__`, `__FONT__`, `__HERO__`, `__DOWNLOADS__` ja `__YEARS__` korvataan ajon aikana. Älä poista niitä.
+Ulkoasu ja toiminnot ovat tiedostossa `template.html`. Paikkamerkit `__DATA__`, `__MAP__`, `__FONT__`, `__HERO__`, `__DOWNLOADS__` ja `__YEARS__` korvataan ajon aikana. Skripti pysähtyy, jos jokin niistä puuttuu.
 
-Otsikkokuvan voi vaihtaa korvaamalla tiedoston `hero.jpg`. Kuvan kohdistusta säädetään `template.html`:n kohdassa `center 72%`.
+Datan rivit ovat taulukoita, joiden sarakkeet on nimetty kahdessa paikassa: `paivita.py`:n `RIVI` ja `template.html`:n `const C`. Jos lisäät sarakkeen, lisää se molempiin.
+
+Otsikkokuvan värejä ja kuviota muutetaan tiedostossa `tee_kuva.py`. Aja se ja sen jälkeen `paivita.py`.

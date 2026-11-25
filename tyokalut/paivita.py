@@ -2,208 +2,492 @@
 """
 Paimion ostolaskudata – sivun päivitys.
 
-Ajo:  python paivita.py
-Vaatii: Python 3.9+, pandas, openpyxl, pillow  (pip install pandas openpyxl pillow)
+Ajo:    python tyokalut/paivita.py
+Vaatii: Python 3.9+ ja requirements.txt:n kirjastot  (pip install -r requirements.txt)
 
 Vaiheet:
- 1. Lataa puuttuvat Excelit lahteet.json:n osoitteista kansioon lahdedata
- 2. Lukee ja yhtenäistää vuosien sarakkeet
- 3. Rikastaa toimittajat PRH:n YTJ-rajapinnasta (välimuisti prh_valimuisti.json)
- 4. Hakee kunta–maakunta-luokituksen Tilastokeskukselta
- 5. Kokoaa index.html repon juureen (data, kuntakartta, fontti ja kuva upotettuina)
+ 1. Etsii kaupungin Talous-sivulta uudet vuodet ja lataa puuttuvat Excelit kansioon lahdedata
+ 2. Lukee vuodet ja yhtenäistää sarakkeet
+ 3. Arvioi puuttuvat toimielimet ja tulosalueet palveluluokasta ja ajaa takautuvan testin
+ 4. Rikastaa toimittajat PRH:n YTJ-rajapinnasta (välimuisti prh_valimuisti.json)
+ 5. Hakee kunta–maakunta-luokituksen Tilastokeskukselta
+ 6. Kokoaa index.html:n repon juureen (data, kuntakartta, fontti ja kuva upotettuina)
 """
-import base64, concurrent.futures as cf, io, json, re, sys, time, urllib.error, urllib.request
+import base64
+import concurrent.futures as cf
+import csv
+import json
+import re
+import sys
+import time
+import urllib.error
+import urllib.request
 from datetime import date
 from pathlib import Path
-import numpy as np, pandas as pd
-from PIL import Image
+
+import numpy as np
+import pandas as pd
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent                      # repon juuri: index.html ja README.md
-SIVU = ROOT
 # Lähdedata: repon juuressa (ei GitHubiin, ks. .gitignore) tai projektikansiossa sen vieressä
 LAHDE = next((p for p in (ROOT / 'lahdedata', ROOT.parent / 'lahdedata') if p.exists()), ROOT / 'lahdedata')
+
+TALOUS_SIVU = 'https://www.paimio.fi/kaupunki-ja-hallinto/talous/'
+PRH_API = 'https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId={}'
+LUOKITUS = '20250101'                   # Tilastokeskuksen kuntaluokituksen vuosi; päivitä kuntaliitosten jälkeen
+LUOKITUS_API = ('https://data.stat.fi/api/classifications/v2/correspondenceTables/'
+                'kunta_1_{v}%23maakunta_1_{v}/maps?content=data&meta=max&lang=fi&format=json')
+PALVELULUOKAT_API = ('https://koodistot.suomi.fi/codelist-api/api/v1/coderegistries/sbr-fi-code-lists/'
+                     'codeschemes/PA-2024-2/codes/?format=json&pageSize=500')
 UA = {'User-Agent': 'paimion-ostolaskudata-paivitys'}
 
-def get(url, timeout=60):
+ARVIO_KYNNYS = 0.8                      # arvio hyväksytään, jos vähintään tämä osuus euroista on samassa luokassa
+ARVIO_OPETUSVUODET = 2                  # kuinka monesta edellisestä vuodesta vastaavuudet opitaan
+ARVIO_AVAIMET = (['palveluluokka', 'tili', 'ytunnus'], ['palveluluokka', 'tili'], ['palveluluokka'])
+PRH_VANHENEE_PV = 365                   # löytyneen yrityksen tiedot haetaan uudelleen tämän jälkeen
+PRH_TYHJA_VANHENEE_PV = 90              # "ei löytynyt" yritetään uudelleen tämän jälkeen
+PRH_HAETTU_OLETUS = '2026-09-23'        # välimuistin vanhat rivit, joilta hakupäivä puuttuu
+
+# Sarakkeiden nimet eri vuosien tiedostoissa → yhtenäinen nimi. Avain: pienet kirjaimet, ei välejä, viivoja eikä pisteitä.
+SARAKKEET = {
+    'tapahtumanumero': 'tosite', 'tositenumero': 'tosite',
+    'tapahtpvm': 'pvm', 'tositepvä': 'pvm',
+    'tilinro': 'tili', 'tilinumero': 'tili', 'tilinnimi': 'tilinimi',
+    'ytunnus': 'ytunnus',
+    'toimittaja': 'toimittaja', 'toimittajannimi': 'toimittaja',
+    'summa': 'summa', 'summa(alv0%)': 'summa',
+    'toimielin': 'toimielin', 'tulosalue': 'tulosalue',
+    'toimittajanmaakoodi': 'maa', 'palveluluokka': 'palveluluokka',
+}
+PAKOLLISET = ('toimittaja', 'ytunnus', 'summa', 'pvm', 'tili')
+VALINNAISET = ('toimielin', 'tulosalue', 'maa', 'palveluluokka', 'tilinimi', 'tosite')
+TOIMIELIN_NIMET = {
+    'Tekninen ltk': 'Tekninen lautakunta', 'Koulutusltk': 'Koulutuslautakunta',
+    'Keskusvaaliltk': 'Keskusvaalilautakunta', 'Tarkastusltk': 'Tarkastuslautakunta',
+    'Sosiaali- ja terveysltk': 'Sosiaali- ja terveyslautakunta',
+    'Sivistys- ja vapaa-aikaltk': 'Sivistys- ja vapaa-aikalautakunta',
+}
+
+# Toimittajat, joita ei ole PRH:n avoimessa rajapinnassa (kunnat, kuntayhtymät, yhdistykset, säätiöt):
+# kotikunta päätellään nimen genetiivistä tai asetetaan käsin, tyyppi päätellään nimestä.
+KUNTA_GENETIIVI = {
+    'turun': 'Turku', 'liedon': 'Lieto', 'kaarinan': 'Kaarina', 'salon': 'Salo', 'paraisten': 'Parainen',
+    'raision': 'Raisio', 'marttilan': 'Marttila', 'helsingin': 'Helsinki', 'naantalin': 'Naantali',
+    'tampereen': 'Tampere', 'sauvon': 'Sauvo', 'ulvilan': 'Ulvila', 'pöytyän': 'Pöytyä', 'loimaan': 'Loimaa',
+    'kuopion': 'Kuopio', 'hyvinkään': 'Hyvinkää', 'forssan': 'Forssa', 'mynämäen': 'Mynämäki',
+    'fossan': 'Forssa',                 # kirjoitusvirhe kaupungin aineistossa ("Fossan kaupunki")
+    'mikkelin': 'Mikkeli', 'hangon': 'Hanko', 'lahden': 'Lahti', 'ylöjärven': 'Ylöjärvi',
+    'äänekosken': 'Äänekoski', 'jyväskylän': 'Jyväskylä', 'maskun': 'Masku', 'ruskon': 'Rusko',
+    'sastamalan': 'Sastamala', 'joensuun': 'Joensuu', 'tyrnävän': 'Tyrnävä', 'heinäveden': 'Heinävesi',
+    'nousiaisten': 'Nousiainen', 'uudenkaupungin': 'Uusikaupunki', 'lohjan': 'Lohja',
+    'hämeenlinnan': 'Hämeenlinna', 'kemiönsaaren': 'Kemiönsaari', 'laitilan': 'Laitila',
+    'rovaniemen': 'Rovaniemi', 'someron': 'Somero', 'raaseporin': 'Raasepori', 'ikaalisten': 'Ikaalinen',
+    'parkanon': 'Parkano', 'euran': 'Eura', 'paimion': 'Paimio', 'kouvolan': 'Kouvola', 'espoon': 'Espoo',
+    'vantaan': 'Vantaa', 'oulun': 'Oulu', 'porin': 'Pori',
+}
+KUNTA_KASIN = {
+    '0828255-9': 'Turku', '0204213-2': 'Paimio', '0136167-6': 'Paimio', '0922305-9': 'Turku',
+    '3221065-1': 'Turku', '0823246-3': 'Paimio', '1095237-1': 'Turku', '0246246-0': 'Helsinki',
+    '0926151-4': 'Helsinki', '3222663-7': 'Helsinki',
+}
+RE_KUNTANIMI = r'kaupunki|kunta\b|seurakunta'
+RE_JULKINEN = (r'kaupunki|kunta\b|kuntayhtymä|valtio|hyvinvointialue|seurakunta|virasto|poliisilaitos|'
+               r'hätäkeskuslaitos|kansaneläkelaitos|työterveyslaitos|ulosottolaitos|yliopisto|ely-keskus|'
+               r'valtiokonttori|varsinais-suomen liitto|valteri|kuntatyönantajat|hallinto-oikeus|taideyliopisto')
+RE_JARJESTO = r'\bry\b|r\.y\.|yhdistys|liitto|säätiö|\bsr\b|seura\b|keskusjärjestö|perikunta|tiekunta|osakaskunta'
+RE_YRITYS = r'\btmi\b|t:mi|toiminimi|\boy\b|\bab\b|\bky\b|gmbh|ltd|inc\b'
+MUOTO_JULKINEN = {'Kunta', 'Kuntayhtymä', 'Valtion liikelaitos', 'Hyvinvointialue', 'Seurakunta',
+                  'Valtio ja sen laitokset', 'Ev.lut.kirkko'}
+MUOTO_JARJESTO = {'Aatteellinen yhdistys', 'Säätiö', 'Taloudellinen yhdistys', 'Uskonnollinen yhdyskunta',
+                  'Muu yhdistys'}
+EI_TIEDOSSA = 'Ei tiedossa'
+
+
+def hae(url, timeout=60):
     with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=timeout) as r:
         return r.read()
 
-# ---------- 1. lataus ----------
-lahteet = {int(k): v for k, v in json.load(open(HERE / 'lahteet.json', encoding='utf-8')).items()}
-VUODET = sorted(lahteet)
-LAHDE.mkdir(exist_ok=True)
-for y, url in lahteet.items():
-    f = LAHDE / f'ostolaskut_{y}.xlsx'
-    if not f.exists():
-        print('Ladataan', y); f.write_bytes(get(url))
+
+def lue_json(polku, oletus=None):
+    return json.loads(polku.read_text(encoding='utf-8')) if polku.exists() else oletus
+
+
+def kirjoita_json(polku, data, **kw):
+    """Kirjoittaa väliaikaistiedoston kautta, jottei keskeytys jätä puolikasta tiedostoa."""
+    tmp = polku.with_suffix(polku.suffix + '.tmp')
+    tmp.write_text(json.dumps(data, ensure_ascii=False, **kw), encoding='utf-8')
+    tmp.replace(polku)
+
+
+# ---------- 1. lähteet ----------
+def etsi_uudet_lahteet(lahteet, html=None):
+    """Lisää lahteet-sanakirjaan Talous-sivulta löytyvät vuodet, joita siinä ei vielä ole. Palauttaa lisätyt vuodet."""
+    if html is None:
+        html = hae(TALOUS_SIVU).decode('utf-8', 'replace')
+    uudet = []
+    for url, vuosi in re.findall(r'href="(https://www\.paimio\.fi/uploads/[^"]*?ostolaskut[-_]vuodelta[-_](\d{4})\.xlsx)"', html, re.I):
+        if int(vuosi) not in lahteet:
+            lahteet[int(vuosi)] = url
+            uudet.append(int(vuosi))
+    return sorted(uudet)
+
+
+def lataa_lahteet():
+    polku = HERE / 'lahteet.json'
+    lahteet = {int(k): v for k, v in lue_json(polku).items()}
+    try:
+        uudet = etsi_uudet_lahteet(lahteet)
+        if uudet:
+            print(f'Uusia vuosia kaupungin sivulla: {uudet} – lisätty tiedostoon lahteet.json')
+            kirjoita_json(polku, {str(k): lahteet[k] for k in sorted(lahteet)}, indent=2)
+    except Exception as e:                                  # verkko poikki tms.: jatketaan tunnetuilla vuosilla
+        print(f'Uusien vuosien tarkistus ei onnistunut ({e}); jatketaan tiedoston lahteet.json vuosilla')
+    LAHDE.mkdir(exist_ok=True)
+    for vuosi, url in sorted(lahteet.items()):
+        f = LAHDE / f'ostolaskut_{vuosi}.xlsx'
+        if not f.exists():
+            print('Ladataan', vuosi)
+            f.write_bytes(hae(url))
+    return lahteet
+
 
 # ---------- 2. luku ja yhtenäistys ----------
-def norm(c): return re.sub(r'[\s\-\.]', '', str(c)).lower()
-MAP = {'tapahtumanumero':'tosite','tositenumero':'tosite','tapahtpvm':'pvm','tositepvä':'pvm',
-       'tilinro':'tili','tilinumero':'tili','tilinnimi':'tilinimi','ytunnus':'ytunnus',
-       'toimittaja':'toimittaja','toimittajannimi':'toimittaja','summa':'summa','summa(alv0%)':'summa',
-       'toimielin':'toimielin','tulosalue':'tulosalue','toimittajanmaakoodi':'maa','palveluluokka':'palveluluokka'}
-osat = []
-for y in VUODET:
-    f = LAHDE / f'ostolaskut_{y}.xlsx'
-    raw = pd.read_excel(f, header=None)
-    h = raw.index[raw.apply(lambda r: any(norm(v) in ('summa', 'summa(alv0%)') for v in r), axis=1)][0]
-    df = pd.read_excel(f, header=h)
-    df = df.rename(columns={c: MAP[norm(c)] for c in df.columns if norm(c) in MAP})
-    df = df[[c for c in dict.fromkeys(MAP.values()) if c in df.columns]].copy()
-    df['vuosi'] = y
-    puuttuu = [c for c in ('toimittaja', 'ytunnus', 'summa', 'pvm', 'tili') if c not in df.columns]
-    if puuttuu: sys.exit(f'Vuosi {y}: sarakkeita ei tunnistettu: {puuttuu}. Lisää nimet MAP-sanakirjaan.')
-    print(f'{y}: {len(df)} riviä, {df.summa.sum():,.0f} €')
-    osat.append(df)
-d = pd.concat(osat, ignore_index=True)
-d = d[d.summa.notna()].copy()
-for c in ('toimielin', 'tulosalue', 'maa'):
-    if c not in d.columns: d[c] = None
-d['ytunnus'] = d.ytunnus.astype(str).str.strip().replace({'nan': None})
-d['pvm'] = pd.to_datetime(d.pvm, errors='coerce')
-for c in ['toimittaja', 'tilinimi', 'toimielin', 'tulosalue']:
-    d[c] = d[c].astype(str).str.strip().replace({'nan': None, 'None': None})
-d['tili'] = d.tili.astype(str).str.replace(r'\.0$', '', regex=True)
-d['toimielin'] = d.toimielin.replace({'Tekninen ltk':'Tekninen lautakunta','Koulutusltk':'Koulutuslautakunta',
-    'Keskusvaaliltk':'Keskusvaalilautakunta','Tarkastusltk':'Tarkastuslautakunta',
-    'Sosiaali- ja terveysltk':'Sosiaali- ja terveyslautakunta','Sivistys- ja vapaa-aikaltk':'Sivistys- ja vapaa-aikalautakunta'})
+def normalisoi(nimi):
+    return re.sub(r'[\s\-\.]', '', str(nimi)).lower()
 
-# ---------- 2b. puuttuvien toimielinten ja tulosalueiden arviointi ----------
-# Vuodesta, jolta toimielin/tulosalue puuttuu (2025), ne arvioidaan palveluluokan perusteella.
-# Malli opetetaan vuosista, joilla sekä palveluluokka että toimielin ovat mukana. Tarkin täsmäävä
-# avain voittaa: (palveluluokka, tili, Y-tunnus) → (palveluluokka, tili) → palveluluokka.
-# Arvio hyväksytään vain, jos vähintään ARVIO_KYNNYS euroista on kuulunut samaan luokkaan.
-# Takautuva testi (opetus 2022–2023, testi 2024): toimielin 99 % oikein, kattavuus 91 %.
-ARVIO_KYNNYS = 0.8
-d['palveluluokka'] = d.palveluluokka.astype(str).str.strip().replace({'nan': None, 'None': None}) if 'palveluluokka' in d else None
-d['yt_'] = d.ytunnus.fillna('')
-d['arvio'] = 0
-def _malli(train, target, keys):
-    g = train.groupby(keys + [target]).summa.apply(lambda s: s.abs().sum()).reset_index()
-    g['share'] = g.summa / g.groupby(keys).summa.transform('sum')
-    top = g.sort_values('share').groupby(keys).tail(1)
-    return top[top.share >= ARVIO_KYNNYS].set_index(keys)[target]
-for target in ('toimielin', 'tulosalue'):
-    train = d[d[target].notna() & d.palveluluokka.notna() & (d.arvio == 0)]
-    # vain kaksi viimeisintä vuotta, jotta organisaatiomuutokset (esim. sote-siirto 2023) eivät vääristä
-    train = train[train.vuosi.isin(sorted(train.vuosi.unique())[-2:])]
-    puuttuu = d[target].isna() & d.palveluluokka.notna()
-    if train.empty or not puuttuu.any(): continue
-    for keys in (['palveluluokka', 'tili', 'yt_'], ['palveluluokka', 'tili'], ['palveluluokka']):
-        idx = d.index[d[target].isna() & d.palveluluokka.notna()]
-        if not len(idx): break
-        m = _malli(train, target, keys)
-        arvo = pd.Series(list(zip(*[d.loc[idx, k] for k in keys])) if len(keys) > 1 else d.loc[idx, keys[0]].tolist(), index=idx).map(m)
-        ok = arvo.dropna()
-        d.loc[ok.index, target] = ok; d.loc[ok.index, 'arvio'] = 1
-    kaikki = puuttuu.sum(); n = (puuttuu & d[target].notna()).sum()
-    eur = d.loc[puuttuu & d[target].notna(), 'summa'].abs().sum() / d.loc[puuttuu, 'summa'].abs().sum()
-    print(f'Arvioitu {target}: {n}/{kaikki} riviä ({eur:.0%} euroista)')
 
-# ---------- 3. PRH ----------
-VM = HERE / 'prh_valimuisti.json'
-cache = json.load(open(VM, encoding='utf-8')) if VM.exists() else {}
-ids = sorted(set(i for i in d.ytunnus.dropna() if re.fullmatch(r'\d{7}-\d', i)))
-todo = [i for i in ids if i not in cache]
-print(f'PRH: {len(ids)} Y-tunnusta, haetaan {len(todo)} uutta')
-def fi(x): return next((q['description'] for q in (x or {}).get('descriptions', []) if q['languageCode'] == '1'), None)
-def prh(i):
-    for a in range(6):
+def yhtenaista(raaka, vuosi):
+    """Raakataulukko ilman otsikkoriviä → yhtenäiset sarakkeet. Otsikkorivi tunnistetaan Summa-sarakkeesta."""
+    otsikko = next((i for i, rivi in enumerate(raaka.itertuples(index=False))
+                    if any(SARAKKEET.get(normalisoi(v)) == 'summa' for v in rivi)), None)
+    if otsikko is None:
+        sys.exit(f'Vuosi {vuosi}: otsikkoriviä ei löytynyt (Summa-sarake puuttuu).')
+    df = raaka.iloc[otsikko + 1:].copy()
+    df.columns = [SARAKKEET.get(normalisoi(c), f'_{i}') for i, c in enumerate(raaka.iloc[otsikko])]
+    df = df[[c for c in dict.fromkeys(SARAKKEET.values()) if c in df.columns]]
+    puuttuu = [c for c in PAKOLLISET if c not in df.columns]
+    if puuttuu:
+        sys.exit(f'Vuosi {vuosi}: sarakkeita ei tunnistettu: {puuttuu}. Lisää nimet SARAKKEET-sanakirjaan.')
+    for c in VALINNAISET:
+        if c not in df.columns:
+            df[c] = None
+    df['summa'] = pd.to_numeric(df.summa, errors='coerce')
+    df = df[df.summa.notna()].copy()
+    df['vuosi'] = vuosi
+    df['pvm'] = pd.to_datetime(df.pvm, errors='coerce')
+    for c in ('ytunnus', 'toimittaja', 'tilinimi', 'toimielin', 'tulosalue', 'palveluluokka', 'maa'):
+        df[c] = df[c].astype(str).str.strip().replace({'nan': None, 'None': None, '': None})
+    df['tili'] = df.tili.astype(str).str.strip().str.replace(r'\.0$', '', regex=True)
+    df['toimielin'] = df.toimielin.replace(TOIMIELIN_NIMET)
+    return df.reset_index(drop=True)
+
+
+def lue_vuodet(vuodet):
+    osat = []
+    for vuosi in vuodet:
+        df = yhtenaista(pd.read_excel(LAHDE / f'ostolaskut_{vuosi}.xlsx', header=None), vuosi)
+        print(f'{vuosi}: {len(df)} riviä, {df.summa.sum():,.2f} €')
+        osat.append(df)
+    return pd.concat(osat, ignore_index=True)
+
+
+# ---------- 3. puuttuvien toimielinten ja tulosalueiden arviointi ----------
+def ennusta(opetus, kohde, sarake):
+    """Arvioi sarakkeen (toimielin/tulosalue) kohderiveille opetusrivien perusteella.
+
+    Tarkin täsmäävä avain voittaa: (palveluluokka, tili, Y-tunnus) → (palveluluokka, tili) → palveluluokka.
+    Avaimelle annetaan arvio vain, jos vähintään ARVIO_KYNNYS sen euroista kuuluu samaan luokkaan.
+    Palauttaa sarjan, jossa arvioimatta jääneet ovat NaN.
+    """
+    tulos = pd.Series(index=kohde.index, dtype=object)
+    opetus = opetus.assign(ytunnus=opetus.ytunnus.fillna(''), eur=opetus.summa.abs())
+    kohde = kohde.assign(ytunnus=kohde.ytunnus.fillna(''))
+    for avaimet in ARVIO_AVAIMET:
+        g = opetus.groupby(avaimet + [sarake], as_index=False).eur.sum()
+        g['osuus'] = g.eur / g.groupby(avaimet).eur.transform('sum')
+        paras = g.sort_values('osuus').groupby(avaimet).tail(1)
+        paras = paras[paras.osuus >= ARVIO_KYNNYS][avaimet + [sarake]]
+        auki = kohde[tulos.isna()]
+        osuma = auki[avaimet].merge(paras, on=avaimet, how='left')[sarake]
+        osuma.index = auki.index
+        tulos.update(osuma.dropna())
+    return tulos
+
+
+def arvioi_puuttuvat(d):
+    """Täyttää puuttuvat toimielimet ja tulosalueet. Lisää sarakkeen arvio (1 = vähintään toinen arvioitu)."""
+    d['arvio'] = 0
+    yhteenveto = {}
+    for sarake in ('toimielin', 'tulosalue'):
+        tiedossa = d[d[sarake].notna() & d.palveluluokka.notna()]      # vain kaupungin oma tieto kelpaa opetukseen
+        puuttuu = d[d[sarake].isna() & d.palveluluokka.notna()]
+        for vuosi in sorted(puuttuu.vuosi.unique()):
+            # vain edelliset vuodet, jotta organisaatiomuutokset (esim. sote-siirto 2023) eivät vääristä
+            vuodet = sorted(tiedossa[tiedossa.vuosi < vuosi].vuosi.unique())[-ARVIO_OPETUSVUODET:]
+            if not vuodet:
+                continue
+            kohde = puuttuu[puuttuu.vuosi == vuosi]
+            arvio = ennusta(tiedossa[tiedossa.vuosi.isin(vuodet)], kohde, sarake).dropna()
+            d.loc[arvio.index, sarake] = arvio
+            d.loc[arvio.index, 'arvio'] = 1
+            kattavuus = kohde.loc[arvio.index, 'summa'].abs().sum() / kohde.summa.abs().sum()
+            yhteenveto.setdefault(sarake, {})[int(vuosi)] = {
+                'opetusvuodet': [int(v) for v in vuodet], 'kattavuus': round(float(kattavuus), 4)}
+            print(f'Arvioitu {sarake} {vuosi}: {len(arvio)}/{len(kohde)} riviä, {kattavuus:.0%} euroista '
+                  f'(opetus {vuodet[0]}–{vuodet[-1]})')
+    return yhteenveto
+
+
+def takautuva_testi(d):
+    """Sama menetelmä vuotta aiemmin: viimeisin vuosi, jolta oikea tieto on, arvioidaan sitä edeltävistä vuosista.
+
+    Ajetaan alkuperäiselle datalle ennen arviointia. Palauttaa euroilla painotetun kattavuuden ja osuvuuden.
+    """
+    tulos = {}
+    for sarake in ('toimielin', 'tulosalue'):
+        tiedossa = d[d[sarake].notna() & d.palveluluokka.notna()]
+        vuodet = sorted(tiedossa.vuosi.unique())
+        if len(vuodet) < 2:
+            continue
+        testivuosi = vuodet[-1]
+        opetusvuodet = vuodet[:-1][-ARVIO_OPETUSVUODET:]
+        testi = tiedossa[tiedossa.vuosi == testivuosi]
+        arvio = ennusta(tiedossa[tiedossa.vuosi.isin(opetusvuodet)], testi, sarake)
+        eur = testi.summa.abs()
+        arvioitu = arvio.notna()
+        tulos[sarake] = {
+            'testivuosi': int(testivuosi), 'opetusvuodet': [int(v) for v in opetusvuodet],
+            'kattavuus': round(float(eur[arvioitu].sum() / eur.sum()), 4),
+            'osuvuus': round(float(eur[arvioitu & (arvio == testi[sarake])].sum() / eur[arvioitu].sum()), 4),
+        }
+        print(f'Takautuva testi, {sarake}: vuosi {testivuosi} arvioitu vuosista {opetusvuodet[0]}–{opetusvuodet[-1]}: '
+              f'osuvuus {tulos[sarake]["osuvuus"]:.1%}, kattavuus {tulos[sarake]["kattavuus"]:.1%} euroista')
+    return tulos
+
+
+# ---------- 4. PRH ----------
+def _fi(kohde):
+    return next((q['description'] for q in (kohde or {}).get('descriptions', []) if q['languageCode'] == '1'), None)
+
+
+def prh_hae(ytunnus):
+    """Palauttaa yrityksen tiedot, {} jos yritystä ei ole rajapinnassa, tai None jos haku epäonnistui."""
+    for yritys in range(6):
         try:
-            j = json.loads(get(f'https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId={i}', 30))
-            c = j['companies'][0] if j.get('companies') else None
-            if not c: return i, {}
-            addr = sorted(c.get('addresses') or [], key=lambda a: a['type'])
-            mc = next((p.get('municipalityCode') for a in addr for p in a.get('postOffices', []) if p.get('municipalityCode')), None)
-            return i, {'kuntakoodi': mc, 'toimiala': fi(c.get('mainBusinessLine')),
-                       'yhtiomuoto': fi(c['companyForms'][-1]) if c.get('companyForms') else None}
+            vastaus = json.loads(hae(PRH_API.format(ytunnus), 30))
+            c = vastaus['companies'][0] if vastaus.get('companies') else None
+            if not c:
+                return {}
+            osoitteet = sorted(c.get('addresses') or [], key=lambda a: a['type'])      # käyntiosoite ensin
+            kunta = next((p.get('municipalityCode') for a in osoitteet for p in a.get('postOffices', [])
+                          if p.get('municipalityCode')), None)
+            return {'kuntakoodi': kunta, 'toimiala': _fi(c.get('mainBusinessLine')),
+                    'yhtiomuoto': _fi(c['companyForms'][-1]) if c.get('companyForms') else None}
         except urllib.error.HTTPError as e:
-            if e.code == 404: return i, {}
-            time.sleep(2 * (a + 1))
+            if e.code == 404:
+                return {}
+            time.sleep(2 * (yritys + 1))
         except Exception:
-            time.sleep(2 * (a + 1))
-    return i, None
-with cf.ThreadPoolExecutor(6) as ex:
-    for n, (i, v) in enumerate(ex.map(prh, todo)):
-        if v is not None: cache[i] = v
-        if n % 200 == 199: json.dump(cache, open(VM, 'w', encoding='utf-8'), ensure_ascii=False)
-json.dump(cache, open(VM, 'w', encoding='utf-8'), ensure_ascii=False)
+            time.sleep(2 * (yritys + 1))
+    return None
 
-# ---------- 4. kunnat ja maakunnat ----------
-# Luokitusvuosi: päivitä, kun Tilastokeskus julkaisee uuden (esim. 20260101)
-LUOKITUS = '20250101'
-km = json.loads(get('https://data.stat.fi/api/classifications/v2/correspondenceTables/'
-                    f'kunta_1_{LUOKITUS}%23maakunta_1_{LUOKITUS}/maps?content=data&meta=max&lang=fi&format=json'))
-kn = {x['sourceItem']['code']: x['sourceItem']['classificationItemNames'][0]['name'] for x in km}
-mk = {x['sourceItem']['code']: x['targetItem']['classificationItemNames'][0]['name'] for x in km}
-name2code = {v: k for k, v in kn.items()}
-GEN = {'turun':'Turku','liedon':'Lieto','kaarinan':'Kaarina','salon':'Salo','paraisten':'Parainen','raision':'Raisio','marttilan':'Marttila',
-'helsingin':'Helsinki','naantalin':'Naantali','tampereen':'Tampere','sauvon':'Sauvo','ulvilan':'Ulvila','pöytyän':'Pöytyä','loimaan':'Loimaa',
-'kuopion':'Kuopio','hyvinkään':'Hyvinkää','fossan':'Forssa','forssan':'Forssa','mynämäen':'Mynämäki','mikkelin':'Mikkeli','hangon':'Hanko','lahden':'Lahti',
-'ylöjärven':'Ylöjärvi','äänekosken':'Äänekoski','jyväskylän':'Jyväskylä','maskun':'Masku','ruskon':'Rusko','sastamalan':'Sastamala','joensuun':'Joensuu',
-'tyrnävän':'Tyrnävä','heinäveden':'Heinävesi','nousiaisten':'Nousiainen','uudenkaupungin':'Uusikaupunki','lohjan':'Lohja','hämeenlinnan':'Hämeenlinna',
-'kemiönsaaren':'Kemiönsaari','laitilan':'Laitila','rovaniemen':'Rovaniemi','someron':'Somero','raaseporin':'Raasepori','ikaalisten':'Ikaalinen',
-'parkanon':'Parkano','euran':'Eura','paimion':'Paimio','kouvolan':'Kouvola','espoon':'Espoo','vantaan':'Vantaa','oulun':'Oulu','porin':'Pori'}
-# Käsin asetetut kotikunnat (ei YTJ-rajapinnassa)
-MANUAL = {'0828255-9':'Turku','0204213-2':'Paimio','0136167-6':'Paimio','0922305-9':'Turku','3221065-1':'Turku','0823246-3':'Paimio',
-          '1095237-1':'Turku','0246246-0':'Helsinki','0926151-4':'Helsinki','3222663-7':'Helsinki'}
-PUB = r'kaupunki|kunta\b|kuntayhtymä|valtio|hyvinvointialue|seurakunta|virasto|poliisilaitos|hätäkeskuslaitos|kansaneläkelaitos|työterveyslaitos|ulosottolaitos|yliopisto|ely-keskus|valtiokonttori|varsinais-suomen liitto|valteri|kuntatyönantajat|hallinto-oikeus|taideyliopisto'
-ORG = r'\bry\b|r\.y\.|yhdistys|liitto|säätiö|\bsr\b|seura\b|keskusjärjestö|perikunta|tiekunta|osakaskunta'
-PUBFORM = {'Kunta','Kuntayhtymä','Valtion liikelaitos','Hyvinvointialue','Seurakunta','Valtio ja sen laitokset','Ev.lut.kirkko'}
-ORGFORM = {'Aatteellinen yhdistys','Säätiö','Taloudellinen yhdistys','Uskonnollinen yhdyskunta','Muu yhdistys'}
 
-d['ytunnus'] = d.ytunnus.fillna('')
-d['skey'] = np.where(d.ytunnus != '', d.ytunnus, 'N:' + d.toimittaja.fillna('?'))
-nimi = d.sort_values('vuosi').groupby('skey').toimittaja.agg(lambda s: s.iloc[-1])
-maa = d.groupby('skey').maa.agg(lambda s: s.dropna().iloc[0] if s.notna().any() else None)
-attr = {}
-for k, n in nimi.items():
-    nl = (n or '').lower(); e = cache.get(k) or {}
-    kunta = kn.get(e.get('kuntakoodi')) if e else None
-    if not kunta:
-        kunta = MANUAL.get(k)
-        if not kunta and re.search(r'kaupunki|kunta\b|seurakunta', nl): kunta = GEN.get(nl.split()[0] if nl else '')
-    maak = mk.get(name2code.get(kunta)) if kunta else None
-    form = e.get('yhtiomuoto')
-    if form in PUBFORM or (form is None and re.search(PUB, nl)): om = 'Julkinen sektori'
-    elif form in ORGFORM or (form is None and re.search(ORG, nl)): om = 'Järjestö tai säätiö'
-    elif form: om = 'Yritys'
-    elif re.search(r'\btmi\b|t:mi|toiminimi|\boy\b|\bab\b|\bky\b|gmbh|ltd|inc\b', nl): om = 'Yritys'
-    else: om = 'Ei tiedossa'
-    if not kunta and (maa.get(k) or 'FI') != 'FI': kunta = maak = 'Ulkomaat'
-    tol = e.get('toimiala') or ('Julkinen sektori (ei toimialatietoa)' if om == 'Julkinen sektori' else
-                                'Järjestö tai säätiö (ei toimialatietoa)' if om == 'Järjestö tai säätiö' else 'Ei tiedossa')
-    attr[k] = dict(nimi=n, yt='' if k.startswith('N:') else k, kunta=kunta or 'Ei tiedossa', maakunta=maak or 'Ei tiedossa', toimiala=tol, omistus=om)
-A = pd.DataFrame.from_dict(attr, orient='index')
+def prh_vanhentuneet(valimuisti, ytunnukset, tanaan):
+    """Y-tunnukset, joita ei ole välimuistissa tai joiden tieto on vanhentunut."""
+    haettavat = []
+    for yt in ytunnukset:
+        rivi = valimuisti.get(yt)
+        if rivi is None:
+            haettavat.append(yt)
+            continue
+        ika = (tanaan - date.fromisoformat(rivi.get('haettu', PRH_HAETTU_OLETUS))).days
+        tyhja = not any(v for k, v in rivi.items() if k != 'haettu')
+        if ika > (PRH_TYHJA_VANHENEE_PV if tyhja else PRH_VANHENEE_PV):
+            haettavat.append(yt)
+    return haettavat
 
-# ---------- 5. data ja sivu ----------
-d['tilil'] = d.tili + ' ' + d.tilinimi.fillna('')
-sup = list(A.index); si = {k: i for i, k in enumerate(sup)}
-dims = {}
-def enc(vals):
-    v = sorted(set(vals)); return v, {x: i for i, x in enumerate(v)}
-for c in ['toimielin', 'tulosalue', 'tilil']:
-    dims[c], idx = enc(d[c].fillna('–')); d[c + '_i'] = d[c].fillna('–').map(idx)
-for c in ['kunta', 'maakunta', 'toimiala', 'omistus']:
-    dims[c], _ = enc(A[c])
-supattr = [[A.at[k, 'nimi'], A.at[k, 'yt'], dims['kunta'].index(A.at[k, 'kunta']), dims['maakunta'].index(A.at[k, 'maakunta']),
-            dims['toimiala'].index(A.at[k, 'toimiala']), dims['omistus'].index(A.at[k, 'omistus'])] for k in sup]
-ym = (d.pvm.dt.year * 100 + d.pvm.dt.month).fillna(0).astype(int)
-tos = pd.to_numeric(d.tosite, errors='coerce').fillna(0).astype('int64')
-R = np.column_stack([d.vuosi - VUODET[0], ym, d.skey.map(si), d.tilil_i, d.toimielin_i, d.tulosalue_i,
-                     (d.summa * 100).round().astype('int64'), tos, d.arvio]).tolist()
-data = dict(years=VUODET, dims=dims, sup=supattr, rows=R, built=f'{date.today().day}.{date.today().month}.{date.today().year}')
 
-t = (HERE / 'template.html').read_text(encoding='utf-8')
-im = Image.open(HERE / 'hero.jpg').convert('RGB'); b = io.BytesIO(); im.save(b, 'JPEG', quality=72, optimize=True, progressive=True)
-dl = '\n        '.join(f'<a href="{lahteet[y]}">Ostolaskut {y}</a>' for y in VUODET)
-out = (t.replace('__DATA__', json.dumps(data, ensure_ascii=False, separators=(',', ':')))
-        .replace('__FONT__', base64.b64encode((HERE / 'rubik-latin.woff2').read_bytes()).decode())
-        .replace('__HERO__', base64.b64encode(b.getvalue()).decode())
-        .replace('__MAP__', (HERE / 'kartta.json').read_text(encoding='utf-8')).replace('__DOWNLOADS__', dl).replace('__YEARS__', f'{VUODET[0]}–{VUODET[-1]}'))
-SIVU.mkdir(exist_ok=True)
-(SIVU / 'index.html').write_text(out, encoding='utf-8')
-print(f'Valmis: {SIVU / "index.html"} ({len(out.encode()) / 1e6:.1f} Mt)')
-print(d.groupby('vuosi').summa.agg(['size', 'sum']).round(2).to_string())
+def paivita_prh(d):
+    polku = HERE / 'prh_valimuisti.json'
+    valimuisti = lue_json(polku, {})
+    for rivi in valimuisti.values():
+        rivi.setdefault('haettu', PRH_HAETTU_OLETUS)
+    tanaan = date.today()
+    ytunnukset = sorted({y for y in d.ytunnus.dropna() if re.fullmatch(r'\d{7}-\d', y)})
+    haettavat = prh_vanhentuneet(valimuisti, ytunnukset, tanaan)
+    print(f'PRH: {len(ytunnukset)} Y-tunnusta, haetaan {len(haettavat)} uutta tai vanhentunutta')
+    epaonnistui = 0
+    with cf.ThreadPoolExecutor(6) as ex:
+        for n, (yt, tiedot) in enumerate(zip(haettavat, ex.map(prh_hae, haettavat))):
+            if tiedot is None:                              # vanha tieto säilyy, yritetään seuraavalla ajolla
+                epaonnistui += 1
+                continue
+            valimuisti[yt] = {**tiedot, 'haettu': tanaan.isoformat()}
+            if n % 200 == 199:
+                kirjoita_json(polku, valimuisti)
+    kirjoita_json(polku, valimuisti)
+    if epaonnistui:
+        print(f'PRH: {epaonnistui} hakua epäonnistui, yritetään seuraavalla ajolla')
+    return valimuisti
+
+
+# ---------- 5. luokitukset ----------
+def kuntaluokitus():
+    """Palauttaa (kuntakoodi → kunnan nimi, kunnan nimi → maakunta)."""
+    parit = json.loads(hae(LUOKITUS_API.format(v=LUOKITUS)))
+    nimi = lambda kohde: kohde['classificationItemNames'][0]['name']
+    koodi_nimi = {x['sourceItem']['code']: nimi(x['sourceItem']) for x in parit}
+    kunta_maakunta = {nimi(x['sourceItem']): nimi(x['targetItem']) for x in parit}
+    return koodi_nimi, kunta_maakunta
+
+
+def palveluluokat():
+    """Palveluluokan koodi → nimi (Valtiokonttorin koodisto). Tallennetaan tiedostoon palveluluokat.json."""
+    polku = HERE / 'palveluluokat.json'
+    nimet = lue_json(polku)
+    if nimet is None:
+        vastaus = json.loads(hae(PALVELULUOKAT_API))
+        nimet = {c['codeValue']: c['prefLabel'].get('fi') for c in vastaus.get('results', vastaus)
+                 if c.get('prefLabel', {}).get('fi')}
+        kirjoita_json(polku, dict(sorted(nimet.items())), indent=1)
+    return nimet
+
+
+def palveluluokan_nimi(koodi, nimet):
+    """'3051' → '3051 Perusopetus'; kaupungin oma I-alkuinen koodi → '… (I-koodi)'; tuntematon → koodi."""
+    if koodi in nimet:
+        return f'{koodi} {nimet[koodi]}'
+    if koodi.startswith('I') and koodi[1:] in nimet:
+        return f'{koodi} {nimet[koodi[1:]]} (I-koodi)'
+    return koodi
+
+
+# ---------- toimittajien luokittelu ----------
+def paattele_kunta(ytunnus, nimi, prh, koodi_nimi):
+    kunta = koodi_nimi.get((prh or {}).get('kuntakoodi'))
+    if kunta:
+        return kunta
+    if ytunnus in KUNTA_KASIN:
+        return KUNTA_KASIN[ytunnus]
+    pienella = (nimi or '').lower()
+    if pienella and re.search(RE_KUNTANIMI, pienella):
+        return KUNTA_GENETIIVI.get(pienella.split()[0])
+    return None
+
+
+def paattele_tyyppi(nimi, yhtiomuoto):
+    pienella = (nimi or '').lower()
+    if yhtiomuoto in MUOTO_JULKINEN or (yhtiomuoto is None and re.search(RE_JULKINEN, pienella)):
+        return 'Julkinen sektori'
+    if yhtiomuoto in MUOTO_JARJESTO or (yhtiomuoto is None and re.search(RE_JARJESTO, pienella)):
+        return 'Järjestö tai säätiö'
+    if yhtiomuoto or re.search(RE_YRITYS, pienella):
+        return 'Yritys'
+    return EI_TIEDOSSA
+
+
+def luokittele_toimittajat(d, valimuisti, koodi_nimi, kunta_maakunta):
+    """Yksi rivi toimittajaa kohden. Toimittaja tunnistetaan Y-tunnuksella, sen puuttuessa nimellä."""
+    d['avain'] = np.where(d.ytunnus.notna(), d.ytunnus, 'N:' + d.toimittaja.fillna('?'))
+    nimet = d.sort_values('vuosi', kind='stable').groupby('avain').toimittaja.last()
+    maat = d.groupby('avain').maa.first()
+    eurot = d.groupby('avain').summa.sum()
+    rivit = {}
+    for avain, nimi in nimet.items():
+        ytunnus = '' if avain.startswith('N:') else avain
+        prh = valimuisti.get(avain) or {}
+        kunta = paattele_kunta(ytunnus, nimi, prh, koodi_nimi)
+        maakunta = kunta_maakunta.get(kunta)
+        maa = maat.get(avain)
+        if not kunta and pd.notna(maa) and maa != 'FI':     # maakoodi on aineistossa vasta vuodesta 2022
+            kunta = maakunta = 'Ulkomaat'
+        tyyppi = paattele_tyyppi(nimi, prh.get('yhtiomuoto'))
+        toimiala = prh.get('toimiala') or (
+            f'{tyyppi} (ei toimialatietoa)' if tyyppi in ('Julkinen sektori', 'Järjestö tai säätiö') else EI_TIEDOSSA)
+        rivit[avain] = dict(nimi=nimi, yt=ytunnus, kunta=kunta or EI_TIEDOSSA, maakunta=maakunta or EI_TIEDOSSA,
+                            toimiala=toimiala, omistus=tyyppi, eur=round(float(eurot[avain]), 2))
+    return pd.DataFrame.from_dict(rivit, orient='index')
+
+
+def kirjoita_tunnistamattomat(toimittajat):
+    """Lista toimittajista, joiden kunta tai tyyppi jäi tunnistamatta, suurimmasta alkaen. Tarkista uudet rivit käsin."""
+    t = toimittajat[(toimittajat.kunta == EI_TIEDOSSA) | (toimittajat.omistus == EI_TIEDOSSA)]
+    t = t.assign(itseis=t.eur.abs()).sort_values('itseis', ascending=False)
+    with open(HERE / 'tunnistamattomat.csv', 'w', newline='', encoding='utf-8') as f:
+        w = csv.writer(f, delimiter=';')
+        w.writerow(['ytunnus', 'nimi', 'eurot_yhteensa', 'kunta', 'tyyppi'])
+        for _, r in t.iterrows():
+            w.writerow([r.yt, r.nimi, f'{r.eur:.2f}', r.kunta, r.omistus])
+    osuus = t.itseis.sum() / toimittajat.eur.abs().sum()
+    print(f'Tunnistamatta {len(t)} toimittajaa ({osuus:.1%} euroista), ks. tunnistamattomat.csv')
+
+
+# ---------- 6. sivun kokoaminen ----------
+# Rivin sarakkeet sivun datassa; samat vakiot on tiedoston template.html alussa (const C).
+RIVI = ('vuosi', 'kuukausi', 'toimittaja', 'tili', 'toimielin', 'tulosalue', 'sentit', 'tosite', 'arvio', 'palveluluokka')
+
+
+def kokoa_data(d, toimittajat, vuodet, pl_nimet, testi, arviot):
+    d = d.copy()
+    d['tilil'] = d.tili + ' ' + d.tilinimi.fillna('')
+    d['pl'] = d.palveluluokka.map(lambda k: palveluluokan_nimi(k, pl_nimet), na_action='ignore')
+    dims, indeksi = {}, {}
+    for sarake, nimi in (('toimielin', 'toimielin'), ('tulosalue', 'tulosalue'), ('tilil', 'tilil'), ('pl', 'palveluluokka')):
+        arvot = sorted(set(d[sarake].fillna('–')))
+        dims[nimi] = arvot
+        indeksi[nimi] = d[sarake].fillna('–').map({a: i for i, a in enumerate(arvot)})
+    for sarake in ('kunta', 'maakunta', 'toimiala', 'omistus'):
+        dims[sarake] = sorted(set(toimittajat[sarake]))
+    paikka = {s: {a: i for i, a in enumerate(dims[s])} for s in ('kunta', 'maakunta', 'toimiala', 'omistus')}
+    avaimet = list(toimittajat.index)
+    sup = [[t.nimi, t.yt, paikka['kunta'][t.kunta], paikka['maakunta'][t.maakunta],
+            paikka['toimiala'][t.toimiala], paikka['omistus'][t.omistus]] for t in toimittajat.itertuples()]
+    rivit = np.column_stack([
+        d.vuosi - vuodet[0],
+        (d.pvm.dt.year * 100 + d.pvm.dt.month).fillna(0).astype(int),
+        d.avain.map({a: i for i, a in enumerate(avaimet)}),
+        indeksi['tilil'], indeksi['toimielin'], indeksi['tulosalue'],
+        (d.summa * 100).round().astype('int64'),
+        pd.to_numeric(d.tosite, errors='coerce').fillna(0).astype('int64'),
+        d.arvio, indeksi['palveluluokka'],
+    ]).tolist()
+    assert len(rivit[0]) == len(RIVI)
+    tanaan = date.today()
+    return dict(years=vuodet, dims=dims, sup=sup, rows=rivit, backtest=testi, arviot=arviot,
+                kynnys=ARVIO_KYNNYS, built=f'{tanaan.day}.{tanaan.month}.{tanaan.year}')
+
+
+def kokoa_sivu(data, lahteet, vuodet):
+    b64 = lambda nimi: base64.b64encode((HERE / nimi).read_bytes()).decode()
+    lataukset = '\n        '.join(f'<a href="{lahteet[v]}">Ostolaskut {v}</a>' for v in vuodet)
+    # "</" katkaisisi script-elementin, jos se sattuisi toimittajan nimeen
+    data_json = json.dumps(data, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
+    sivu = (HERE / 'template.html').read_text(encoding='utf-8')
+    for merkki, arvo in (('__DATA__', data_json), ('__MAP__', (HERE / 'kartta.json').read_text(encoding='utf-8')),
+                         ('__FONT__', b64('rubik-latin.woff2')), ('__HERO__', b64('hero.svg')),
+                         ('__DOWNLOADS__', lataukset), ('__YEARS__', f'{vuodet[0]}–{vuodet[-1]}')):
+        if merkki not in sivu:
+            sys.exit(f'template.html: paikkamerkki {merkki} puuttuu')
+        sivu = sivu.replace(merkki, arvo)
+    (ROOT / 'index.html').write_text(sivu, encoding='utf-8')
+    return len(sivu.encode()) / 1e6
+
+
+def main():
+    lahteet = lataa_lahteet()
+    vuodet = sorted(lahteet)
+    d = lue_vuodet(vuodet)
+    testi = takautuva_testi(d)
+    arviot = arvioi_puuttuvat(d)
+    valimuisti = paivita_prh(d)
+    koodi_nimi, kunta_maakunta = kuntaluokitus()
+    toimittajat = luokittele_toimittajat(d, valimuisti, koodi_nimi, kunta_maakunta)
+    kirjoita_tunnistamattomat(toimittajat)
+    data = kokoa_data(d, toimittajat, vuodet, palveluluokat(), testi, arviot)
+    koko = kokoa_sivu(data, lahteet, vuodet)
+    print(f'Valmis: {ROOT / "index.html"} ({koko:.1f} Mt)')
+
+
+if __name__ == '__main__':
+    main()
