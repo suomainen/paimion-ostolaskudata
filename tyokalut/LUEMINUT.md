@@ -14,7 +14,8 @@ paimion-ostolaskudata/        (GitHub-repo)
 ├── lahdedata/                kaupungin Excel-tiedostot (vain omalla koneella)
 └── tyokalut/
     ├── paivita.py            koko päivitys yhdellä ajolla
-    ├── test_paivita.py       testit
+    ├── test_paivita.py       testit datan käsittelylle (pytest)
+    ├── tarkista_sivu.js      selaintarkistus valmiille sivulle (Playwright ja axe)
     ├── template.html         sivun pohja (HTML, CSS, JavaScript)
     ├── lahteet.json          vuosien Excel-tiedostojen osoitteet paimio.fi:ssä
     ├── prh_valimuisti.json   PRH:sta haetut toimittajatiedot ja hakupäivät
@@ -51,6 +52,10 @@ Kaupungin Excel-tiedostot ovat kansiossa `lahdedata`, joko repon juuressa tai se
    pip install pytest
    python -m pytest tyokalut
    ```
+   Jos muutit pohjaa `template.html`, aja myös selaintarkistus (vaatii Node.js:n, asennusohje tiedoston alussa):
+   ```
+   node tyokalut/tarkista_sivu.js
+   ```
 4. Avaa `index.html` selaimessa ja katso, että uusi vuosi näyttää järkevältä.
 5. Käy `tunnistamattomat.csv`:n alku läpi. Jos listan kärjessä on uusi iso toimittaja, lisää sen kotikunta `paivita.py`:n `KUNTA_KASIN`-sanakirjaan.
 6. Nosta `paivita.py`:n `VERSIO`, lisää kohta tiedostoon `CHANGELOG.md` ja aja skripti uudelleen, jotta numero päivittyy sivulle. Päivitä `README.md`:n vuositaulukko ja testitulokset.
@@ -73,6 +78,8 @@ Jos kaupunki julkaisee tiedoston nimellä, jota skripti ei tunnista, lisää oso
 ## Sivun muokkaaminen
 
 Ulkoasu ja toiminnot ovat tiedostossa `template.html`. Paikkamerkit `__DATA__`, `__MAP__`, `__FONT__`, `__HERO__`, `__DOWNLOADS__`, `__YEARS__` ja `__VERSION__` korvataan ajon aikana. Skripti pysähtyy, jos jokin niistä puuttuu.
+
+Näkymän tila tallennetaan osoitteeseen funktioissa `lueOsoite` ja `saveHash`. Jos lisäät rajauksen tai valinnan, lisää se molempiin ja tarkistukseen `tarkista_sivu.js`, jotta vanhat linkit pysyvät toimivina.
 
 Datan rivit ovat taulukoita, joiden sarakkeet on nimetty kahdessa paikassa: `paivita.py`:n `RIVI` ja `template.html`:n `const C`. Jos lisäät sarakkeen, lisää se molempiin.
 

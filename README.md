@@ -27,7 +27,9 @@ Tämä sivu on aloitteen tekijän tekemä esimerkkitoteutus. Se näyttää, milt
 - Toimittajalista hakutoiminnolla. Toimittajaa napsauttamalla näkyvät sen ostot vuosittain, tileittäin ja laskuriveittäin.
 - Kuntakartta, jossa kunnat on väritetty toimittajien ostosumman tai toimittajamäärän mukaan. Kartan voi rajata koko Suomeen tai Varsinais-Suomeen, ja kuntaa napsauttamalla raportti rajautuu siihen.
 - Jakaumat maakunnittain, kunnittain, toimialoittain ja toimittajan tyypin mukaan (yritys, julkinen sektori, järjestö tai säätiö)
-- Rajaukset toimielimen, tilin, tulosalueen, palveluluokan, kunnan, maakunnan ja toimialan mukaan. Rajaukset voi yhdistää, ja ne tallentuvat osoiteriville, joten näkymän voi jakaa linkkinä.
+- Rajaukset toimielimen, tilin, tulosalueen, palveluluokan, kunnan, maakunnan ja toimialan mukaan. Rajaukset voi yhdistää.
+- Pysyvät linkit: näkymän tila (vuosi, rajaukset, välilehti, avattu toimittaja) on sivun osoitteessa nimillä ja koodeilla, joten linkki vie samaan näkymään myös aineiston päivityksen jälkeen. Linkin saa painikkeesta Kopioi linkki näkymään.
+- Analyysit-välilehti: ostojen kehitys vuosittain valitulla jaottelulla (esimerkiksi toimiala tai tili), uudet ja poistuneet toimittajat, paikallisuus tileittäin, toimittajat ostojen koon mukaan sekä paikallisuus ja keskittyneisyys vuosittain
 - Palveluluokat: mihin kaupungin palveluun ostot kohdistuvat (Valtiokonttorin kuntien yhteinen luokitus, aineistossa vuodesta 2022)
 - Toimii puhelimella, tabletilla ja tietokoneella sekä näppäimistöllä ja ruudunlukijalla (WCAG 2.1 AA)
 
@@ -98,9 +100,17 @@ Sivu noudattaa WCAG 2.1 AA -tasoa. Ratkaisut ovat pohjassa `tyokalut/template.ht
 
 Pohjan muutosten jälkeen tarkistetaan vähintään:
 
-- automaattinen tarkistus (axe) päänäkymässä, rajatussa näkymässä ja toimittajan ikkunassa 1280 px ja 375 px leveydellä
-- käyttö pelkällä näppäimistöllä: ohituslinkki, vuoden vaihto, rajaus taulukosta, toimittajan ikkunan avaus ja sulku
+- automaattinen tarkistus (axe) yhteenvedossa, rajatussa näkymässä, analyyseissä ja toimittajan ikkunassa 1280 px ja 375 px leveydellä
+- käyttö pelkällä näppäimistöllä: ohituslinkki, välilehdet nuolinäppäimillä, rajaus taulukosta, toimittajan ikkunan avaus ja sulku
 - 320 px leveä näkymä ilman vaakavieritystä
+
+Nämä ajaa `tyokalut/tarkista_sivu.js`, joka tarkistaa lisäksi linkkien pysyvyyden ja analyysien luvut:
+
+```
+npm install --no-save playwright axe-core
+npx playwright install chromium
+node tyokalut/tarkista_sivu.js
+```
 
 Tiedossa olevat rajoitukset: sivua ei ole testattu oikeilla ruudunlukijoilla (NVDA, VoiceOver), vaan automaattisella tarkistuksella ja näppäimistöllä. Kartan värisävyjen erot eivät yksinään välitä lukuja, joten tarkat arvot ovat luettelossa. Linkitetyt Excel-tiedostot ovat kaupungin julkaisemia, eikä niiden saavutettavuus ole tämän sivun hallinnassa.
 
@@ -109,7 +119,7 @@ Tiedossa olevat rajoitukset: sivua ei ole testattu oikeilla ruudunlukijoilla (NV
 Versionumero on muotoa pää.osa.korjaus, ja muutokset kirjataan tiedostoon [CHANGELOG.md](CHANGELOG.md). Kun sivu muuttuu:
 
 1. nosta `tyokalut/paivita.py`:n `VERSIO` ja lisää kohta tiedoston `CHANGELOG.md` alkuun (testi tarkistaa, että ne täsmäävät)
-2. aja `python tyokalut/paivita.py` ja `python -m pytest tyokalut`
+2. aja `python tyokalut/paivita.py`, `python -m pytest tyokalut` ja `node tyokalut/tarkista_sivu.js`
 3. `git commit`, `git tag -a vX.Y.Z -m "Kuvaus"` ja `git push --follow-tags`
 
 Pelkkä dokumentaation tai työkalujen muutos ei nosta numeroa.

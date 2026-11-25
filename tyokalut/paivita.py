@@ -28,7 +28,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-VERSIO = '1.4.0'                        # sivun versio; nosta samalla kun lisäät kohdan tiedostoon CHANGELOG.md
+VERSIO = '1.5.0'                        # sivun versio; nosta samalla kun lisäät kohdan tiedostoon CHANGELOG.md
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent                      # repon juuri: index.html ja README.md

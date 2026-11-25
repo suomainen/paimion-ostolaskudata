@@ -2,6 +2,13 @@
 
 Versionumero on muotoa **pää.osa.korjaus**: pää = sivun kokonaan uusi versio, osa = uusi ominaisuus tai uuden vuoden aineisto, korjaus = pieni korjaus tai tarkennus. Uusin versio ensin. Pelkkä dokumentaation tai työkalujen muutos ei nosta numeroa.
 
+## 1.5.0
+
+- Analyysit-välilehti: kehitys vuosittain valitulla jaottelulla (toimiala, tili, palveluluokka, toimielin, kunta, maakunta, toimittajan tyyppi), uudet ja poistuneet toimittajat, paikallisuus tileittäin, toimittajat ostojen koon mukaan sekä paikallisuus ja keskittyneisyys vuosittain.
+- Pysyvät linkit: näkymän osoitteessa on nyt vuosi, nimet ja koodit järjestysnumeroiden sijaan, joten linkki vie samaan näkymään myös aineiston päivityksen jälkeen. Osoitteeseen tallentuvat myös välilehti, jaottelu, mittarivalinnat, kartan alue ja avattu toimittaja.
+- Kopioi linkki näkymään -painike.
+- Selaintarkistus `tyokalut/tarkista_sivu.js`: saavutettavuus (axe), näppäimistökäyttö, linkkien pysyvyys ja analyysien luvut.
+
 ## 1.4.0
 
 - Saavutettavuus WCAG 2.1 AA -tasolle: ohituslinkki sisältöön, näkyvä kohdistus, taulukoiden lajittelu ja rivien valinta painikkeina, toimittajan tiedot modaalisena ikkunana, kartalle tekstivaihtoehto (Kunta-valikko), tilaviesti ruudunlukijalle näkymän päivittyessä ja maininta uuteen välilehteen avautuvista linkeistä.
