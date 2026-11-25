@@ -5,11 +5,12 @@ Näillä tiedostoilla kootaan repon juuren `index.html` uudelleen, kun kaupunki 
 ## Kansiorakenne
 
 ```
-paimion-ostolaskudata/        (GitHub-repo = paikallinen kansio "sivusto")
+paimion-ostolaskudata/        (GitHub-repo)
 ├── index.html                valmis sivu (koottu tiedosto, älä muokkaa käsin)
 ├── README.md
 ├── requirements.txt          Python-kirjastot
 ├── .gitignore                jättää lahdedata-kansion pois GitHubista
+├── lahdedata/                kaupungin Excel-tiedostot (vain omalla koneella)
 └── tyokalut/
     ├── paivita.py            koko päivitys yhdellä ajolla
     ├── test_paivita.py       testit
