@@ -2,6 +2,14 @@
 
 Versionumero on muotoa **pää.osa.korjaus**: pää = sivun kokonaan uusi versio, osa = uusi ominaisuus tai uuden vuoden aineisto, korjaus = pieni korjaus tai tarkennus. Uusin versio ensin. Pelkkä dokumentaation tai työkalujen muutos ei nosta numeroa.
 
+## 2.0.0
+
+- Uusi asettelu: näkymät, vuosi ja kaikki rajaukset ovat vasemman reunan sivupalkissa, joka pysyy näkyvissä sivua vieritettäessä. Sisältö on oikealla.
+- Sivupalkissa on valikot myös toimialalle, kunnalle, yritysmuodolle ja palveluluokalle, ja valitut rajaukset näkyvät kohdassa Valittuna.
+- Puhelimella ja kapealla näytöllä rajaukset avautuvat alhaalta Rajaa-painikkeesta, joka näyttää voimassa olevien rajausten määrän. Vuoden voi vaihtaa sen vierestä.
+- Iso otsikkokuva näkyy vain Ohje-näkymässä; muissa näkymissä otsikko on kapea palkki.
+- Sivu käyttää leveän näytön koko leveyden (enintään 1640 px).
+
 ## 1.10.0
 
 - Ohje on ensimmäinen välilehti ja avautuu oletuksena. Sen alussa kerrotaan, miksi sivu on tehty ja kenelle, ja pyydetään kysymyksiä ja parannusehdotuksia.

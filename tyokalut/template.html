@@ -56,7 +56,7 @@ try{ if(localStorage.getItem('paimio-ostolaskut-teema')==='tumma') document.docu
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Rubik,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.45}
 a{color:var(--accent)}
-.wrap{max-width:1280px;margin:0 auto;padding:0 16px}
+.wrap{max-width:1640px;margin:0 auto;padding:0 20px}
 .topbar{background:var(--topbar);color:#fff;font-size:15px;position:sticky;top:0;z-index:30;box-shadow:0 2px 8px rgba(7,43,76,.25)}
 html{scroll-padding-top:76px}
 .topbar .wrap{display:flex;gap:10px;min-height:54px;align-items:center;padding-top:7px;padding-bottom:7px;position:relative}
@@ -90,7 +90,7 @@ html{scroll-padding-top:76px}
   .topbar .nav a:focus-visible{outline-color:var(--focus)}
 }
 .hero{margin:20px 20px 0;position:relative}
-.hero-in{background:var(--navy) url('data:image/svg+xml;base64,__HERO__') center/cover no-repeat;border-radius:24px 24px 0 0;padding:48px max(24px,calc((100% - 1248px)/2)) 110px;position:relative;overflow:hidden;isolation:isolate}
+.hero-in{background:var(--navy) url('data:image/svg+xml;base64,__HERO__') center/cover no-repeat;border-radius:24px 24px 0 0;padding:48px max(24px,calc((100% - 1600px)/2)) 110px;position:relative;overflow:hidden;isolation:isolate}
 .hero-in::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(7,43,76,.55) 0%,rgba(7,43,76,.25) 50%,rgba(7,43,76,0) 100%)}
 .hero svg.wave path{fill:var(--bg)}
 .hero svg.wave{position:absolute;left:0;right:0;bottom:-1px;display:block;width:100%;height:70px}
@@ -100,16 +100,29 @@ html{scroll-padding-top:76px}
 .hero h1{margin:0;color:#fff;font-size:clamp(30px,5vw,48px);font-weight:600;line-height:1.1}
 .hero p{margin:18px 0 0;font-size:16px;line-height:1.65;max-width:62ch;color:#fff}
 .hero p a{color:var(--yellow);font-weight:500}
-.yearbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 22px}
+.yearbar{display:block;margin:0}
 .yearbar .lbl{font-weight:600;color:var(--head);font-size:16px}
 .years{display:flex;gap:8px;flex-wrap:wrap}
 .years button{font:inherit;font-size:15px;font-weight:500;border:2px solid var(--accent);background:var(--surface);color:var(--accent);padding:8px 18px;border-radius:8px;cursor:pointer;min-height:44px}
 .years button:hover{background:var(--tint-2)}
 .years button[aria-pressed="true"]{background:var(--fill);color:var(--on-fill)}
-@media (max-width:560px){.topbar .wrap{gap:6px}.versio{font-size:12px;padding:2px 7px}.copybtn{padding:8px 10px;gap:6px;font-size:14px;min-width:0}.copybtn .pitka{display:none}.copybtn .lyhyt{display:inline}.lang button{min-width:32px;padding:0 6px;font-size:13px}html{scroll-padding-top:66px}.yearbar{display:block}.yearbar .lbl{display:block;margin-bottom:8px}.years{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}.years button{padding:6px 0;font-size:14px;min-height:40px}.hero{margin:12px 8px 0}.hero-in{padding:24px 18px 60px;border-radius:16px 16px 0 0}.hero-in::before{background:rgba(7,43,76,.8)}.hero svg.wave{height:40px}}
-main{padding:10px 16px 48px}
-.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-bottom:12px}
-.filters label{display:flex;flex-direction:column;font-size:13px;color:var(--ink);font-weight:500;gap:4px;flex:1 1 180px;min-width:0}
+@media (max-width:560px){.topbar .wrap{gap:6px}.versio{font-size:12px;padding:2px 7px}.copybtn{padding:8px 10px;gap:6px;font-size:14px;min-width:0}.copybtn .pitka{display:none}.copybtn .lyhyt{display:inline}.lang button{min-width:32px;padding:0 6px;font-size:13px}html{scroll-padding-top:66px}.hero{margin:12px 8px 0}.hero-in{padding:24px 18px 60px;border-radius:16px 16px 0 0}.hero-in::before{background:rgba(7,43,76,.8)}.hero svg.wave{height:40px}}
+main{padding:14px 0 48px;min-width:0}
+.lay{max-width:1640px;margin:0 auto;padding:0 20px;display:grid;grid-template-columns:292px minmax(0,1fr);gap:26px;align-items:start}
+.side{position:sticky;top:62px;max-height:calc(100vh - 70px);overflow-y:auto;padding:14px 6px 24px 2px;display:flex;flex-direction:column;gap:18px}
+.rajaimet{display:flex;flex-direction:column;gap:14px}
+.sheethead,.rajaapalkki,#rajaaValmis{display:none}
+.sheethead h2{margin:0;font-size:19px;color:var(--head)}
+.sideh{font-size:13px;margin:0 0 6px;font-weight:600;color:var(--ink)}
+.btn.kevyt{background:var(--surface);color:var(--accent);box-shadow:inset 0 0 0 2px var(--accent)}
+.btn.kevyt:hover{background:var(--tint-2)}
+.sheetbg{display:none;position:fixed;inset:0;background:rgba(7,43,76,.45);z-index:44}
+.hero.pieni{margin-top:12px}
+.hero.pieni .hero-in{padding:16px max(24px,calc((100% - 1600px)/2)) 18px;border-radius:14px}
+.hero.pieni .crumbs,.hero.pieni p,.hero.pieni .wave{display:none}
+.hero.pieni h1{font-size:24px}
+.filters{display:flex;flex-direction:column;gap:9px;margin:0}
+.filters label{display:flex;flex-direction:column;font-size:13px;color:var(--ink);font-weight:500;gap:4px;min-width:0}
 .filters select,.filters input{font:inherit;font-weight:400;font-size:15px;color:var(--ink);background:var(--gray);border:1px solid var(--gray);border-radius:8px;padding:9px 10px;min-height:42px;width:100%}
 a:focus-visible,[tabindex="0"]:focus-visible,select:focus-visible,input:focus-visible,button:focus-visible,.hrow:focus-visible,.col:focus-visible,main:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .topbar a:focus-visible,.topbar button:focus-visible,.hero a:focus-visible,.skip:focus-visible{outline-color:var(--yellow)}
@@ -120,14 +133,13 @@ a:focus-visible,[tabindex="0"]:focus-visible,select:focus-visible,input:focus-vi
 .chip{display:inline-flex;align-items:center;gap:6px;background:var(--tint);color:var(--ink-2);border-radius:999px;padding:5px 6px 5px 12px;font-size:13px}
 .chip b{font-weight:500;color:var(--muted)}
 .chip button{border:0;background:var(--surface);color:var(--ink-2);width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:14px;line-height:1}
-.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0 22px}
+.tabs{display:grid;grid-template-columns:1fr;gap:6px;margin:0}
 .tabs button{font:inherit;text-align:left;border:2px solid var(--accent);background:var(--surface);color:var(--head);padding:12px 16px;min-height:64px;cursor:pointer;border-radius:12px;display:flex;flex-direction:column;gap:2px;box-shadow:var(--shadow)}
 .tabs button b{font-size:18px;font-weight:600;color:var(--accent)}
 .tabs button span{font-size:13.5px;color:var(--ink)}
 .tabs button:hover{background:var(--tint-2)}
 .tabs button[aria-selected="true"]{background:var(--fill);color:var(--on-fill)}
 .tabs button[aria-selected="true"] b,.tabs button[aria-selected="true"] span{color:var(--on-fill)}
-@media (max-width:1000px){.tabs{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:720px){.tabs{gap:6px}.tabs button{padding:10px 6px;min-height:48px;align-items:center;justify-content:center;text-align:center}.tabs button b{font-size:15px}.tabs button span{display:none}}
 .asel{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:500;min-width:200px}
 .asel select{font:inherit;font-weight:400;font-size:15px;color:var(--ink);background:var(--gray);border:1px solid var(--gray);border-radius:8px;padding:8px 10px;min-height:42px}
@@ -142,7 +154,7 @@ a:focus-visible,[tabindex="0"]:focus-visible,select:focus-visible,input:focus-vi
 .card h2{font-size:19px;font-weight:600;margin:0 0 4px;color:var(--head)}
 .card .sub{font-size:12.5px;color:var(--muted);margin:0 0 12px}
 .c4{grid-column:span 4}.c5{grid-column:span 5}.c6{grid-column:span 6}.c7{grid-column:span 7}.c8{grid-column:span 8}.c12{grid-column:span 12}
-@media (max-width:1100px){.c5,.c6,.c7,.c8{grid-column:span 12}.c4{grid-column:span 6}}
+@media (max-width:1400px){.c5,.c6,.c7,.c8{grid-column:span 12}.c4{grid-column:span 6}}
 @media (max-width:720px){.c4,.c5,.c6,.c7,.c8{grid-column:span 12}}
 /* column chart */
 .colchart{position:relative;height:220px;display:flex;align-items:flex-end;gap:6px;padding:0 0 26px;border-bottom:0}
@@ -250,11 +262,9 @@ tbody tr:hover .rowbtn .rt,.rowbtn:focus-visible .rt{text-decoration:underline}
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
 @media (max-width:560px){
   #supTable th:nth-child(2),#supTable td:nth-child(2){display:none}
-  .years button{padding:8px 11px;font-size:14px}
   .colchart{height:190px}.colchart .col .val{font-size:10.5px}
 }
 @media (max-width:420px){.topbar .wrap{flex-wrap:wrap;justify-content:flex-end}.copybtn{flex:1 1 100%;justify-content:center;order:9;margin:0}html{scroll-padding-top:110px}}
-@media (max-width:359px){.years button{font-size:12.5px}}
 .linechart svg{display:block;width:100%;height:auto;overflow:visible}
 .linechart text{font-size:12px;fill:var(--muted);font-family:inherit}
 .linechart .apu{stroke:var(--line);stroke-width:1}
@@ -305,10 +315,10 @@ td input[type=checkbox]{width:18px;height:18px;margin:0;vertical-align:middle;ac
 .kaytto b{font-weight:600}
 td.tol{white-space:normal;min-width:120px;max-width:300px;overflow-wrap:anywhere}
 .c4 th{overflow-wrap:anywhere}
-@media (max-width:900px){.hm{display:none}}
+@media (max-width:1230px){.hm{display:none}}
 @media (max-width:720px){#supTable th:nth-child(2),#supTable td:nth-child(2){display:none}th,td{padding:8px 5px}td.name,td.tol{min-width:76px}th{overflow-wrap:anywhere}}
-@media (max-width:1300px){.ht{display:none}.lev{grid-column:span 12}}
-@media (max-width:900px){#supTable th:nth-child(3),#supTable td:nth-child(3),#supTable th:nth-child(4),#supTable td:nth-child(4){display:none}}
+@media (max-width:1600px){.ht{display:none}.lev{grid-column:span 12}}
+@media (max-width:1230px){#supTable th:nth-child(3),#supTable td:nth-child(3),#supTable th:nth-child(4),#supTable td:nth-child(4){display:none}}
 .vinkki{display:flex;gap:12px;align-items:flex-start;background:var(--tint-2);border:1px solid var(--line);border-left:4px solid var(--yellow);border-radius:0 8px 8px 0;padding:10px 12px;margin:0 0 18px;font-size:14px;color:var(--ink-2)}
 .vinkki p{margin:0;flex:1;line-height:1.6}
 .vinkki p .ri{display:inline-block;vertical-align:-3px;margin:0 2px}
@@ -324,7 +334,7 @@ td.tol{white-space:normal;min-width:120px;max-width:300px;overflow-wrap:anywhere
 .opas dt{font-weight:600;color:var(--ink)}
 .opas dd{margin:0}
 @media (max-width:560px){.opas dl{grid-template-columns:1fr;gap:2px}.opas dd{margin-bottom:8px}}
-@media (min-width:901px){#kpis{grid-template-columns:repeat(4,1fr)}}
+@media (min-width:1000px){#kpis{grid-template-columns:repeat(4,1fr)}}
 .tervetuloa{border-left:6px solid var(--yellow)}
 .tervetuloa h2{font-size:24px}
 .tervetuloa .opas{font-size:16px;max-width:78ch}
@@ -332,6 +342,28 @@ td.tol{white-space:normal;min-width:120px;max-width:300px;overflow-wrap:anywhere
 .opas a.btn{display:inline-flex;align-items:center;text-decoration:none}
 .opas a.btn.toinen{background:var(--surface);color:var(--accent);box-shadow:inset 0 0 0 2px var(--accent)}
 .opas a.btn.toinen:hover{background:var(--tint-2)}
+/* Sivupalkki: leveällä näytöllä näkymät ja rajaukset ovat aina näkyvissä, kapealla rajaukset avautuvat alhaalta */
+.side .tabs button{min-height:0;padding:9px 12px;box-shadow:none}
+.side .tabs button b{font-size:16px}
+.side .tabs button span{font-size:12.5px}
+.yearbar .lbl{display:block;margin-bottom:6px;font-size:13px;color:var(--ink)}
+.years{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.years button{padding:6px 0;min-height:38px;font-size:14.5px}
+@media (max-width:999px){
+  .lay{display:block;padding:0 16px}
+  .side{position:static;max-height:none;overflow:visible;padding:0;display:block}
+  .side .tabs{grid-template-columns:repeat(2,1fr);margin:14px 0 4px}
+  .rajaimet{display:none}
+  .rajaimet.open{display:flex;position:fixed;left:0;right:0;bottom:0;max-height:88vh;overflow-y:auto;background:var(--surface);z-index:45;border-radius:18px 18px 0 0;box-shadow:0 -10px 30px rgba(0,0,0,.3);padding:16px 16px 20px}
+  .sheethead{display:flex;justify-content:space-between;align-items:center}
+  .rajaapalkki{display:flex;gap:8px;position:sticky;top:var(--tb,54px);z-index:20;background:var(--bg);padding:8px 0;margin-bottom:6px}
+  .rajaapalkki .btn{flex:1}
+  #rajaaValmis{display:block}
+  .sheetbg.open{display:block}
+  main{padding-top:6px}
+  #kpis{grid-template-columns:repeat(2,1fr)}
+  .kpi{padding:12px 14px}
+}
 </style>
 </head>
 <body>
@@ -364,24 +396,38 @@ td.tol{white-space:normal;min-width:120px;max-width:300px;overflow-wrap:anywhere
   </div>
 </header>
 
-<main class="wrap" id="sisalto" tabindex="-1">
-  <div class="tabs" role="tablist" aria-label="Näkymä" data-ta="aria-label:view">
+<div class="lay">
+<aside class="side" id="sivu" aria-label="Näkymät ja rajaukset" data-ta="aria-label:sideLabel">
+  <div class="tabs" id="tabit" role="tablist" aria-orientation="vertical" aria-label="Näkymä" data-ta="aria-label:view">
     <button type="button" role="tab" id="t-ohje" aria-controls="p-ohje" aria-selected="true"><b data-t="tabO">Ohje</b><span data-t="tabOs">Aloita tästä: mitä sivulla on ja miten sitä käytetään</span></button>
     <button type="button" role="tab" id="t-yhteenveto" aria-controls="p-yhteenveto" aria-selected="false" tabindex="-1"><b data-t="tabY">Yhteenveto</b><span data-t="tabYs">Valitun vuoden luvut, kartta ja toimittajat</span></button>
     <button type="button" role="tab" id="t-kehitys" aria-controls="p-kehitys" aria-selected="false" tabindex="-1"><b data-t="tabK">Kehitys</b><span data-t="tabKs">Kaikki vuodet: trendit, uudet toimittajat ja paikallisuus</span></button>
     <button type="button" role="tab" id="t-toimittaja" aria-controls="p-toimittaja" aria-selected="false" tabindex="-1"><b data-t="tabT">Toimittaja</b><span data-t="tabTs">Yhden toimittajan ostot koko historian ajalta</span></button>
   </div>
+  <div class="rajaimet" id="rajaimet">
+    <div class="sheethead"><h2 id="rajaaOts" data-t="filterTitle">Rajaa</h2><button type="button" class="btn kevyt" id="rajaaSulje" data-t="close">Sulje</button></div>
+  <div class="yearbar"><span class="lbl" data-t="year">Vuosi</span><div class="years" id="years" role="group" aria-label="Vuosi" data-ta="aria-label:year"></div></div>
+    <section class="filters" aria-label="Rajaukset" data-ta="aria-label:filters">
+      <label><span data-t="fSup">Toimittaja tai Y-tunnus</span><input id="q" type="search" placeholder="Hae nimellä tai Y-tunnuksella" data-ta="placeholder:fSupPh" autocomplete="off"></label>
+      <label><span data-t="lToimielin">Toimielin</span><select id="f-toimielin"></select></label>
+      <label><span data-t="lTili">Tili</span><select id="f-tilil"></select></label>
+      <label><span data-t="lTol">Toimiala</span><select id="f-toimiala"></select></label>
+      <label><span data-t="lKunta">Kunta</span><select id="f-kunta2"></select></label>
+      <label><span data-t="lOm">Toimittajan tyyppi</span><select id="f-omistus"></select></label>
+      <label><span data-t="hMuoto">Yritysmuoto</span><select id="f-yhtiomuoto"></select></label>
+      <label><span data-t="lPalvelu">Palveluluokka</span><select id="f-palveluluokka"></select></label>
+    </section>
+    <div id="valitut"><p class="sideh" data-t="selected">Valittuna</p>
+    <div class="chips" id="chips"></div></div>
+    <button class="btn kevyt" id="reset" type="button" data-t="reset">Tyhjennä rajaukset</button>
+    <button class="btn" id="rajaaValmis" type="button"></button>
+  </div>
+</aside>
+<main id="sisalto" tabindex="-1">
   <p class="sr" id="live" role="status"></p>
+  <div class="rajaapalkki" id="rajaaPalkki"><button type="button" class="btn" id="rajaaAvaa" aria-haspopup="dialog" aria-controls="rajaimet"></button><label class="msel"><span class="sr" data-t="year">Vuosi</span><select id="f-vuosi"></select></label></div>
   <div id="rajaus">
   <div class="vinkki" id="vinkki" hidden><p data-t="tip"><b>Vinkki:</b> napsauta toimittajan nimeä <svg class="ri" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>, niin sen laskurivit aukeavat sivuun. Napsauta tiliä, kuntaa, palkkia tai kartan kuntaa <svg class="ri" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18l-7 8.5V19l-4 2v-7.5z"/></svg>, niin koko raportti rajautuu siihen. Rajauksen saa pois napsauttamalla samaa kohtaa uudelleen.</p><button type="button" id="vinkkiSulje" data-t="tipClose">Selvä</button></div>
-  <div class="yearbar"><span class="lbl" data-t="year">Vuosi</span><div class="years" id="years" role="group" aria-label="Vuosi" data-ta="aria-label:year"></div></div>
-  <section class="filters" aria-label="Rajaukset" data-ta="aria-label:filters">
-    <label><span data-t="fSup">Toimittaja tai Y-tunnus</span><input id="q" type="search" placeholder="Hae nimellä tai Y-tunnuksella" data-ta="placeholder:fSupPh" autocomplete="off"></label>
-    <label><span data-t="lToimielin">Toimielin</span><select id="f-toimielin"></select></label>
-    <label><span data-t="lTili">Tili</span><select id="f-tilil"></select></label>
-    <label><span data-t="lOm">Toimittajan tyyppi</span><select id="f-omistus"></select></label>
-    <button class="btn" id="reset" type="button" data-t="reset">Tyhjennä rajaukset</button>
-  </section>
   <div class="chips" id="chips"></div>
   <section class="kpis" id="kpis" aria-label="Tunnusluvut" data-ta="aria-label:kpis"></section>
   </div>
@@ -639,6 +685,8 @@ td.tol{white-space:normal;min-width:120px;max-width:300px;overflow-wrap:anywhere
     </section>
   </div>
 </main>
+</div>
+<div class="sheetbg" id="rajaaTausta"></div>
 
 <footer id="footer">
   <div class="wrap">
@@ -740,16 +788,17 @@ fi:{
   samaH:y=>`Sama toimittaja usealla toimielimellä ${y}`, samaSub:n=>`${n} tapausta, joissa vähintään kaksi toimielintä osti samalta toimittajalta samalla tilillä.`, samaEst:' Toimielin on tältä vuodelta osin arvioitu, joten lista on suuntaa antava.', noSama:'Ei tapauksia valinnalla.',
   allYears:'Kaikki vuodet', showAllYears:'Näytä kaikki vuodet', changeSup:'Valitse toinen toimittaja', tKkSubY:y=>`Tositepäivämäärän mukaan, ${y}.`,
   tabO:'Ohje', tabOs:'Aloita tästä: mitä sivulla on ja miten sitä käytetään',
-  gh1:'Pikaopas', g1:`<ol><li><b>Valitse vuosi</b> sivun alun painikkeista.</li><li><b>Rajaa</b> napsauttamalla tiliä, kuntaa, toimialaa tai muuta riviä, jonka lopussa on suppilo {is}. Sen jälkeen koko raportti näyttää vain valitun osan.</li><li><b>Avaa toimittaja</b> napsauttamalla nimeä, jonka lopussa on nuoli {ia}. Laskurivit aukeavat sivuun.</li><li><b>Jaa näkymä</b> yläpalkin painikkeella Kopioi linkki tähän näkymään. Linkki avaa saman vuoden, samat rajaukset ja saman välilehden.</li></ol>`,
+  gh1:'Pikaopas', g1:`<ol><li><b>Valitse vuosi</b> vasemman reunan painikkeista. Puhelimella vuosi ja rajaukset ovat Rajaa-painikkeen takana.</li><li><b>Rajaa</b> napsauttamalla tiliä, kuntaa, toimialaa tai muuta riviä, jonka lopussa on suppilo {is}. Sen jälkeen koko raportti näyttää vain valitun osan.</li><li><b>Avaa toimittaja</b> napsauttamalla nimeä, jonka lopussa on nuoli {ia}. Laskurivit aukeavat sivuun.</li><li><b>Jaa näkymä</b> yläpalkin painikkeella Kopioi linkki tähän näkymään. Linkki avaa saman vuoden, samat rajaukset ja saman välilehden.</li></ol>`,
   gh2:'Näkymät', g2:`<ul><li><b><a href="#sisalto" data-nakyma="yhteenveto">Yhteenveto</a></b> näyttää yhden vuoden: tunnusluvut, ostot kuukausittain, toimittajat, kartan sekä jaottelut tilin, toimialan, toimielimen ja palveluluokan mukaan.</li><li><b><a href="#sisalto" data-nakyma="kehitys">Kehitys</a></b> näyttää kaikki vuodet rinnakkain: mikä kasvaa ja mikä laskee, uudet ja poistuneet toimittajat, paikallisuus, suuret toimittajat ja saman toimittajan ostot usealla toimielimellä.</li><li><b><a href="#sisalto" data-nakyma="toimittaja">Toimittaja</a></b> näyttää yhden toimittajan koko historian. Tämä näkymä ei huomioi vuosivalintaa eikä rajauksia.</li></ul>`,
-  gh3:'Rajaaminen', g3:`<ul><li>Suppilolla {is} merkityt rivit, palkit, puukartan laatikot ja kartan kunnat rajaavat raportin, kun niitä napsauttaa.</li><li>Sivun alussa on lisäksi haku ja valikot toimielimelle, tilille ja toimittajan tyypille.</li><li>Voimassa olevat rajaukset näkyvät merkkeinä hakukenttien alla. Rajaus poistuu merkin rastista tai napsauttamalla samaa riviä uudelleen.</li><li>Rajauksia voi yhdistää, esimerkiksi tili ja kunta. Tyhjennä rajaukset poistaa kaikki kerralla.</li><li>Kuukauden voi valita Ostot kuukausittain -kaaviosta tai sen valikosta.</li></ul>`,
+  gh3:'Rajaaminen', g3:`<ul><li>Suppilolla {is} merkityt rivit, palkit, puukartan laatikot ja kartan kunnat rajaavat raportin, kun niitä napsauttaa.</li><li>Vasemmassa reunassa on lisäksi haku ja valikot toimielimelle, tilille, toimialalle, kunnalle, toimittajan tyypille, yritysmuodolle ja palveluluokalle.</li><li>Voimassa olevat rajaukset näkyvät merkkeinä valikoiden alla kohdassa Valittuna. Rajaus poistuu merkin rastista tai napsauttamalla samaa riviä uudelleen.</li><li>Rajauksia voi yhdistää, esimerkiksi tili ja kunta. Tyhjennä rajaukset poistaa kaikki kerralla.</li><li>Kuukauden voi valita Ostot kuukausittain -kaaviosta tai sen valikosta.</li></ul>`,
   gh4:'Toimittajan tiedot', g4:`<ul><li>Nuolella {ia} merkitty toimittajan nimi avaa sivupaneelin: ostot vuosittain, tilit ja valitun vuoden laskurivit. Paneeli sulkeutuu rastista tai Esc-näppäimellä.</li><li>Paneelin painike Näytä koko historia vie Toimittaja-välilehdelle. Siellä ovat kaikki vuodet, kuukaudet koko jaksolta, sijoitus toimittajien joukossa, tilit ja toimielimet vuosittain sekä kaikki laskurivit.</li><li>Toimittaja-välilehdellä yhden vuoden saa näkyviin napsauttamalla vuosipylvästä.</li><li>Toimittajan voi hakea suoraan nimellä tai Y-tunnuksella, ja jokaisella toimittajalla on oma linkki.</li></ul>`,
   gh5:'Taulukot ja kaaviot', g5:`<ul><li>Sarakeotsikon napsautus lajittelee taulukon, toinen napsautus kääntää järjestyksen.</li><li>Monessa osiossa on valitsin, jolla saman tiedon näkee taulukkona tai kaaviona. Puukartassa laatikon koko kertoo ostojen summan.</li><li>Valitsin € | Toimittajia vaihtaa, lasketaanko eurot vai toimittajien määrä.</li><li>Kartan voi rajata koko Suomeen tai Varsinais-Suomeen. Väriasteikko on logaritminen, joten pienetkin ostot erottuvat.</li><li>Kehitys-välilehden viivakaavioon valitaan rivit taulukon valintaruuduilla, enintään kuusi kerrallaan.</li><li>Tarkka summa näkyy, kun viet hiiren pylvään, palkin tai laatikon päälle.</li></ul>`,
-  gh6:'Esimerkkejä', g6:`<p><b>Mitä kaupunki ostaa minun alaltani?</b> Avaa Yhteenveto ja napsauta omaa toimialaasi Toimialat-osiossa. Toimittajat-taulukko näyttää, keneltä ostetaan, ja Tilit, mitä ostetaan.</p><p><b>Paljonko meidän yritykseltämme on ostettu?</b> Avaa Toimittaja-välilehti ja hae yritys nimellä tai Y-tunnuksella.</p><p><b>Kuinka suuri osa ostoista jää Paimioon?</b> Tunnusluku Paimiolaiset toimittajat kertoo valitun vuoden osuuden. Kehitys-välilehdellä osuus näkyy vuosittain ja tileittäin.</p><p><b>Mikä on kasvanut eniten?</b> Avaa Kehitys ja lajittele Kehitys vuosittain -taulukko Muutos-sarakkeen mukaan. Jaottelun voi vaihtaa toimialasta esimerkiksi tiliin.</p><p><b>Mitä tietty lautakunta ostaa?</b> Valitse toimielin sivun alun valikosta.</p>`,
+  gh6:'Esimerkkejä', g6:`<p><b>Mitä kaupunki ostaa minun alaltani?</b> Avaa Yhteenveto ja napsauta omaa toimialaasi Toimialat-osiossa. Toimittajat-taulukko näyttää, keneltä ostetaan, ja Tilit, mitä ostetaan.</p><p><b>Paljonko meidän yritykseltämme on ostettu?</b> Avaa Toimittaja-välilehti ja hae yritys nimellä tai Y-tunnuksella.</p><p><b>Kuinka suuri osa ostoista jää Paimioon?</b> Tunnusluku Paimiolaiset toimittajat kertoo valitun vuoden osuuden. Kehitys-välilehdellä osuus näkyy vuosittain ja tileittäin.</p><p><b>Mikä on kasvanut eniten?</b> Avaa Kehitys ja lajittele Kehitys vuosittain -taulukko Muutos-sarakkeen mukaan. Jaottelun voi vaihtaa toimialasta esimerkiksi tiliin.</p><p><b>Mitä tietty lautakunta ostaa?</b> Valitse toimielin vasemman reunan valikosta.</p>`,
   gh7:'Käsitteet', g7:`<dl><dt>Tili</dt><dd>Kirjanpidon tili eli menolaji, esimerkiksi asiantuntijapalvelut tai rakennusmateriaali.</dd><dt>Toimielin</dt><dd>Lautakunta tai muu toimielin, jonka budjetista osto on maksettu.</dd><dt>Tulosalue</dt><dd>Toimielimen alainen yksikkö, esimerkiksi perusopetus.</dd><dt>Palveluluokka</dt><dd>Kuntien yhteinen luokitus siitä, mihin palveluun osto kohdistuu.</dd><dt>Tosite ja laskurivi</dt><dd>Tosite on yksi lasku. Laskurivi on sen yksi tiliöinti, joten yhdellä laskulla voi olla monta riviä.</dd><dt>Hyvityslasku</dt><dd>Negatiivinen rivi, joka vähentää summaa.</dd><dt>Alv 0 %</dt><dd>Summat ovat arvonlisäverottomia.</dd><dt>Kotikunta</dt><dd>Toimittajan rekisteröity kotipaikka yritysrekisterissä.</dd></dl>`,
   gh8:'Lukuja tulkitessa', g8:`<ul><li>Vuodesta 2023 alkaen sosiaali- ja terveyspalvelut eivät enää kuulu kaupungille, joten ostot putoavat selvästi.</li><li>Kotikunta ei kerro, missä työ tehdään. Valtakunnallinen yritys näkyy pääkonttorinsa kunnassa.</li><li>Vuoden 2025 toimielin ja tulosalue on osin arvioitu. Arvioidut rivit on merkitty tähdellä.</li><li>Toimittajan toimiala ja kunta kuvaavat nykytilaa, eivät laskun aikaista tilannetta.</li><li>Lasku kertoo summan, ei yksikköhintaa eikä sitä, mihin sopimukseen osto perustuu.</li><li>Tarkemmat selitykset ja lähteet ovat kohdassa <a href="#tietoa">Tietoa aineistosta</a>.</li></ul>`,
   gh9:'Kieli, ulkoasu ja näppäimistö', g9:`<ul><li>Kielen voi vaihtaa yläpalkin painikkeista FI, SV ja EN. Tilien, toimialojen ja toimielinten nimet näkyvät aina suomeksi.</li><li>Kuu-painike vaihtaa tumman ulkoasun. Kapealla näytöllä linkit ovat valikkopainikkeen takana.</li><li>Sivua voi käyttää pelkällä näppäimistöllä: sarkain siirtää kohdistusta, Enter tai välilyönti valitsee, nuolinäppäimet vaihtavat välilehteä ja Esc sulkee toimittajan paneelin.</li><li>Puhelimella taulukoissa näkyvät vain tärkeimmät sarakkeet. Kaikki sarakkeet näkyvät leveämmällä näytöllä.</li></ul>`,
   gh0:'Tervetuloa', g0:`<p>Tämä sivu on tehty, jotta tieto kaupungin ostoista olisi helposti kaikkien saatavilla. Paimion kaupunki julkaisee ostolaskunsa avoimena datana, mutta Excel-tiedostoista on työlästä hahmottaa kokonaisuutta. Täällä samat tiedot voi selata: mitä kaupunki ostaa, keneltä ja kuinka paljon.</p><p>Sivu on tehty paimiolaisia ajatellen, erityisesti yrittäjiä. Näet, mitä kaupunki ostaa omalta alaltasi, keneltä se ostaa nyt ja missä omalle tarjonnallesi voisi olla kysyntää.</p><p class="napit"><a class="btn" href="#sisalto" data-nakyma="yhteenveto">Avaa yhteenveto</a><a class="btn toinen" href="#sisalto" data-nakyma="toimittaja">Hae yritys</a><a class="btn toinen" href="#sisalto" data-nakyma="kehitys">Katso kehitys</a></p><p><b>Kysy ja ehdota.</b> Puuttuuko jokin tieto, onko jokin epäselvää tai löysitkö virheen? Kerro, miten sivua voisi parantaa: <a href="mailto:oskari@summanen.org">oskari@summanen.org</a> tai ${ulos(ISSUES_URL,'GitHubin issues')}. Jokainen ehdotus luetaan.</p>`,
+  filterBtn:n=>n? `Rajaa (${n})` : 'Rajaa', showN:n=>`Näytä ${n} toimittajaa`,
   kieliNote:'',
 },
 sv:{
@@ -823,16 +872,17 @@ sv:{
   allYears:'Alla år', showAllYears:'Visa alla år', changeSup:'Välj en annan leverantör', tKkSubY:y=>`Enligt verifikatdatum, ${y}.`, tipClose:'Uppfattat',
   tip:'<b>Tips:</b> klicka på leverantörens namn {ia} så öppnas dess fakturarader vid sidan. Klicka på ett konto, en kommun, en stapel eller en kommun på kartan {is} så avgränsas hela rapporten till det. Avgränsningen tas bort genom att klicka på samma ställe en gång till.',
   tabO:'Guide', tabOs:'Börja här: vad sidan innehåller och hur den används',
-  gh1:'Snabbguide', g1:`<ol><li><b>Välj år</b> med knapparna i början av sidan.</li><li><b>Avgränsa</b> genom att klicka på ett konto, en kommun, en näringsgren eller en annan rad som slutar med en tratt {is}. Därefter visar hela rapporten bara den valda delen.</li><li><b>Öppna en leverantör</b> genom att klicka på ett namn som slutar med en pil {ia}. Fakturaraderna öppnas vid sidan.</li><li><b>Dela vyn</b> med knappen Kopiera länk till den här vyn i den övre balken. Länken öppnar samma år, samma avgränsningar och samma flik.</li></ol>`,
+  gh1:'Snabbguide', g1:`<ol><li><b>Välj år</b> med knapparna i vänsterkanten. På telefon finns året och avgränsningarna bakom knappen Avgränsa.</li><li><b>Avgränsa</b> genom att klicka på ett konto, en kommun, en näringsgren eller en annan rad som slutar med en tratt {is}. Därefter visar hela rapporten bara den valda delen.</li><li><b>Öppna en leverantör</b> genom att klicka på ett namn som slutar med en pil {ia}. Fakturaraderna öppnas vid sidan.</li><li><b>Dela vyn</b> med knappen Kopiera länk till den här vyn i den övre balken. Länken öppnar samma år, samma avgränsningar och samma flik.</li></ol>`,
   gh2:'Vyerna', g2:`<ul><li><b><a href="#sisalto" data-nakyma="yhteenveto">Översikt</a></b> visar ett år: nyckeltal, inköp per månad, leverantörer, karta samt indelningar enligt konto, näringsgren, organ och serviceklass.</li><li><b><a href="#sisalto" data-nakyma="kehitys">Utveckling</a></b> visar alla år bredvid varandra: vad som ökar och minskar, nya och bortfallna leverantörer, lokal andel, stora leverantörer och samma leverantörs inköp hos flera organ.</li><li><b><a href="#sisalto" data-nakyma="toimittaja">Leverantör</a></b> visar en leverantörs hela historik. Den här vyn beaktar varken valet av år eller avgränsningarna.</li></ul>`,
-  gh3:'Avgränsning', g3:`<ul><li>Rader märkta med en tratt {is}, staplar, rutor i trädkartan och kommuner på kartan avgränsar rapporten när man klickar på dem.</li><li>I början av sidan finns dessutom en sökning och menyer för organ, konto och typ av leverantör.</li><li>De gällande avgränsningarna visas som märken under sökfälten. En avgränsning tas bort med krysset i märket eller genom att klicka på samma rad en gång till.</li><li>Avgränsningar kan kombineras, till exempel konto och kommun. Töm avgränsningarna tar bort alla på en gång.</li><li>En månad kan väljas i diagrammet Inköp per månad eller i dess meny.</li></ul>`,
+  gh3:'Avgränsning', g3:`<ul><li>Rader märkta med en tratt {is}, staplar, rutor i trädkartan och kommuner på kartan avgränsar rapporten när man klickar på dem.</li><li>I vänsterkanten finns dessutom en sökning och menyer för organ, konto, näringsgren, kommun, typ av leverantör, företagsform och serviceklass.</li><li>De gällande avgränsningarna visas som märken under menyerna vid Valt. En avgränsning tas bort med krysset i märket eller genom att klicka på samma rad en gång till.</li><li>Avgränsningar kan kombineras, till exempel konto och kommun. Töm avgränsningarna tar bort alla på en gång.</li><li>En månad kan väljas i diagrammet Inköp per månad eller i dess meny.</li></ul>`,
   gh4:'Leverantörens uppgifter', g4:`<ul><li>Ett leverantörsnamn märkt med en pil {ia} öppnar en sidopanel: inköp per år, konton och det valda årets fakturarader. Panelen stängs med krysset eller Esc-tangenten.</li><li>Knappen Visa hela historiken i panelen leder till fliken Leverantör. Där finns alla år, månaderna under hela perioden, placeringen bland leverantörerna, konton och organ per år samt alla fakturarader.</li><li>På fliken Leverantör visas ett enskilt år när man klickar på årets stapel.</li><li>En leverantör kan sökas direkt på namn eller FO-nummer, och varje leverantör har en egen länk.</li></ul>`,
   gh5:'Tabeller och diagram', g5:`<ul><li>Ett klick på en kolumnrubrik sorterar tabellen, ett andra klick vänder ordningen.</li><li>I många avsnitt finns en väljare som visar samma uppgifter som tabell eller diagram. I trädkartan visar rutans storlek inköpens summa.</li><li>Väljaren € | Leverantörer byter mellan euro och antal leverantörer.</li><li>Kartan kan avgränsas till hela Finland eller Egentliga Finland. Färgskalan är logaritmisk, så även små inköp syns.</li><li>Raderna i linjediagrammet på fliken Utveckling väljs med kryssrutorna i tabellen, högst sex åt gången.</li><li>Den exakta summan visas när du för musen över en stapel eller en ruta.</li></ul>`,
-  gh6:'Exempel', g6:`<p><b>Vad köper staden inom min bransch?</b> Öppna Översikt och klicka på din näringsgren i avsnittet Näringsgrenar. Tabellen Leverantörer visar av vem staden köper och Konton vad som köps.</p><p><b>Hur mycket har staden köpt av vårt företag?</b> Öppna fliken Leverantör och sök företaget på namn eller FO-nummer.</p><p><b>Hur stor del av inköpen stannar i Pemar?</b> Nyckeltalet Leverantörer från Pemar visar andelen för det valda året. På fliken Utveckling visas andelen per år och per konto.</p><p><b>Vad har ökat mest?</b> Öppna Utveckling och sortera tabellen Utveckling per år enligt kolumnen Förändring. Indelningen kan bytas från näringsgren till exempelvis konto.</p><p><b>Vad köper en viss nämnd?</b> Välj organet i menyn i början av sidan.</p>`,
+  gh6:'Exempel', g6:`<p><b>Vad köper staden inom min bransch?</b> Öppna Översikt och klicka på din näringsgren i avsnittet Näringsgrenar. Tabellen Leverantörer visar av vem staden köper och Konton vad som köps.</p><p><b>Hur mycket har staden köpt av vårt företag?</b> Öppna fliken Leverantör och sök företaget på namn eller FO-nummer.</p><p><b>Hur stor del av inköpen stannar i Pemar?</b> Nyckeltalet Leverantörer från Pemar visar andelen för det valda året. På fliken Utveckling visas andelen per år och per konto.</p><p><b>Vad har ökat mest?</b> Öppna Utveckling och sortera tabellen Utveckling per år enligt kolumnen Förändring. Indelningen kan bytas från näringsgren till exempelvis konto.</p><p><b>Vad köper en viss nämnd?</b> Välj organet i menyn i vänsterkanten.</p>`,
   gh7:'Begrepp', g7:`<dl><dt>Konto</dt><dd>Bokföringskonto, alltså utgiftsslag, till exempel experttjänster eller byggmaterial.</dd><dt>Organ</dt><dd>Nämnd eller annat organ vars budget inköpet har betalats ur.</dd><dt>Resultatområde</dt><dd>En enhet under organet, till exempel den grundläggande utbildningen.</dd><dt>Serviceklass</dt><dd>Kommunernas gemensamma klassificering av vilken tjänst inköpet gäller.</dd><dt>Verifikat och fakturarad</dt><dd>Ett verifikat är en faktura. En fakturarad är en kontering av den, så en faktura kan ha flera rader.</dd><dt>Kreditfaktura</dt><dd>En negativ rad som minskar summan.</dd><dt>Moms 0 %</dt><dd>Beloppen är exklusive moms.</dd><dt>Hemkommun</dt><dd>Leverantörens registrerade hemort i företagsregistret.</dd></dl>`,
   gh8:'Att tänka på när du läser siffrorna', g8:`<ul><li>Från och med 2023 hör social- och hälsovården inte längre till staden, så inköpen minskar tydligt.</li><li>Hemkommunen säger inte var arbetet utförs. Ett riksomfattande företag syns i den kommun där huvudkontoret finns.</li><li>Organ och resultatområde för 2025 är delvis uppskattade. Uppskattade rader är märkta med en asterisk.</li><li>Leverantörens näringsgren och kommun beskriver nuläget, inte situationen när fakturan skrevs.</li><li>Fakturan visar summan, inte enhetspriset eller vilket avtal inköpet bygger på.</li><li>Närmare förklaringar och källor finns under <a href="#tietoa">Om materialet</a>.</li></ul>`,
   gh9:'Språk, utseende och tangentbord', g9:`<ul><li>Språket byts med knapparna FI, SV och EN i den övre balken. Namnen på konton, näringsgrenar och organ visas alltid på finska.</li><li>Månknappen byter till mörkt utseende. På en smal skärm finns länkarna bakom menyknappen.</li><li>Sidan kan användas med enbart tangentbord: tabb flyttar fokus, Enter eller mellanslag väljer, piltangenterna byter flik och Esc stänger leverantörspanelen.</li><li>På telefon visar tabellerna bara de viktigaste kolumnerna. Alla kolumner syns på en bredare skärm.</li></ul>`,
   gh0:'Välkommen', g0:`<p>Den här sidan har gjorts för att uppgifterna om stadens inköp ska vara lätt tillgängliga för alla. Pemar stad publicerar sina inköpsfakturor som öppna data, men det är mödosamt att få en helhetsbild ur Excel-filer. Här kan man bläddra i samma uppgifter: vad staden köper, av vem och hur mycket.</p><p>Sidan har gjorts med tanke på Pemarborna, särskilt företagarna. Du ser vad staden köper inom din bransch, av vem den köper nu och var det kunde finnas efterfrågan på ditt utbud.</p><p class="napit"><a class="btn" href="#sisalto" data-nakyma="yhteenveto">Öppna översikten</a><a class="btn toinen" href="#sisalto" data-nakyma="toimittaja">Sök ett företag</a><a class="btn toinen" href="#sisalto" data-nakyma="kehitys">Se utvecklingen</a></p><p><b>Fråga och föreslå.</b> Saknas någon uppgift, är något oklart eller hittade du ett fel? Berätta hur sidan kunde förbättras: <a href="mailto:oskari@summanen.org">oskari@summanen.org</a> eller ${ulos(ISSUES_URL,'issues på GitHub')}. Varje förslag läses.</p>`,
+  filterBtn:n=>n? `Avgränsa (${n})` : 'Avgränsa', showN:n=>`Visa ${n} leverantörer`, sideLabel:'Vyer och avgränsningar', filterTitle:'Avgränsa', close:'Stäng', selected:'Valt', lTol:'Näringsgren', lPalvelu:'Serviceklass',
   kieliNote:'Kontonamn, näringsgrenar, serviceklasser, organ och resultatområden kommer direkt ur källmaterialet och visas på finska. Den svenska översättningen av sidan är inofficiell och har gjorts med hjälp av en AI-assistent.',
   // kiinteät tekstit (HTML:n data-t ja data-ta)
   skip:'Hoppa till innehållet', topbarLabel:'Sidans länkar och inställningar', menu:'Meny', tabY:'Översikt', about:'Om materialet', navCode:'Källkod', dark:'Mörkt utseende',
@@ -940,16 +990,17 @@ en:{
   allYears:'All years', showAllYears:'Show all years', changeSup:'Choose another supplier', tKkSubY:y=>`By voucher date, ${y}.`, tipClose:'Got it',
   tip:'<b>Tip:</b> click a supplier’s name {ia} to open its invoice rows in a side panel. Click an account, a municipality, a bar or a municipality on the map {is} to filter the whole report by it. Click the same item again to remove the filter.',
   tabO:'Guide', tabOs:'Start here: what the page contains and how to use it',
-  gh1:'Quick guide', g1:`<ol><li><b>Select a year</b> with the buttons at the top of the page.</li><li><b>Filter</b> by clicking an account, a municipality, an industry or any other row that ends with a funnel {is}. The whole report then shows only the selected part.</li><li><b>Open a supplier</b> by clicking a name that ends with an arrow {ia}. The invoice rows open in a side panel.</li><li><b>Share the view</b> with the Copy link to this view button in the top bar. The link opens the same year, the same filters and the same tab.</li></ol>`,
+  gh1:'Quick guide', g1:`<ol><li><b>Select a year</b> with the buttons on the left. On a phone the year and the filters are behind the Filter button.</li><li><b>Filter</b> by clicking an account, a municipality, an industry or any other row that ends with a funnel {is}. The whole report then shows only the selected part.</li><li><b>Open a supplier</b> by clicking a name that ends with an arrow {ia}. The invoice rows open in a side panel.</li><li><b>Share the view</b> with the Copy link to this view button in the top bar. The link opens the same year, the same filters and the same tab.</li></ol>`,
   gh2:'The views', g2:`<ul><li><b><a href="#sisalto" data-nakyma="yhteenveto">Summary</a></b> shows one year: key figures, purchases by month, suppliers, a map and breakdowns by account, industry, body and service class.</li><li><b><a href="#sisalto" data-nakyma="kehitys">Trends</a></b> shows all years side by side: what is growing and shrinking, new and discontinued suppliers, local share, large suppliers and the same supplier used by several bodies.</li><li><b><a href="#sisalto" data-nakyma="toimittaja">Supplier</a></b> shows the whole history of one supplier. This view ignores the year selection and the filters.</li></ul>`,
-  gh3:'Filtering', g3:`<ul><li>Rows marked with a funnel {is}, bars, treemap tiles and municipalities on the map filter the report when clicked.</li><li>At the top of the page there is also a search and menus for body, account and supplier type.</li><li>Active filters are shown as chips below the search fields. Remove a filter with the cross on the chip or by clicking the same row again.</li><li>Filters can be combined, for example account and municipality. Clear filters removes them all at once.</li><li>A month can be selected from the Purchases by month chart or its menu.</li></ul>`,
+  gh3:'Filtering', g3:`<ul><li>Rows marked with a funnel {is}, bars, treemap tiles and municipalities on the map filter the report when clicked.</li><li>On the left there is also a search and menus for body, account, industry, municipality, supplier type, legal form and service class.</li><li>Active filters are shown as chips below the menus under Selected. Remove a filter with the cross on the chip or by clicking the same row again.</li><li>Filters can be combined, for example account and municipality. Clear filters removes them all at once.</li><li>A month can be selected from the Purchases by month chart or its menu.</li></ul>`,
   gh4:'Supplier details', g4:`<ul><li>A supplier name marked with an arrow {ia} opens a side panel: purchases by year, accounts and the invoice rows of the selected year. Close the panel with the cross or the Esc key.</li><li>The Show full history button in the panel leads to the Supplier tab. It has all years, the months of the whole period, the rank among suppliers, accounts and bodies by year and all invoice rows.</li><li>On the Supplier tab, click a year column to see a single year.</li><li>A supplier can be searched directly by name or Business ID, and every supplier has its own link.</li></ul>`,
   gh5:'Tables and charts', g5:`<ul><li>Clicking a column heading sorts the table; a second click reverses the order.</li><li>Many sections have a switch that shows the same information as a table or a chart. In a treemap the size of a tile shows the sum of purchases.</li><li>The € | Suppliers switch changes between euros and the number of suppliers.</li><li>The map can be limited to the whole of Finland or Southwest Finland. The colour scale is logarithmic, so small purchases are visible too.</li><li>The rows of the line chart on the Trends tab are selected with the checkboxes in the table, up to six at a time.</li><li>The exact sum is shown when you hover over a column, a bar or a tile.</li></ul>`,
-  gh6:'Examples', g6:`<p><b>What does the city buy in my industry?</b> Open Summary and click your industry in the Industries section. The Suppliers table shows who the city buys from and Accounts shows what is bought.</p><p><b>How much has the city bought from our company?</b> Open the Supplier tab and search for the company by name or Business ID.</p><p><b>How much of the purchases stays in Paimio?</b> The Suppliers from Paimio key figure gives the share for the selected year. The Trends tab shows the share by year and by account.</p><p><b>What has grown the most?</b> Open Trends and sort the Development by year table by the Change column. The breakdown can be switched from industry to, for example, account.</p><p><b>What does a particular committee buy?</b> Select the body from the menu at the top of the page.</p>`,
+  gh6:'Examples', g6:`<p><b>What does the city buy in my industry?</b> Open Summary and click your industry in the Industries section. The Suppliers table shows who the city buys from and Accounts shows what is bought.</p><p><b>How much has the city bought from our company?</b> Open the Supplier tab and search for the company by name or Business ID.</p><p><b>How much of the purchases stays in Paimio?</b> The Suppliers from Paimio key figure gives the share for the selected year. The Trends tab shows the share by year and by account.</p><p><b>What has grown the most?</b> Open Trends and sort the Development by year table by the Change column. The breakdown can be switched from industry to, for example, account.</p><p><b>What does a particular committee buy?</b> Select the body from the menu on the left.</p>`,
   gh7:'Terms', g7:`<dl><dt>Account</dt><dd>A bookkeeping account, that is an expense type, for example expert services or building materials.</dd><dt>Body</dt><dd>The committee or other municipal body whose budget paid for the purchase.</dd><dt>Result area</dt><dd>A unit under the body, for example basic education.</dd><dt>Service class</dt><dd>A classification shared by Finnish municipalities of which service the purchase relates to.</dd><dt>Voucher and invoice row</dt><dd>A voucher is one invoice. An invoice row is one posting of it, so one invoice can have several rows.</dd><dt>Credit note</dt><dd>A negative row that reduces the sum.</dd><dt>VAT 0%</dt><dd>The amounts exclude VAT.</dd><dt>Home municipality</dt><dd>The supplier's registered domicile in the business register.</dd></dl>`,
   gh8:'When reading the figures', g8:`<ul><li>From 2023 onwards social and health services no longer belong to the city, so purchases drop clearly.</li><li>The home municipality does not tell where the work is done. A nationwide company appears in the municipality of its head office.</li><li>The body and result area for 2025 are partly estimated. Estimated rows are marked with an asterisk.</li><li>The supplier's industry and municipality describe the present situation, not the situation at the time of the invoice.</li><li>An invoice shows the sum, not the unit price or which contract the purchase is based on.</li><li>More detailed explanations and sources are under <a href="#tietoa">About the data</a>.</li></ul>`,
   gh9:'Language, appearance and keyboard', g9:`<ul><li>Change the language with the FI, SV and EN buttons in the top bar. The names of accounts, industries and bodies are always shown in Finnish.</li><li>The moon button switches to the dark appearance. On a narrow screen the links are behind the menu button.</li><li>The page can be used with the keyboard alone: Tab moves the focus, Enter or Space selects, the arrow keys change the tab and Esc closes the supplier panel.</li><li>On a phone the tables show only the most important columns. All columns are visible on a wider screen.</li></ul>`,
   gh0:'Welcome', g0:`<p>This page was made so that information about the city's purchases would be easily available to everyone. The City of Paimio publishes its purchase invoices as open data, but it is laborious to see the whole picture from Excel files. Here you can browse the same information: what the city buys, from whom and for how much.</p><p>The page was made with the people of Paimio in mind, especially entrepreneurs. You can see what the city buys in your industry, who it buys from now and where there could be demand for what you offer.</p><p class="napit"><a class="btn" href="#sisalto" data-nakyma="yhteenveto">Open the summary</a><a class="btn toinen" href="#sisalto" data-nakyma="toimittaja">Find a company</a><a class="btn toinen" href="#sisalto" data-nakyma="kehitys">See the trends</a></p><p><b>Ask and suggest.</b> Is some information missing, is something unclear or did you find an error? Tell us how the page could be improved: <a href="mailto:oskari@summanen.org">oskari@summanen.org</a> or ${ulos(ISSUES_URL,'GitHub issues')}. Every suggestion is read.</p>`,
+  filterBtn:n=>n? `Filter (${n})` : 'Filter', showN:n=>`Show ${n} suppliers`, sideLabel:'Views and filters', filterTitle:'Filter', close:'Close', selected:'Selected', lTol:'Industry', lPalvelu:'Service class',
   kieliNote:'Account names, industries, service classes, bodies and result areas come straight from the source data and are shown in Finnish. The English translation of the page is unofficial and was made with an AI assistant.',
   skip:'Skip to content', topbarLabel:'Page links and settings', menu:'Menu', tabY:'Summary', about:'About the data', navCode:'Source code', dark:'Dark appearance',
   crumbs:'Breadcrumb', c1:'Open data', c2:'Finances', c3:'Purchase invoices', h1:'City of Paimio purchase invoices',
@@ -1095,6 +1146,7 @@ function match(r, skip){
   return true;
 }
 
+const VALIKOT=[['f-toimielin','toimielin'],['f-tilil','tilil'],['f-toimiala','toimiala'],['f-kunta','kunta'],['f-kunta2','kunta'],['f-omistus','omistus'],['f-yhtiomuoto','yhtiomuoto'],['f-palveluluokka','palveluluokka']];
 function fillSelect(id,key){
   const el=$(id); const vals=D[key];
   el.innerHTML=`<option value="">${t('all')}</option>`+vals.map((v,i)=>v==='–'?'':`<option value="${i}"${la(key,i)}>${esc(arvo(v))}</option>`).join('');
@@ -1260,7 +1312,8 @@ function chips(){
   for(const k of ['toimielin','tilil','tulosalue','palveluluokka','omistus','yhtiomuoto','kunta','maakunta','toimiala']) if(S[k]!==null) c.push(`<span class="chip"><b>${t('l')[k]}:</b> <span${la(k,S[k])}>${esc(dn(k,S[k]))}</span><button aria-label="${t('rmFilter')}" data-k="${k}">×</button></span>`);
   if(S.month!==null) c.push(`<span class="chip"><b>${t('l').month}:</b> ${esc(monthLabel(S.month))}<button aria-label="${t('rmFilter')}" data-k="month">×</button></span>`);
   if(S.q) c.push(`<span class="chip"><b>${t('l').q}:</b> ${esc(S.q)}<button aria-label="${t('rmSearch')}" data-k="q">×</button></span>`);
-  $('chips').innerHTML=c.join('');
+  $('chips').innerHTML=c.join(''); $('valitut').hidden=!c.length; $('reset').hidden=!c.length;
+  $('rajaaAvaa').textContent=t('filterBtn',c.length);
   $('chips').querySelectorAll('button').forEach(b=>b.onclick=()=>{ const k=b.dataset.k; S[k]= k==='q'?'':null; if(k==='q') $('q').value=''; update(); });
 }
 
@@ -1277,7 +1330,8 @@ let ekaPiirto=true, ilmoitus='';   // ilmoitus: seuraavan piirron tilaviestin al
 function update(){
   const focusKey=currentFocusKey();
   saveHash(); yearsNav(); chips();
-  for(const k of ['toimielin','tilil','omistus','kunta']) $('f-'+k).value = S[k]===null?'':S[k];
+  for(const [id,k] of VALIKOT) $(id).value = S[k]===null?'':S[k];
+  $('f-vuosi').value=S.year;
   $('f-month').value = S.month===null?'':S.month;
   // main pass
   let tot=0, n=0; const sups=new Set(), tos=new Set(); const supAgg=new Map(), tiliAgg=new Map(), taAgg=new Map(), ieAgg=new Map(), plAgg=new Map(); let hyv=0; const months=new Map(); const mapAgg=new Map(); let est=0, totAbs=0;
@@ -1389,6 +1443,7 @@ function update(){
   naytaNakyma(); if(S.view==='kehitys') analyysit(); if(S.view==='toimittaja') toimittajaNakyma();
   $('f-adim').value=S.adim;
   restoreFocus(focusKey);
+  $('rajaaValmis').textContent=t('showN',fmtE.format(sups.size));
   const tila= S.view==='ohje'? t('tabO') : S.view==='toimittaja'? (S.sup!==null? t('liveSup',SUP[S.sup][P.NIMI],short(historia().kaikki[S.sup])) : t('hFind')) : t('live', S.month!==null? monthLabel(S.month) : yl, short(tot), fmtE.format(sups.size), fmtE.format(n));
   if(ekaPiirto) ekaPiirto=false; else $('live').textContent=(ilmoitus||t('updatedView'))+tila;
   ilmoitus='';
@@ -1396,12 +1451,14 @@ function update(){
 
 // ---------- välilehdet ----------
 function naytaNakyma(){
-  $('rajaus').hidden= S.view==='toimittaja'||S.view==='ohje';
+  const eiRajauksia= S.view==='toimittaja'||S.view==='ohje';
+  $('rajaus').hidden=$('rajaimet').hidden=$('rajaaPalkki').hidden=eiRajauksia; if(eiRajauksia) suljeRajaus(false);
+  $('hero').classList.toggle('pieni',S.view!=='ohje');
   for(const n of NAKYMAT){ const on=S.view===n; $('p-'+n).hidden=!on; const tab=$('t-'+n); tab.setAttribute('aria-selected',on); tab.tabIndex=on?0:-1; }
 }
 NAKYMAT.forEach((n,i)=>{ const tab=$('t-'+n);
   tab.onclick=()=>{ S.view=n; update(); };
-  tab.onkeydown=e=>{ const d={ArrowRight:1,ArrowLeft:-1}[e.key]; if(!d) return; e.preventDefault(); S.view=NAKYMAT[(i+d+NAKYMAT.length)%NAKYMAT.length]; update(); $('t-'+S.view).focus(); };
+  tab.onkeydown=e=>{ const d={ArrowRight:1,ArrowDown:1,ArrowLeft:-1,ArrowUp:-1}[e.key]; if(!d) return; e.preventDefault(); S.view=NAKYMAT[(i+d+NAKYMAT.length)%NAKYMAT.length]; update(); $('t-'+S.view).focus(); };
 });
 
 // ---------- viivakaavio ----------
@@ -1622,7 +1679,7 @@ function toimittajaNakyma(){
 }
 
 // supplier drawer
-const TAUSTA=['topbar','hero','sisalto','footer']; let avaaja=null;
+const TAUSTA=['topbar','hero','sivu','sisalto','footer']; let avaaja=null;
 function openSup(s){
   avaaja=document.activeElement; auki=s; saveHash();
   const sp=SUP[s]; const rows=R.filter(r=>r[C.S]===s && match(r,'year') );
@@ -1686,7 +1743,7 @@ function arvioNote(){
 // Kaikki kielestä riippuva, jota update() ei piirrä uudelleen
 function kaanna(){
   asetaLokaali(); kaannaKiinteat();
-  initMap(); monthSelect(); fillSelect('f-toimielin','toimielin'); fillSelect('f-tilil','tilil'); fillSelect('f-omistus','omistus'); fillSelect('f-kunta','kunta');
+  initMap(); monthSelect(); for(const [id,k] of VALIKOT) fillSelect(id,k);
   $('f-adim').innerHTML=Object.keys(ADIM).map(k=>`<option value="${k}">${t('adim')[k]}</option>`).join('');
   $('f-raja').innerHTML=RAJAT.map(r=>`<option value="${r}">${fmtE.format(r)} €</option>`).join('');
   arvioNote();
@@ -1718,9 +1775,22 @@ const sisaLinkki=(a,e)=>{
 };
 document.querySelectorAll('#topbar a[href^="#"], #hero a[href^="#"]').forEach(a=>a.onclick=e=>sisaLinkki(a,e));
 $('p-ohje').addEventListener('click',e=>{ const a=e.target.closest('a[href^="#"]'); if(a) sisaLinkki(a,e); });   // ohjeen linkit luodaan uudelleen kielen vaihtuessa
+// Rajaukset kapealla näytöllä: alhaalta avautuva ikkuna. Leveällä näytöllä sama sisältö on sivupalkissa.
+const RAJAUS_TAUSTA=['topbar','hero','tabit','sisalto','footer'], kapea=()=>matchMedia('(max-width:999px)').matches;
+function avaaRajaus(){ const r=$('rajaimet'); if(!kapea()) return;
+  r.classList.add('open'); r.setAttribute('role','dialog'); r.setAttribute('aria-modal','true'); r.setAttribute('aria-labelledby','rajaaOts'); $('rajaaTausta').classList.add('open');
+  RAJAUS_TAUSTA.forEach(id=>$(id).inert=true); $('rajaaSulje').focus(); }
+function suljeRajaus(kohdista=true){ const r=$('rajaimet'); if(!r.classList.contains('open')) return;
+  r.classList.remove('open'); r.removeAttribute('role'); r.removeAttribute('aria-modal'); r.removeAttribute('aria-labelledby'); $('rajaaTausta').classList.remove('open');
+  RAJAUS_TAUSTA.forEach(id=>$(id).inert=false); if(kohdista) $('rajaaAvaa').focus(); }
+$('rajaaAvaa').onclick=avaaRajaus; for(const id of ['rajaaSulje','rajaaValmis','rajaaTausta']) $(id).onclick=()=>suljeRajaus();
+addEventListener('keydown',e=>{ if(e.key==='Escape') suljeRajaus(); });
+$('f-vuosi').innerHTML=Y.map((y,i)=>`<option value="${i}">${y}</option>`).join(''); $('f-vuosi').onchange=e=>{ S.year=+e.target.value; update(); };
+const asetaPalkinKorkeus=()=>document.documentElement.style.setProperty('--tb',$('topbar').offsetHeight+'px');
+asetaPalkinKorkeus(); addEventListener('resize',()=>{ asetaPalkinKorkeus(); if(!kapea()) suljeRajaus(false); });
 // Vinkki napsautettavista riveistä: näytetään, kunnes käyttäjä kuittaa sen
 try{ $('vinkki').hidden= localStorage.getItem('paimio-ostolaskut-vinkki')==='1'; }catch(e){ $('vinkki').hidden=false; }
-$('vinkkiSulje').onclick=()=>{ $('vinkki').hidden=true; try{ localStorage.setItem('paimio-ostolaskut-vinkki','1'); }catch(e){} $('years').querySelector('[aria-pressed="true"]').focus(); };
+$('vinkkiSulje').onclick=()=>{ $('vinkki').hidden=true; try{ localStorage.setItem('paimio-ostolaskut-vinkki','1'); }catch(e){} $('t-'+S.view).focus(); };
 kaanna(); naytaTeema();
 update();
 if(avattava!==null) openSup(avattava);

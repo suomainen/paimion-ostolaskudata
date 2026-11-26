@@ -37,6 +37,7 @@ Tämä sivu on aloitteen tekijän tekemä esimerkkitoteutus. Se näyttää, milt
 - Palveluluokat: mihin kaupungin palveluun ostot kohdistuvat (Valtiokonttorin kuntien yhteinen luokitus, aineistossa vuodesta 2022)
 - Selaimen Takaisin-painike palauttaa edellisen näkymän
 - Ohje-välilehti: pikaopas, esimerkkikysymyksiä ja käsitteet
+- Sivupalkki: näkymät, vuosi ja rajaukset aina näkyvissä vasemmalla; puhelimella rajaukset avautuvat alhaalta
 - Kolme kieltä: suomi, ruotsi ja englanti. Kielen voi vaihtaa yläpalkista, ja valinta kulkee linkin mukana. Ruotsin ja englannin käännökset ovat epävirallisia, ja aineiston omat arvot (tilit, toimialat, palveluluokat, toimielimet, tulosalueet) näytetään aina suomeksi.
 - Vaalea ja tumma ulkoasu, vaihdin yläpalkissa
 - Toimii puhelimella, tabletilla ja tietokoneella sekä näppäimistöllä ja ruudunlukijalla (WCAG 2.1 AA)
@@ -101,6 +102,7 @@ Sivu noudattaa WCAG 2.1 AA -tasoa. Ratkaisut ovat pohjassa `tyokalut/template.ht
 
 - ohituslinkki sisältöön, otsikkotasot ilman hyppyjä ja maamerkit (navigaatio, sisältö, alatunniste)
 - kaikki toiminnot näppäimistöllä: vuodet, kaavioiden pylväät, palkkiluettelot, taulukoiden lajittelu ja rivien valinta. Kohdistus säilyy samassa kohdassa, kun näkymä päivittyy.
+- kapealla näytöllä rajaukset avautuvat modaalisena ikkunana, josta pääsee pois Esc-näppäimellä tai Sulje-painikkeella
 - toimittajan tiedot avautuvat modaalisena ikkunana: kohdistus siirtyy ikkunaan, tausta ei ole käytettävissä, ja Esc palauttaa kohdistuksen avanneeseen riviin
 - puukartan laatikot ovat painikkeita, joilla on nimi ja summa tekstinä, ja jokaisella kaaviolla on rinnallaan taulukko tai luettelo samoista luvuista
 - viivakaavioissa sarjat erotetaan värin lisäksi numerolla, kaaviolla on tekstivastine ja samat luvut ovat taulukossa

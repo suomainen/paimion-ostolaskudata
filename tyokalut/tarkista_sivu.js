@@ -250,6 +250,26 @@ const kohdistus = sivu => sivu.evaluate(() => { const a = document.activeElement
   await s.click('#tVaihda'); await s.waitForTimeout(300);
   tarkista(await s.evaluate(() => S.sup === null && document.getElementById('supSivu').hidden && document.activeElement.id === 'supQ'), 'toimittajan voi vaihtaa ja kohdistus siirtyy hakuun');
 
+  console.log('\nSivupalkki ja rajausikkuna');
+  await avaa(s, '#vuosi=2024'); await s.selectOption('#f-toimiala', { index: 3 }); await s.waitForTimeout(300);
+  const sp = await s.evaluate(() => ({ tol: S.toimiala !== null, siru: document.querySelectorAll('#chips .chip').length, valitut: !document.getElementById('valitut').hidden, hash: location.hash.includes('toimiala='), kiinni: getComputedStyle(document.getElementById('sivu')).position, hero: document.getElementById('hero').classList.contains('pieni'), palkki: getComputedStyle(document.getElementById('rajaaPalkki')).display }));
+  tarkista(sp.tol && sp.siru === 1 && sp.valitut && sp.hash && sp.kiinni === 'sticky' && sp.hero && sp.palkki === 'none', 'sivupalkin toimialavalikko rajaa, valinta näkyy kohdassa Valittuna ja sivupalkki pysyy näkyvissä', JSON.stringify(sp));
+  await s.selectOption('#f-kunta2', { label: 'Paimio' }); await s.waitForTimeout(300);
+  tarkista(await s.evaluate(() => D.kunta[S.kunta] === 'Paimio' && document.getElementById('f-kunta').value === document.getElementById('f-kunta2').value), 'sivupalkin ja kartan kuntavalikot pysyvät samassa arvossa');
+  const rj2 = await selain.newPage({ viewport: { width: 375, height: 800 } });
+  await avaa(rj2, '#kunta=Paimio');
+  tarkista(await rj2.evaluate(() => getComputedStyle(document.getElementById('rajaimet')).display === 'none' && document.getElementById('rajaaAvaa').textContent.includes('(1)')), 'kapealla näytöllä rajaukset ovat piilossa ja painike kertoo rajausten määrän');
+  await rj2.focus('#rajaaAvaa'); await rj2.keyboard.press('Enter'); await rj2.waitForTimeout(300); await axe(rj2, 'rajausikkuna auki 375 px');
+  tarkista(await rj2.evaluate(() => document.getElementById('rajaimet').getAttribute('role') === 'dialog' && document.activeElement.id === 'rajaaSulje' && document.getElementById('sisalto').inert && document.documentElement.scrollWidth <= 375), 'rajausikkuna avautuu näppäimistöllä, kohdistus siirtyy siihen ja tausta ei ole käytettävissä');
+  await rj2.selectOption('#f-toimielin', { index: 2 }); await rj2.waitForTimeout(300);
+  tarkista(await rj2.evaluate(() => S.toimielin !== null && document.getElementById('rajaimet').classList.contains('open') && /\d/.test(document.getElementById('rajaaValmis').textContent)), 'rajaus ikkunassa päivittää näkymän ja ikkuna pysyy auki');
+  await rj2.keyboard.press('Escape'); await rj2.waitForTimeout(300);
+  tarkista(await rj2.evaluate(() => !document.getElementById('rajaimet').classList.contains('open') && document.activeElement.id === 'rajaaAvaa' && !document.getElementById('sisalto').inert && document.getElementById('rajaaAvaa').textContent.includes('(2)')), 'Esc sulkee rajausikkunan ja palauttaa kohdistuksen painikkeeseen');
+  await rj2.selectOption('#f-vuosi', { label: '2022' }); await rj2.waitForTimeout(300);
+  tarkista(await rj2.evaluate(() => Y[S.year] === 2022), 'vuoden voi vaihtaa kapealla näytöllä palkin valikosta');
+  await rj2.click('#teema'); await rj2.click('#rajaaAvaa'); await rj2.waitForTimeout(300); await axe(rj2, 'rajausikkuna auki, tumma 375 px'); await rj2.keyboard.press('Escape'); await rj2.click('#teema');
+  await rj2.close();
+
   console.log('\nAnalyysien luvut');
   await avaa(s, '#nakyma=kehitys&vuosi=2025');
   const luvut = await s.evaluate(() => {
