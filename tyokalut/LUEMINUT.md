@@ -85,7 +85,7 @@ Värit ovat CSS-muuttujina kohdassa `:root`, ja tumma ulkoasu määrittelee ne u
 
 Näkymän tila tallennetaan osoitteeseen funktioissa `lueOsoite` ja `saveHash`. Jos lisäät rajauksen tai valinnan, lisää se molempiin ja tarkistukseen `tarkista_sivu.js`, jotta vanhat linkit pysyvät toimivina.
 
-Datan rivit ovat taulukoita, joiden sarakkeet on nimetty kahdessa paikassa: `paivita.py`:n `RIVI` ja `template.html`:n `const C`. Jos lisäät sarakkeen, lisää se molempiin.
+Datan rivit ovat taulukoita, joiden sarakkeet on nimetty kahdessa paikassa: `paivita.py`:n `RIVI` ja `template.html`:n `const C`. Toimittajan sarakkeet ovat vastaavasti `kokoa_data`-funktion `sup`-listassa ja vakiossa `const P`. Jos lisäät sarakkeen, lisää se molempiin.
 
 Otsikkokuvan värejä ja kuviota muutetaan tiedostossa `tee_kuva.py`. Aja se ja sen jälkeen `paivita.py`.
 

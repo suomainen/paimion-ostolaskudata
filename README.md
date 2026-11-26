@@ -30,6 +30,9 @@ Tämä sivu on aloitteen tekijän tekemä esimerkkitoteutus. Se näyttää, milt
 - Rajaukset toimielimen, tilin, tulosalueen, palveluluokan, kunnan, maakunnan ja toimialan mukaan. Rajaukset voi yhdistää.
 - Pysyvät linkit: näkymän tila (vuosi, rajaukset, välilehti, avattu toimittaja) on sivun osoitteessa nimillä ja koodeilla, joten linkki vie samaan näkymään myös aineiston päivityksen jälkeen. Linkin saa yläpalkin painikkeesta Kopioi linkki tähän näkymään, joka pysyy näkyvissä koko ajan.
 - Kehitys-välilehti: ostojen kehitys vuosittain valitulla jaottelulla (esimerkiksi toimiala tai tili) viivakaaviona ja taulukkona, uudet ja poistuneet toimittajat, paikallisuus tileittäin, toimittajat ostojen koon mukaan sekä paikallisuus ja keskittyneisyys vuosittain
+- Esitystavan valinta osioittain: taulukko tai kaavio (puukartta, kymmenen suurinta, osuudet, rengaskaavio). Valinta tallentuu linkkiin.
+- Yritysmuoto ja tiliryhmät omina jaotteluinaan
+- Suuret toimittajat valittavalla eurorajalla ja tapaukset, joissa sama toimittaja laskuttaa useaa toimielintä samalla tilillä
 - Toimittaja-välilehti: yhden toimittajan koko historia eli ostot vuosittain ja kuukausittain, sijoitus toimittajien joukossa, tilit ja toimielimet vuosittain sekä kaikki laskurivit. Jokaisella toimittajalla on oma pysyvä linkki.
 - Palveluluokat: mihin kaupungin palveluun ostot kohdistuvat (Valtiokonttorin kuntien yhteinen luokitus, aineistossa vuodesta 2022)
 - Kolme kieltä: suomi, ruotsi ja englanti. Kielen voi vaihtaa yläpalkista, ja valinta kulkee linkin mukana. Ruotsin ja englannin käännökset ovat epävirallisia, ja aineiston omat arvot (tilit, toimialat, palveluluokat, toimielimet, tulosalueet) näytetään aina suomeksi.
@@ -97,6 +100,7 @@ Sivu noudattaa WCAG 2.1 AA -tasoa. Ratkaisut ovat pohjassa `tyokalut/template.ht
 - ohituslinkki sisältöön, otsikkotasot ilman hyppyjä ja maamerkit (navigaatio, sisältö, alatunniste)
 - kaikki toiminnot näppäimistöllä: vuodet, kaavioiden pylväät, palkkiluettelot, taulukoiden lajittelu ja rivien valinta. Kohdistus säilyy samassa kohdassa, kun näkymä päivittyy.
 - toimittajan tiedot avautuvat modaalisena ikkunana: kohdistus siirtyy ikkunaan, tausta ei ole käytettävissä, ja Esc palauttaa kohdistuksen avanneeseen riviin
+- puukartan laatikot ovat painikkeita, joilla on nimi ja summa tekstinä, ja jokaisella kaaviolla on rinnallaan taulukko tai luettelo samoista luvuista
 - viivakaavioissa sarjat erotetaan värin lisäksi numerolla, kaaviolla on tekstivastine ja samat luvut ovat taulukossa
 - kartta on kuva, jolla on tekstivaihtoehto: Kunta-valikko ja Toimittajat kunnittain -luettelo tekevät saman kuin kartan napsauttaminen
 - ruudunlukijalle tilaviesti, kun rajaus muuttaa näkymää, ja maininta uuteen välilehteen avautuvista linkeistä

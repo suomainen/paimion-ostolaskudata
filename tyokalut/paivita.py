@@ -28,7 +28,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-VERSIO = '1.7.0'                        # sivun versio; nosta samalla kun lisäät kohdan tiedostoon CHANGELOG.md
+VERSIO = '1.8.0'                        # sivun versio; nosta samalla kun lisäät kohdan tiedostoon CHANGELOG.md
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent                      # repon juuri: index.html ja README.md
@@ -408,7 +408,7 @@ def luokittele_toimittajat(d, valimuisti, koodi_nimi, kunta_maakunta):
         toimiala = prh.get('toimiala') or (
             f'{tyyppi} (ei toimialatietoa)' if tyyppi in ('Julkinen sektori', 'Järjestö tai säätiö') else EI_TIEDOSSA)
         rivit[avain] = dict(nimi=nimi, yt=ytunnus, kunta=kunta or EI_TIEDOSSA, maakunta=maakunta or EI_TIEDOSSA,
-                            toimiala=toimiala, omistus=tyyppi, eur=round(float(eurot[avain]), 2))
+                            toimiala=toimiala, omistus=tyyppi, yhtiomuoto=prh.get('yhtiomuoto') or EI_TIEDOSSA, eur=round(float(eurot[avain]), 2))
     return pd.DataFrame.from_dict(rivit, orient='index')
 
 
@@ -439,12 +439,12 @@ def kokoa_data(d, toimittajat, vuodet, pl_nimet, testi, arviot):
         arvot = sorted(set(d[sarake].fillna('–')))
         dims[nimi] = arvot
         indeksi[nimi] = d[sarake].fillna('–').map({a: i for i, a in enumerate(arvot)})
-    for sarake in ('kunta', 'maakunta', 'toimiala', 'omistus'):
+    for sarake in ('kunta', 'maakunta', 'toimiala', 'omistus', 'yhtiomuoto'):
         dims[sarake] = sorted(set(toimittajat[sarake]))
-    paikka = {s: {a: i for i, a in enumerate(dims[s])} for s in ('kunta', 'maakunta', 'toimiala', 'omistus')}
+    paikka = {s: {a: i for i, a in enumerate(dims[s])} for s in ('kunta', 'maakunta', 'toimiala', 'omistus', 'yhtiomuoto')}
     avaimet = list(toimittajat.index)
     sup = [[t.nimi, t.yt, paikka['kunta'][t.kunta], paikka['maakunta'][t.maakunta],
-            paikka['toimiala'][t.toimiala], paikka['omistus'][t.omistus]] for t in toimittajat.itertuples()]
+            paikka['toimiala'][t.toimiala], paikka['omistus'][t.omistus], paikka['yhtiomuoto'][t.yhtiomuoto]] for t in toimittajat.itertuples()]
     rivit = np.column_stack([
         d.vuosi - vuodet[0],
         (d.pvm.dt.year * 100 + d.pvm.dt.month).fillna(0).astype(int),

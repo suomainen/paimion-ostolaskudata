@@ -2,6 +2,18 @@
 
 Versionumero on muotoa **pää.osa.korjaus**: pää = sivun kokonaan uusi versio, osa = uusi ominaisuus tai uuden vuoden aineisto, korjaus = pieni korjaus tai tarkennus. Uusin versio ensin. Pelkkä dokumentaation tai työkalujen muutos ei nosta numeroa.
 
+## 1.8.0
+
+- Esitystavan valinta osioittain: tilit, tulosalueet, palveluluokat ja toimialat taulukkona tai puukarttana, toimittajat taulukkona tai kymmenen suurimman kaaviona, toimittajan tyyppi luettelona tai osuuksina (osuus toimittajista ja euroista rinnakkain). Valinta tallentuu linkkiin (`kaavio=`).
+- Uudet jaottelut: yritysmuoto (myös rajauksena) ja tiliryhmät rengaskaaviona tai taulukkona.
+- Toimittajataulukkoon sarakkeet tyyppi ja toimiala, tunnuslukuihin toimialojen ja käytössä olevien tilien määrä.
+- Kehitys: Suuret toimittajat (vuoden ostot vähintään valitun rajan verran) ja Sama toimittaja usealla toimielimellä.
+- Tietoa aineistosta -osioon kohta Mihin ostolaskudataa voi käyttää.
+- Versionumero näkyy yläpalkissa.
+- Toimittaja-välilehdellä voi valita vuoden pylväästä tai valikosta: näkyviin tulevat vuoden kuukaudet ja laskurivit (`tvuosi=`).
+- Napsautettavat rivit erottuvat: nimi on korostettu ja rivin lopussa on kuvake (nuoli avaa toimittajan laskurivit, suppilo rajaa raportin). Sivun alussa on kuitattava vinkki.
+- Taulukoiden vaakavieritys poistettu: sarakkeet tiivistetty, kapealla näytöllä näytetään vain tärkeimmät sarakkeet ja leveät taulukot saavat koko rivin.
+
 ## 1.7.0
 
 - Kolme välilehteä sivun alussa: Yhteenveto, Kehitys (aiemmin Analyysit) ja Toimittaja. Vanhat linkit `nakyma=analyysit` toimivat edelleen.

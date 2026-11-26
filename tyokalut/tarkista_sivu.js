@@ -170,6 +170,50 @@ const kohdistus = sivu => sivu.evaluate(() => { const a = document.activeElement
   await s.focus('#t-toimittaja'); await s.keyboard.press('ArrowRight'); await s.waitForTimeout(300);
   tarkista(await s.evaluate(() => S.view === 'yhteenveto' && !document.getElementById('rajaus').hidden), 'paluu yhteenvetoon tuo rajaukset takaisin');
 
+  console.log('\nKaaviot ja listat');
+  for (const leveys of LEVEYDET) {
+    const c = await selain.newPage({ viewport: { width: leveys, height: 900 } });
+    const virh = []; c.on('pageerror', e => virh.push(e.message));
+    await avaa(c, '#kaavio=sup,tol,om,tili,ta,pl'); await axe(c, `kaavionäkymät ${leveys} px`);
+    tarkista(await c.evaluate(() => document.documentElement.scrollWidth) <= leveys, `kaavionäkymät eivät vieritä vaakaan ${leveys} px`);
+    await c.click('#teema'); await c.waitForTimeout(300); await axe(c, `kaavionäkymät, tumma ${leveys} px`); await c.click('#teema');
+    await avaa(c, '#kaavio=sup,tol,om,tili,ta,pl,ryhma&kieli=sv&vuosi=2021'); await axe(c, `kaaviot ja tiliryhmätaulukko, sv ${leveys} px`); await c.click('#kielet [data-kieli="fi"]');
+    tarkista(virh.length === 0, `ei JavaScript-virheitä (${leveys} px)`, virh.join('; '));
+    await c.close();
+  }
+  await avaa(s, '#kaavio=tili,sup');
+  const kv = await s.evaluate(() => ({ t: document.getElementById('tiliT').hidden, k: document.getElementById('tiliK').hidden, laatat: document.querySelectorAll('#tiliK .tile').length, top: document.querySelectorAll('#supTop .hrow').length,
+    ala: [...document.querySelectorAll('#tiliK .tile')].reduce((x, e) => x + parseFloat(e.style.width) * parseFloat(e.style.height), 0), versio: document.querySelector('#topbar .versio').textContent.replace(/\s+/g, ' ').trim(), rengas: document.querySelectorAll('#ryhmaK path').length }));
+  tarkista(kv.t && !kv.k && kv.laatat >= 10 && kv.top === 11 && Math.abs(kv.ala - 10000) < 60 && kv.rengas >= 2, 'linkin kaavio-parametri avaa puukartan ja kymmenen suurimman kaavion, laatat täyttävät alueen', JSON.stringify(kv));
+  tarkista(/v\d+\.\d+\.\d+/.test(kv.versio), 'versionumero näkyy yläpalkissa', kv.versio);
+  await s.focus('#tiliK button.tile'); await s.keyboard.press('Enter'); await s.waitForTimeout(300);
+  tarkista(await s.evaluate(() => S.tilil !== null && document.activeElement.matches('#tiliK .tile[aria-pressed="true"]') && location.hash.includes('tili=') && location.hash.includes('kaavio=')), 'puukartan laatta rajaa näppäimistöllä, kohdistus säilyy ja valinta on osoitteessa');
+  await s.click('.seg.nak[data-nak="tili"] [data-v="t"]'); await s.waitForTimeout(200);
+  tarkista(await s.evaluate(() => !document.getElementById('tiliT').hidden && document.getElementById('tiliK').hidden && !decodeURIComponent(location.hash).includes('tili,')), 'esitystavan vaihto takaisin taulukkoon');
+  await avaa(s, '#yhtiomuoto=Osakeyhtiö&vuosi=2024');
+  tarkista(await s.evaluate(() => D.yhtiomuoto[S.yhtiomuoto] === 'Osakeyhtiö' && document.querySelectorAll('#supTable thead th').length === 6 && document.querySelector('#chips').textContent.includes('Osakeyhtiö')), 'yritysmuoto toimii rajauksena ja toimittajataulukossa on tyyppi ja toimiala');
+  await avaa(s, '#nakyma=kehitys&vuosi=2024&raja=100000');
+  const rj = await s.evaluate(() => { const e = new Map(); for (const r of R) if (r[C.Y] === S.year) e.set(r[C.S], (e.get(r[C.S]) || 0) + r[C.SNT]); const oik = [...e.values()].filter(v => v >= 100000 * 100).length;
+    const te = new Map(); for (const r of R) if (r[C.Y] === S.year && D.toimielin[r[C.TE]] !== '–') { const k = r[C.S] + '|' + r[C.TILI]; if (!te.has(k)) te.set(k, new Set()); te.get(k).add(r[C.TE]); }
+    return { n: +document.getElementById('aRajaSub').textContent.replace(/\s/g, '').match(/^\d+/)[0], oik, sama: +document.getElementById('aSamaSub').textContent.replace(/\s/g, '').match(/^\d+/)[0], samaOik: [...te.values()].filter(x => x.size >= 2).length, hash: location.hash }; });
+  tarkista(rj.n === rj.oik && rj.sama === rj.samaOik && rj.hash.includes('raja=100000'), 'suurten toimittajien ja usean toimielimen tapausten määrät täsmäävät riveihin', JSON.stringify(rj));
+
+  console.log('\nTaulukot ilman vaakavieritystä');
+  const yt1 = iso.yt;
+  for (const w of [1400, 1280, 1100, 900, 720, 375]) {
+    const v = await selain.newPage({ viewport: { width: w, height: 900 } }); const ylit = [];
+    for (const h of ['', '#kieli=sv', '#nakyma=kehitys', '#nakyma=kehitys&kieli=en&jako=tilil', '#nakyma=toimittaja&toimittaja=' + yt1, '#nakyma=toimittaja&kieli=sv&tvuosi=2023&toimittaja=' + yt1]) {
+      await avaa(v, h); ylit.push(...await v.evaluate(() => [...document.querySelectorAll('.tblwrap')].filter(e => e.offsetParent && e.scrollWidth > e.clientWidth + 1).map(e => (e.querySelector('table').id || 'rivit') + ' +' + (e.scrollWidth - e.clientWidth))));
+    }
+    tarkista(ylit.length === 0, `taulukot mahtuvat ${w} px leveydelle`, ylit.join(', ')); await v.close();
+  }
+  await avaa(s, '#nakyma=toimittaja&toimittaja=' + yt1); await s.focus('#tVuodet .col[data-i="3"]'); await s.keyboard.press('Enter'); await s.waitForTimeout(300);
+  const tv = await s.evaluate(() => ({ y: S.supYear, kk: document.querySelectorAll('#tKk .col').length, hash: location.hash, otsikko: document.getElementById('tRivitH').textContent, rivit: R.filter(r => r[C.S] === S.sup && r[C.Y] === 3).length, sel: document.getElementById('f-tvuosi').value }));
+  tarkista(tv.y === 3 && tv.kk === 12 && tv.hash.includes('tvuosi=' + 2023) && tv.otsikko.replace(/\s/g, '').includes('2023(' + tv.rivit + ')') && tv.sel === '3', 'toimittajan historiasta voi valita vuoden: 12 kuukautta, vuoden laskurivit ja valinta osoitteessa', JSON.stringify(tv));
+  await avaa(s); 
+  tarkista(await s.evaluate(() => !document.getElementById('vinkki').hidden && document.querySelectorAll('#supTable .rowbtn .ri').length > 0 && document.querySelectorAll('#tiliTable .rowbtn .ri').length > 0 && document.querySelectorAll('#kunta .hrow .ri').length > 0), 'vinkki ja rivien kuvakkeet kertovat, mitä napsautus tekee');
+  await s.click('#vinkkiSulje'); await avaa(s); tarkista(await s.evaluate(() => document.getElementById('vinkki').hidden), 'kuitattu vinkki pysyy piilossa');
+
   console.log('\nAnalyysien luvut');
   await avaa(s, '#nakyma=kehitys&vuosi=2025');
   const luvut = await s.evaluate(() => {
