@@ -2,6 +2,16 @@
 
 Versionumero on muotoa **pää.osa.korjaus**: pää = sivun kokonaan uusi versio, osa = uusi ominaisuus tai uuden vuoden aineisto, korjaus = pieni korjaus tai tarkennus. Uusin versio ensin. Pelkkä dokumentaation tai työkalujen muutos ei nosta numeroa.
 
+## 1.9.0
+
+- Ohje omana välilehtenään: pikaopas, näkymät, rajaaminen, toimittajan tiedot, taulukot ja kaaviot, esimerkkikysymyksiä, käsitteet, lukujen tulkinta sekä kieli, ulkoasu ja näppäimistökäyttö. Suomeksi, ruotsiksi ja englanniksi.
+- Puukartta on oletusnäkymä tileille, tulosalueille, palveluluokille ja toimialoille, ja laatikot ovat erivärisiä.
+- Toimittajan tyyppi näytetään oletuksena osuuksina.
+- Selaimen Takaisin-painike (myös hiiren sivupainike) palauttaa edellisen näkymän: jokainen valinta on oma askeleensa selaimen historiassa.
+- Toimittaja-välilehdellä valitun vuoden saa pois merkistä tai painikkeesta Näytä kaikki vuodet, ja toimittajan voi vaihtaa painikkeesta Valitse toinen toimittaja.
+- Sivukuvake (euromerkki) ja some-jaon tiedot: kuvaus, Open Graph -tiedot ja jakokuva `og-kuva.jpg` sekä `llms.txt` ja `sitemap.xml`.
+- Yläpalkin linkeistä poistettu Lähdeaineisto (linkki on edelleen sivun alussa ja lopussa), jotta linkit mahtuvat näkyviin.
+
 ## 1.8.0
 
 - Esitystavan valinta osioittain: tilit, tulosalueet, palveluluokat ja toimialat taulukkona tai puukarttana, toimittajat taulukkona tai kymmenen suurimman kaaviona, toimittajan tyyppi luettelona tai osuuksina (osuus toimittajista ja euroista rinnakkain). Valinta tallentuu linkkiin (`kaavio=`).

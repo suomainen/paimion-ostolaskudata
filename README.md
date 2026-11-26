@@ -35,6 +35,8 @@ Tämä sivu on aloitteen tekijän tekemä esimerkkitoteutus. Se näyttää, milt
 - Suuret toimittajat valittavalla eurorajalla ja tapaukset, joissa sama toimittaja laskuttaa useaa toimielintä samalla tilillä
 - Toimittaja-välilehti: yhden toimittajan koko historia eli ostot vuosittain ja kuukausittain, sijoitus toimittajien joukossa, tilit ja toimielimet vuosittain sekä kaikki laskurivit. Jokaisella toimittajalla on oma pysyvä linkki.
 - Palveluluokat: mihin kaupungin palveluun ostot kohdistuvat (Valtiokonttorin kuntien yhteinen luokitus, aineistossa vuodesta 2022)
+- Selaimen Takaisin-painike palauttaa edellisen näkymän
+- Ohje-välilehti: pikaopas, esimerkkikysymyksiä ja käsitteet
 - Kolme kieltä: suomi, ruotsi ja englanti. Kielen voi vaihtaa yläpalkista, ja valinta kulkee linkin mukana. Ruotsin ja englannin käännökset ovat epävirallisia, ja aineiston omat arvot (tilit, toimialat, palveluluokat, toimielimet, tulosalueet) näytetään aina suomeksi.
 - Vaalea ja tumma ulkoasu, vaihdin yläpalkissa
 - Toimii puhelimella, tabletilla ja tietokoneella sekä näppäimistöllä ja ruudunlukijalla (WCAG 2.1 AA)

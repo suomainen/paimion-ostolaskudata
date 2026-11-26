@@ -1,0 +1,31 @@
+# Paimion ostolaskudata
+
+> Selattava verkkosivu Paimion kaupungin julkaisemasta ostolaskudatasta vuodesta 2020 alkaen: mitä kaupunki ostaa, keneltä ja kuinka paljon. Epävirallinen katselusivu kaupungin avoimesta datasta, ei Paimion kaupungin julkaisu.
+
+Tämä on sivun tiivistelmä tekoälyhakukoneille ja kielimalleille. Sivu on osoitteessa https://suomainen.github.io/paimion-ostolaskudata/ ja toimii suomeksi, ruotsiksi ja englanniksi (osoitteen parametri `kieli=sv` tai `kieli=en`). Tiivistelmä englanniksi on tämän tiedoston lopussa (In English).
+
+## Mitä sivulla on
+
+- **Yhteenveto:** valitun vuoden ostot, toimittajat, kuntakartta sekä jaottelut tilin, toimialan, toimielimen, tulosalueen, palveluluokan, yritysmuodon ja toimittajan kotikunnan mukaan.
+- **Kehitys:** kaikki vuodet rinnakkain, uudet ja poistuneet toimittajat, paikallisten toimittajien osuus, suuret toimittajat ja saman toimittajan ostot usealla toimielimellä.
+- **Toimittaja:** yhden toimittajan ostot koko historian ajalta. Pysyvä linkki: `#nakyma=toimittaja&toimittaja=<Y-tunnus>`.
+- **Ohje:** käyttöohje, esimerkkikysymyksiä ja käsitteet.
+
+## Aineisto ja rajoitukset
+
+- Lähde: Paimion kaupungin ostolaskut, https://www.paimio.fi/kaupunki-ja-hallinto/talous/ . Summat ovat arvonlisäverottomia, ja yksityishenkilöille maksetut laskut on poistettu.
+- Toimittajien kunta, toimiala ja yhtiömuoto on haettu PRH:n avoimesta YTJ-rajapinnasta, ja ne kuvaavat nykytilaa.
+- Vuodesta 2023 alkaen sosiaali- ja terveyspalvelut sekä pelastustoimi kuuluvat hyvinvointialueelle, joten kaupungin ostot laskevat selvästi.
+- Osa tiedoista on arvioitu (vuoden 2025 toimielin ja tulosalue), ja arvio on merkitty sivulla.
+- Lasku kertoo summan, ei yksikköhintaa eikä sitä, mihin sopimukseen osto perustuu.
+- Sivu on tehty tekoälyavustajan avulla. Tarkista olennaiset tiedot alkuperäisestä aineistosta.
+
+## Tausta ja tekijä
+
+- Sivu on esimerkkitoteutus valtuustoaloitteesta, jossa esitetään ostolaskudatan selainpohjaista ja ajantasaista julkaisemista (Paimion kaupunginvaltuusto 22.4.2026 § 19).
+- Tekijä: Oskari Summanen, https://summanen.org/
+- Lähdekoodi (MIT): https://github.com/suomainen/paimion-ostolaskudata
+
+## In English
+
+A browsable web page of the purchase invoice open data published by the City of Paimio, Finland, from 2020 onwards: what the city buys, from whom and for how much. It is an unofficial viewer, not a publication of the city. Views: Summary (one year), Trends (all years), Supplier (the full history of one supplier) and Guide. Amounts exclude VAT. Supplier details come from the Finnish business register (YTJ) and describe the present situation. The page was made with the help of an AI assistant; check anything essential against the original data. Source code (MIT): https://github.com/suomainen/paimion-ostolaskudata

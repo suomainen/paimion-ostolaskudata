@@ -28,7 +28,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-VERSIO = '1.8.0'                        # sivun versio; nosta samalla kun lisäät kohdan tiedostoon CHANGELOG.md
+VERSIO = '1.9.0'                        # sivun versio; nosta samalla kun lisäät kohdan tiedostoon CHANGELOG.md
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent                      # repon juuri: index.html ja README.md
@@ -473,6 +473,10 @@ def kokoa_sivu(data, lahteet, vuodet):
         if merkki not in sivu:
             sys.exit(f'template.html: paikkamerkki {merkki} puuttuu')
         sivu = sivu.replace(merkki, arvo)
+    (ROOT / 'sitemap.xml').write_text(
+        '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        f'  <url>\n    <loc>https://suomainen.github.io/paimion-ostolaskudata/</loc>\n    <lastmod>{date.today().isoformat()}</lastmod>\n  </url>\n</urlset>\n',
+        encoding='utf-8', newline='\n')
     (ROOT / 'index.html').write_text(sivu, encoding='utf-8', newline='\n')
     return len(sivu.encode()) / 1e6
 

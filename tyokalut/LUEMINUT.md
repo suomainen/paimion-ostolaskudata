@@ -15,6 +15,7 @@ paimion-ostolaskudata/        (GitHub-repo)
 └── tyokalut/
     ├── paivita.py            koko päivitys yhdellä ajolla
     ├── test_paivita.py       testit datan käsittelylle (pytest)
+    ├── tee_og.js             tekee some-jakokuvan og-kuva.jpg (aja, jos otsikko tai ulkoasu muuttuu)
     ├── tarkista_sivu.js      selaintarkistus valmiille sivulle (Playwright ja axe)
     ├── template.html         sivun pohja (HTML, CSS, JavaScript)
     ├── lahteet.json          vuosien Excel-tiedostojen osoitteet paimio.fi:ssä
