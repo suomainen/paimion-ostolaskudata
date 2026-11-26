@@ -201,7 +201,8 @@ const kohdistus = sivu => sivu.evaluate(() => { const a = document.activeElement
     return { n: +document.getElementById('aRajaSub').textContent.replace(/\s/g, '').match(/^\d+/)[0], oik, sama: +document.getElementById('aSamaSub').textContent.replace(/\s/g, '').match(/^\d+/)[0], samaOik: [...te.values()].filter(x => x.size >= 2).length, hash: location.hash }; });
   tarkista(rj.n === rj.oik && rj.sama === rj.samaOik && rj.hash.includes('raja=60000'), 'eniten ostettujen ja yhteisten toimittajien määrät täsmäävät riveihin', JSON.stringify(rj));
   await avaa(s, '#nakyma=kehitys&vuosi=2025');
-  tarkista(await s.evaluate(() => S.raja === 100000 && !location.hash.includes('raja=') && document.querySelectorAll('#aSama tr').length === 0 && document.getElementById('aSamaSub').textContent.includes('2020–2024')), 'arvioidulta vuodelta yhteisiä toimittajia ei listata, ja oletusraja on 100 000 euroa');
+  tarkista(await s.evaluate(() => S.raja === 100000 && !location.hash.includes('raja=') && document.querySelectorAll('#aSama tbody tr').length > 0 && !document.getElementById('aSamaArvio').hidden && /2023–2024/.test(document.getElementById('aSamaArvio').textContent) && /\d+ %/.test(document.getElementById('aSamaArvio').textContent) && document.getElementById('aSamaH').textContent.includes('laskettu arvio')), 'arvioidun vuoden yhteiset toimittajat on merkitty lasketuksi tiedoksi ja laskentatapa kerrotaan, oletusraja on 100 000 euroa');
+  await avaa(s, '#nakyma=kehitys&vuosi=2024'); tarkista(await s.evaluate(() => document.getElementById('aSamaArvio').hidden && !document.getElementById('aSamaH').textContent.includes('arvio')), 'vuodelta, jonka toimielin on kaupungin aineistossa, arviomerkintää ei näytetä');
 
   console.log('\nTaulukot ilman vaakavieritystä');
   const yt1 = iso.yt;
