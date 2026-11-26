@@ -33,8 +33,8 @@ const kohdistus = sivu => sivu.evaluate(() => { const a = document.activeElement
     const pyynnot = []; await sivu.route('**/*', r => { const u = r.request().url(); if (!u.startsWith('file:') && !u.startsWith('data:')) { pyynnot.push(u); return r.abort(); } return r.continue(); });
     await avaa(sivu); await axe(sivu, 'yhteenveto');
     await avaa(sivu, '#vuosi=2024&tili=4340&kk=6'); await axe(sivu, 'rajattu yhteenveto');
-    await avaa(sivu, '#nakyma=analyysit'); await axe(sivu, 'analyysit');
-    await avaa(sivu, '#nakyma=analyysit&jako=tilil&vuosi=2020'); await axe(sivu, 'analyysit, ensimmäinen vuosi');
+    await avaa(sivu, '#nakyma=kehitys'); await axe(sivu, 'kehitys');
+    await avaa(sivu, '#nakyma=kehitys&jako=tilil&vuosi=2020'); await axe(sivu, 'analyysit, ensimmäinen vuosi');
     await avaa(sivu); await sivu.click('#supTable .rowbtn'); await sivu.waitForTimeout(300); await axe(sivu, 'toimittajan ikkuna');
     tarkista(jsVirheet.length === 0, 'ei JavaScript-virheitä', jsVirheet.join('; '));
     tarkista(pyynnot.length === 0, 'sivu ei hae mitään verkosta', pyynnot.join(', '));
@@ -42,7 +42,7 @@ const kohdistus = sivu => sivu.evaluate(() => { const a = document.activeElement
   }
 
   console.log('\nKapea näyttö');
-  for (const hash of ['', '#nakyma=analyysit']) {
+  for (const hash of ['', '#nakyma=kehitys', '#nakyma=toimittaja']) {
     const kapea = await selain.newPage({ viewport: { width: 320, height: 700 } });
     await avaa(kapea, hash);
     tarkista(await kapea.evaluate(() => document.documentElement.scrollWidth) <= 320, `ei vaakavieritystä 320 px leveydellä ${hash || '(yhteenveto)'}`);
@@ -64,13 +64,13 @@ const kohdistus = sivu => sivu.evaluate(() => { const a = document.activeElement
   tarkista(await s.evaluate(() => document.activeElement.getAttribute('aria-pressed')) === 'true', 'tilin valinta näppäimistöllä säilyttää kohdistuksen ja kertoo tilan');
   tarkista((await s.$eval('#live', e => e.textContent)).startsWith('Näkymä päivitetty'), 'ruudunlukijalle tilaviesti rajauksen jälkeen');
   await s.focus('#t-yhteenveto'); await s.keyboard.press('ArrowRight'); await s.waitForTimeout(300);
-  tarkista(await kohdistus(s) === 'BUTTON#t-analyysit' && !(await s.evaluate(() => document.getElementById('p-analyysit').hidden)), 'välilehti vaihtuu nuolinäppäimellä');
+  tarkista(await kohdistus(s) === 'BUTTON#t-kehitys' && !(await s.evaluate(() => document.getElementById('p-kehitys').hidden)), 'välilehti vaihtuu nuolinäppäimellä');
 
   console.log('\nPysyvät linkit');
   await avaa(s, '#vuosi=2023&kunta=Paimio&tili=4340&nakyma=analyysit&jako=tilil&mittari_kunta=n&alue=fi');
   const tila = await s.evaluate(() => ({ vuosi: Y[S.year], kunta: D.kunta[S.kunta], tili: D.tilil[S.tilil], view: S.view, adim: S.adim, mittari: mode.kunta, alue: mode.zoom, hash: decodeURIComponent(location.hash) }));
-  tarkista(tila.vuosi === 2023 && tila.kunta === 'Paimio' && tila.tili.startsWith('4340 ') && tila.view === 'analyysit' && tila.adim === 'tilil' && tila.mittari === 'n' && tila.alue === 'fi', 'osoitteen tila luetaan oikein', JSON.stringify(tila));
-  tarkista(['vuosi=2023', 'kunta=Paimio', 'tili=4340', 'nakyma=analyysit', 'jako=tilil', 'mittari_kunta=n', 'alue=fi'].every(o => tila.hash.includes(o)), 'sama tila kirjoitetaan takaisin osoitteeseen', tila.hash);
+  tarkista(tila.vuosi === 2023 && tila.kunta === 'Paimio' && tila.tili.startsWith('4340 ') && tila.view === 'kehitys' && tila.adim === 'tilil' && tila.mittari === 'n' && tila.alue === 'fi', 'osoitteen tila luetaan oikein', JSON.stringify(tila));
+  tarkista(['vuosi=2023', 'kunta=Paimio', 'tili=4340', 'nakyma=kehitys', 'jako=tilil', 'mittari_kunta=n', 'alue=fi'].every(o => tila.hash.includes(o)), 'sama tila kirjoitetaan takaisin osoitteeseen', tila.hash);
   await avaa(s, '#vuosi=1999&kunta=Olematon&tili=0000'); tarkista(await s.evaluate(() => Y[S.year] === Y[Y.length - 1] && S.kunta === null && S.tilil === null), 'tuntemattomat arvot ohitetaan');
   await avaa(s, '#year=2'); tarkista(await s.evaluate(() => S.year === 2), 'vanha linkkimuoto (year=järjestysnumero) toimii');
   const yt = await s.evaluate(() => SUP.find(x => x[P.YT])[P.YT]);
@@ -82,10 +82,10 @@ const kohdistus = sivu => sivu.evaluate(() => { const a = document.activeElement
     const virh = []; k.on('pageerror', e => virh.push(e.message));
     for (const kieli of ['sv', 'en']) {
       await avaa(k, '#kieli=' + kieli); await axe(k, `${kieli}, yhteenveto ${leveys} px`);
-      await avaa(k, `#kieli=${kieli}&nakyma=analyysit&vuosi=2024&tili=4340`); await axe(k, `${kieli}, analyysit ${leveys} px`);
+      await avaa(k, `#kieli=${kieli}&nakyma=kehitys&vuosi=2024&tili=4340`); await axe(k, `${kieli}, analyysit ${leveys} px`);
     }
     await avaa(k); await k.click('#teema'); await k.waitForTimeout(300); await axe(k, `tumma ulkoasu, yhteenveto ${leveys} px`);
-    await avaa(k, '#nakyma=analyysit&kunta=Paimio'); await axe(k, `tumma ulkoasu, analyysit ${leveys} px`);
+    await avaa(k, '#nakyma=kehitys&kunta=Paimio'); await axe(k, `tumma ulkoasu, analyysit ${leveys} px`);
     await avaa(k); await k.click('#supTable .rowbtn'); await k.waitForTimeout(300); await axe(k, `tumma ulkoasu, toimittajan ikkuna ${leveys} px`);
     if (leveys < 1000) { await avaa(k); await k.click('#menuBtn'); await k.waitForTimeout(200); await axe(k, `valikko auki ${leveys} px`); }
     tarkista(virh.length === 0, `ei JavaScript-virheitä (${leveys} px)`, virh.join('; '));
@@ -125,21 +125,53 @@ const kohdistus = sivu => sivu.evaluate(() => { const a = document.activeElement
   await avaa(k); tarkista(await k.evaluate(() => document.documentElement.dataset.teema === 'tumma' && getComputedStyle(document.body).backgroundColor !== 'rgb(255, 255, 255)'), 'ulkoasun valinta muistetaan selaimessa');
   await k.click('#teema'); await k.waitForTimeout(200);
   tarkista(await k.evaluate(() => !document.documentElement.dataset.teema && getComputedStyle(document.body).backgroundColor === 'rgb(255, 255, 255)'), 'paluu vaaleaan ulkoasuun');
-  await avaa(k, '#vuosi=2023&tili=4340'); await k.click('#valikko a[data-nakyma="analyysit"]'); await k.waitForTimeout(300);
+  await k.setViewportSize({ width: 1400, height: 900 });
+  await avaa(k, '#vuosi=2023&tili=4340'); await k.click('#valikko a[data-nakyma="kehitys"]'); await k.waitForTimeout(300);
   const nav = await k.evaluate(() => ({ hash: location.hash, view: S.view, f: document.activeElement.id }));
-  tarkista(nav.view === 'analyysit' && nav.hash.includes('vuosi=2023') && nav.hash.includes('tili=4340') && nav.f === 't-analyysit', 'yläpalkin linkki vaihtaa välilehden ja säilyttää rajaukset osoitteessa', JSON.stringify(nav));
+  tarkista(nav.view === 'kehitys' && nav.hash.includes('vuosi=2023') && nav.hash.includes('tili=4340') && nav.f === 't-kehitys', 'yläpalkin linkki vaihtaa välilehden ja säilyttää rajaukset osoitteessa', JSON.stringify(nav));
   await k.close();
   const m = await selain.newPage({ viewport: { width: 375, height: 700 } });
   await avaa(m); await m.focus('#menuBtn'); await m.keyboard.press('Enter'); await m.waitForTimeout(200);
   tarkista(await m.evaluate(() => document.getElementById('menuBtn').getAttribute('aria-expanded') === 'true' && document.activeElement.closest('#valikko') !== null), 'valikko avautuu näppäimistöllä ja kohdistus siirtyy siihen');
   await m.keyboard.press('Escape'); await m.waitForTimeout(200);
   tarkista(await kohdistus(m) === 'BUTTON#menuBtn.menu-toggle' && await m.evaluate(() => getComputedStyle(document.getElementById('valikko')).display === 'none'), 'Esc sulkee valikon ja palauttaa kohdistuksen painikkeeseen');
-  for (const kieli of ['sv', 'en']) for (const w of [320, 375]) { await m.setViewportSize({ width: w, height: 700 }); await avaa(m, '#kieli=' + kieli + '&nakyma=analyysit');
+  for (const kieli of ['sv', 'en']) for (const w of [320, 375]) { await m.setViewportSize({ width: w, height: 700 }); await avaa(m, '#kieli=' + kieli + '&nakyma=kehitys');
     tarkista(await m.evaluate(() => document.documentElement.scrollWidth) <= w, `ei vaakavieritystä ${w} px leveydellä (${kieli})`); }
   await m.close();
 
+  console.log('\nKehitys ja toimittaja');
+  for (const leveys of LEVEYDET) {
+    const t = await selain.newPage({ viewport: { width: leveys, height: 900 } });
+    const virh = []; t.on('pageerror', e => virh.push(e.message));
+    await avaa(t, '#nakyma=toimittaja'); await axe(t, `toimittajan haku ${leveys} px`);
+    await t.fill('#supQ', 'oy'); await t.waitForTimeout(400); await t.click('#supRes .tulos'); await t.waitForTimeout(400); await axe(t, `toimittajan historia ${leveys} px`);
+    tarkista(await t.evaluate(() => document.documentElement.scrollWidth) <= leveys, `toimittajan historia ei vieritä vaakaan ${leveys} px`);
+    await t.click('#teema'); await t.waitForTimeout(300); await axe(t, `toimittajan historia, tumma ${leveys} px`);
+    await avaa(t, '#nakyma=kehitys&kieli=en'); await axe(t, `kehitys, tumma, en ${leveys} px`); await t.click('#teema'); await t.click('#kielet [data-kieli="fi"]');
+    tarkista(virh.length === 0, `ei JavaScript-virheitä (${leveys} px)`, virh.join('; '));
+    await t.close();
+  }
+  await avaa(s, '#nakyma=analyysit&vuosi=2024'); tarkista(await s.evaluate(() => S.view === 'kehitys' && !document.getElementById('p-kehitys').hidden), 'vanha linkki nakyma=analyysit avaa Kehitys-välilehden');
+  const kaaviot = await s.evaluate(() => ({ viivat: document.querySelectorAll('#kKaavio path').length, valitut: document.querySelectorAll('#aKeh input:checked').length, selite: document.querySelectorAll('#kSelite li').length,
+    trendit: document.querySelectorAll('#aKeh .spark').length, rivit: document.querySelectorAll('#aKeh tbody tr').length, paik: document.querySelectorAll('#kPaikKaavio path').length, vaihto: document.querySelectorAll('#kVaihtKaavio path').length, nimi: document.querySelector('#kKaavio svg').getAttribute('aria-label') }));
+  tarkista(kaaviot.viivat === 5 && kaaviot.valitut === 5 && kaaviot.selite === 5 && kaaviot.trendit === kaaviot.rivit && kaaviot.paik === 3 && kaaviot.vaihto === 2 && kaaviot.nimi.length > 40, 'kehityskaaviossa viisi suurinta, joka rivillä trendiviiva ja kaavioilla tekstivastine', JSON.stringify(kaaviot));
+  await s.focus('#aKeh input:not(:checked)'); await s.keyboard.press('Space'); await s.waitForTimeout(300);
+  const valinta = await s.evaluate(() => ({ viivat: document.querySelectorAll('#kKaavio path').length, f: document.activeElement.matches('#aKeh input:checked'), lukittu: document.querySelectorAll('#aKeh input:disabled').length, muut: document.querySelectorAll('#aKeh input:not(:checked)').length, tili: S.toimiala }));
+  tarkista(valinta.viivat === 6 && valinta.f && valinta.lukittu === valinta.muut && valinta.tili === null, 'rivin lisäys kaavioon valintaruudulla: kuusi sarjaa, kohdistus säilyy, enempää ei voi valita eikä rivi rajaudu', JSON.stringify(valinta));
+  const iso = await s.evaluate(() => { const e = SUP.map(() => 0); for (const r of R) e[r[C.S]] += r[C.SNT]; let b = -1; SUP.forEach((x, i) => { if (x[P.YT] && (b < 0 || e[i] > e[b])) b = i; }); return { yt: SUP[b][P.YT], nimi: SUP[b][P.NIMI], snt: e[b], rivit: R.filter(r => r[C.S] === b).length }; });
+  await avaa(s, '#nakyma=toimittaja&toimittaja=' + iso.yt + '&vuosi=2021&tili=4340');
+  const hist = await s.evaluate(() => { const num = t => +t.replace(/[^\d,-]/g, '').replace(',', '.');
+    return { nimi: document.getElementById('tNimi').textContent, rajausPiilossa: document.getElementById('rajaus').hidden, summa: [...document.querySelectorAll('#tVuosiTaulu tbody tr')].reduce((x, tr) => x + (tr.children[1].textContent === '–' ? 0 : num(tr.children[1].textContent)), 0),
+      otsikko: document.getElementById('tRivitH').textContent.replace(/\s/g, ''), kk: document.querySelectorAll('#tKk .col').length, hash: location.hash, sija: document.querySelector('#tVuosiTaulu tbody tr td:nth-child(4)').textContent }; });
+  tarkista(hist.nimi === iso.nimi && hist.rajausPiilossa && Math.abs(hist.summa - iso.snt / 100) <= 6 && hist.otsikko.includes('(' + iso.rivit + ')') && hist.kk === 72 && /^\d+ \/ /.test(hist.sija), 'toimittajan historia: kaikki vuodet rajauksista riippumatta, summat ja rivimäärä täsmäävät', JSON.stringify(hist));
+  tarkista(hist.hash.includes('nakyma=toimittaja') && hist.hash.includes('toimittaja=' + iso.yt), 'toimittajan historialla on pysyvä linkki', hist.hash);
+  await avaa(s); await s.click('#supTable .rowbtn'); await s.waitForTimeout(300); await s.click('#dHist'); await s.waitForTimeout(400);
+  tarkista(await s.evaluate(() => S.view === 'toimittaja' && S.sup !== null && !document.getElementById('drawer').classList.contains('open') && document.activeElement.id === 'tNimi' && !document.getElementById('sisalto').inert), 'pikakatselusta pääsee koko historiaan ja kohdistus siirtyy toimittajan nimeen');
+  await s.focus('#t-toimittaja'); await s.keyboard.press('ArrowRight'); await s.waitForTimeout(300);
+  tarkista(await s.evaluate(() => S.view === 'yhteenveto' && !document.getElementById('rajaus').hidden), 'paluu yhteenvetoon tuo rajaukset takaisin');
+
   console.log('\nAnalyysien luvut');
-  await avaa(s, '#nakyma=analyysit&vuosi=2025');
+  await avaa(s, '#nakyma=kehitys&vuosi=2025');
   const luvut = await s.evaluate(() => {
     const yi = S.year, e = Y.map(() => 0), nyt = new Set(), ennen = new Set();
     for (const r of R) { e[r[C.Y]] += r[C.SNT]; if (r[C.Y] === yi) nyt.add(r[C.S]); if (r[C.Y] === yi - 1) ennen.add(r[C.S]); }

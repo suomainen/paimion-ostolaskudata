@@ -2,6 +2,13 @@
 
 Versionumero on muotoa **pää.osa.korjaus**: pää = sivun kokonaan uusi versio, osa = uusi ominaisuus tai uuden vuoden aineisto, korjaus = pieni korjaus tai tarkennus. Uusin versio ensin. Pelkkä dokumentaation tai työkalujen muutos ei nosta numeroa.
 
+## 1.7.0
+
+- Kolme välilehteä sivun alussa: Yhteenveto, Kehitys (aiemmin Analyysit) ja Toimittaja. Vanhat linkit `nakyma=analyysit` toimivat edelleen.
+- Kehitys: viivakaavio valituista riveistä (oletuksena viisi suurinta, taulukon valintaruuduilla enintään kuusi), trendiviiva jokaisella rivillä sekä kaaviot paikallisuudesta ja keskittyneisyydestä ja uusien ja poistuneiden toimittajien määrästä vuosittain. Sote-siirto 2023 on merkitty kaavioihin.
+- Toimittaja: yhden toimittajan koko historia rajauksista riippumatta. Haku nimellä tai Y-tunnuksella, ostot vuosittain ja kuukausittain koko jaksolta, sijoitus ja osuus kaikista ja toimialan ostoista vuosittain, tilit ja toimielimet vuosittain sekä kaikki laskurivit. Näkymällä on pysyvä linkki (`nakyma=toimittaja&toimittaja=Y-tunnus`), ja toimittajan pikakatselusta pääsee siihen painikkeella Näytä koko historia.
+- Korjaus: taulukon sisällä oleva ruudunlukijateksti saattoi aiheuttaa vaakavierityksen kapealla näytöllä.
+
 ## 1.6.0
 
 - Sivu myös ruotsiksi ja englanniksi: kielipainikkeet FI, SV ja EN yläpalkissa. Valinta muistetaan selaimessa ja kulkee linkin mukana (`kieli=sv` tai `kieli=en`). Käännökset ovat epävirallisia; aineiston omat arvot (tilit, toimialat, palveluluokat, toimielimet, tulosalueet) näytetään suomeksi ja merkitään suomenkielisiksi ruudunlukijalle.
