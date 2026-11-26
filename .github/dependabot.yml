@@ -1,0 +1,34 @@
+# Dependabot tarkistaa viikoittain koontityökalujen riippuvuudet ja avaa päivityksistä pull requestin.
+# Itse sivu (index.html) ei käytä yhtään ulkoista kirjastoa, joten nämä koskevat vain työkaluja kansiossa tyokalut/.
+# Tietoturvapäivitykset ja -hälytykset kytketään päälle repon asetuksista: Settings → Advanced Security → Dependabot.
+version: 2
+updates:
+  # Python: pandas, numpy ja openpyxl (requirements.txt), joilla paivita.py kokoaa sivun
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "07:00"
+      timezone: "Europe/Helsinki"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "Riippuvuudet"
+    groups:
+      python:
+        patterns: ["*"]
+
+  # npm: Playwright ja axe-core (package.json), joilla tarkista_sivu.js testaa valmiin sivun
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "07:00"
+      timezone: "Europe/Helsinki"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "Riippuvuudet"
+    groups:
+      selaintarkistus:
+        patterns: ["*"]

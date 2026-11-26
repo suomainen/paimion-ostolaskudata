@@ -2,6 +2,13 @@
 
 Versionumero on muotoa **pää.osa.korjaus**: pää = sivun kokonaan uusi versio, osa = uusi ominaisuus tai uuden vuoden aineisto, korjaus = pieni korjaus tai tarkennus. Uusin versio ensin. Pelkkä dokumentaation tai työkalujen muutos ei nosta numeroa.
 
+## 2.2.4
+
+- Sisältöturvakäytäntö (CSP): selain estää sivua lataamasta mitään muualta tai lähettämästä tietoja minnekään.
+- Dependabot seuraa koontityökalujen riippuvuuksia (`.github/dependabot.yml`), ja kehitystyökalut on kirjattu tiedostoon `package.json`.
+- README:ssä kohta Tietoturva ja repossa `SECURITY.md` haavoittuvuuksista ilmoittamiseen.
+- Riippuvuudet tarkistettu (`pip-audit`, `npm audit`): ei tunnettuja haavoittuvuuksia.
+
 ## 2.2.3
 
 - Yhteiset toimittajat -lista näytetään myös vuodelta, jonka toimielin on arvioitu (2025). Otsikossa lukee laskettu arvio, ja listan yläpuolella kerrotaan, miten toimielin on päätelty, kuinka suuri osa euroista saatiin mukaan ja kuinka hyvin laskenta osui testivuonna.

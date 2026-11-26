@@ -10,6 +10,14 @@ paimion-ostolaskudata/        (GitHub-repo)
 ├── README.md
 ├── CHANGELOG.md              muutosloki, uusin versio ensin
 ├── requirements.txt          Python-kirjastot
+├── package.json              selaintarkistuksen työkalut (Playwright, axe-core)
+├── package-lock.json         niiden tarkat versiot
+├── LICENSE                   MIT-lisenssi
+├── SECURITY.md               haavoittuvuudesta ilmoittaminen
+├── .github/dependabot.yml    riippuvuuksien viikoittainen tarkistus
+├── llms.txt                  sivun tiivistelmä tekoälyhakukoneille
+├── sitemap.xml               sivukartta (skripti kirjoittaa)
+├── og-kuva.jpg               some-jakokuva (tee_og.js tekee)
 ├── .gitignore                jättää lahdedata-kansion pois GitHubista
 ├── lahdedata/                kaupungin Excel-tiedostot (vain omalla koneella)
 └── tyokalut/

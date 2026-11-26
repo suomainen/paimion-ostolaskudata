@@ -1,0 +1,14 @@
+{
+  "name": "paimion-ostolaskudata",
+  "private": true,
+  "description": "Kehitystyökalut sivun tarkistukseen. Itse sivu ei käytä yhtään npm-pakettia.",
+  "license": "MIT",
+  "scripts": {
+    "tarkista": "node tyokalut/tarkista_sivu.js",
+    "jakokuva": "node tyokalut/tee_og.js"
+  },
+  "devDependencies": {
+    "axe-core": "^4.14.1",
+    "playwright": "^1.63.0"
+  }
+}

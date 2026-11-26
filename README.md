@@ -32,7 +32,7 @@ Tämä sivu on aloitteen tekijän tekemä esimerkkitoteutus. Se näyttää, milt
 - Kehitys-välilehti: ostojen kehitys vuosittain valitulla jaottelulla (esimerkiksi toimiala tai tili) viivakaaviona ja taulukkona, uudet ja poistuneet toimittajat, paikallisuus tileittäin, toimittajat ostojen koon mukaan sekä paikallisuus ja keskittyneisyys vuosittain
 - Esitystavan valinta osioittain: taulukko tai kaavio (puukartta, kymmenen suurinta, osuudet, rengaskaavio). Valinta tallentuu linkkiin.
 - Yritysmuoto ja tiliryhmät omina jaotteluinaan
-- Suuret toimittajat valittavalla eurorajalla ja tapaukset, joissa sama toimittaja laskuttaa useaa toimielintä samalla tilillä
+- Toimittajat, joilta ostettiin eniten (valittava euroraja), ja yhteiset toimittajat eli sama toimittaja ja tili usealla toimielimellä
 - Toimittaja-välilehti: yhden toimittajan koko historia eli ostot vuosittain ja kuukausittain, sijoitus toimittajien joukossa, tilit ja toimielimet vuosittain sekä kaikki laskurivit. Jokaisella toimittajalla on oma pysyvä linkki.
 - Palveluluokat: mihin kaupungin palveluun ostot kohdistuvat (Valtiokonttorin kuntien yhteinen luokitus, aineistossa vuodesta 2022)
 - Selaimen Takaisin-painike palauttaa edellisen näkymän
@@ -120,12 +120,52 @@ Pohjan muutosten jälkeen tarkistetaan vähintään:
 Nämä ajaa `tyokalut/tarkista_sivu.js`, joka tarkistaa lisäksi linkkien pysyvyyden, kehityksen ja toimittajan historian luvut, kielen ja ulkoasun vaihdon sekä sen, että jokaiselle tekstille on käännös:
 
 ```
-npm install --no-save playwright axe-core
+npm install
 npx playwright install chromium
 node tyokalut/tarkista_sivu.js
 ```
 
 Tiedossa olevat rajoitukset: sivua ei ole testattu oikeilla ruudunlukijoilla (NVDA, VoiceOver), vaan automaattisella tarkistuksella ja näppäimistöllä. Kartan värisävyjen erot eivät yksinään välitä lukuja, joten tarkat arvot ovat luettelossa. Linkitetyt Excel-tiedostot ovat kaupungin julkaisemia, eikä niiden saavutettavuus ole tämän sivun hallinnassa.
+
+## Tietoturva
+
+### Mitä suojattavaa staattisessa sivussa on
+
+Sivu on yksi staattinen HTML-tiedosto. Siinä ei ole palvelinkoodia, tietokantaa, kirjautumista, lomakkeita, evästeitä eikä kävijäseurantaa, eikä se käytä yhtään ulkopuolista JavaScript-kirjastoa. Kävijästä ei kerätä eikä lähetetä mitään tietoja. Selaimeen tallentuu vain kävijän oma kieli- ja ulkoasuvalinta sekä tieto kuitatusta vinkistä.
+
+Tavallisen verkkopalvelun riskit (tietomurto palvelimelle, käyttäjätietojen vuoto, haavoittuva kirjasto kävijän selaimessa) eivät siksi koske tätä sivua. Jäljelle jää kolme asiaa:
+
+| Riski | Miten se on hoidettu |
+|---|---|
+| Joku pääsee muuttamaan sivua GitHub-tilin tai repon kautta | Tilin suojaus kaksivaiheisella tunnistautumisella on ylläpitäjän vastuulla. Kaikki muutokset näkyvät repon historiassa. |
+| Aineiston sisältö päätyy suoritettavaksi koodiksi (esimerkiksi toimittajan nimessä on HTML:ää) | Kaikki aineiston arvot käsitellään tekstinä ennen sivulle kirjoittamista. Lisäksi sivulla on sisältöturvakäytäntö (CSP), jolla selain estää sivua lataamasta mitään muualta tai lähettämästä tietoja minnekään. |
+| Koontityökalun riippuvuudessa on haavoittuvuus | Riippuvuuksia käytetään vain ylläpitäjän koneella sivua koottaessa, eivätkä ne päädy sivulle. Niitä seurataan alla kuvatulla tavalla. |
+
+### Mitä GitHub hoitaa
+
+Sivu julkaistaan GitHub Pagesissa, joten GitHub vastaa palvelimista ja niiden päivityksistä, HTTPS-yhteydestä ja varmenteista sekä palvelunestohyökkäysten torjunnasta. Julkisessa repossa GitHub myös tarkistaa, ettei koodiin päädy salasanoja tai avaimia. Tässä repossa niitä ei ole, koska sivu ei käytä mitään tunnuksia.
+
+### Riippuvuuksien seuranta
+
+Riippuvuuksia on vähän, ja kaikki ovat kehitystyökaluja:
+
+- Python (`requirements.txt`): pandas, numpy ja openpyxl, joilla `paivita.py` kokoaa sivun
+- npm (`package.json`): Playwright ja axe-core, joilla `tarkista_sivu.js` testaa valmiin sivun
+
+Niitä seurataan kahdella tavalla:
+
+1. **Dependabot** (`.github/dependabot.yml`) tarkistaa molemmat viikoittain ja avaa päivityksistä pull requestin. Tunnetuista haavoittuvuuksista tulee lisäksi hälytys, kun Dependabot-hälytykset on kytketty päälle repon asetuksista (Settings → Advanced Security).
+2. **Käsin ennen julkaisua**, kun riippuvuuksia on päivitetty:
+
+   ```
+   pip install pip-audit
+   pip-audit -r requirements.txt
+   npm audit
+   ```
+
+Jos tarkistus löytää haavoittuvuuden, sen CVE-tunnus katsotaan [CISAn KEV-luettelosta](https://www.cisa.gov/known-exploited-vulnerabilities-catalog) (Known Exploited Vulnerabilities), jossa ovat haavoittuvuudet, joita tiedetään käytetyn oikeissa hyökkäyksissä. KEV-luettelossa oleva haavoittuvuus korjataan ennen kuin työkalua käytetään seuraavan kerran. Muut korjataan seuraavan päivityksen yhteydessä, koska työkalut käsittelevät vain kaupungin julkaisemia tiedostoja ylläpitäjän omalla koneella.
+
+Haavoittuvuudesta ilmoittaminen on kuvattu tiedostossa [SECURITY.md](SECURITY.md).
 
 ## Versiointi
 

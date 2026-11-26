@@ -1,7 +1,7 @@
 // Selaintarkistus valmiille index.html:lle: saavutettavuus (axe), näppäimistökäyttö,
 // linkkien pysyvyys, kielet ja ulkoasu sekä analyysien luvut.
 //
-// Asennus kerran repon juuressa:   npm install --no-save playwright axe-core && npx playwright install chromium
+// Asennus kerran repon juuressa:   npm install && npx playwright install chromium
 // Ajo:                             node tyokalut/tarkista_sivu.js
 //
 // Palauttaa virhekoodin 1, jos jokin tarkistus ei mene läpi.
@@ -249,6 +249,9 @@ const kohdistus = sivu => sivu.evaluate(() => { const a = document.activeElement
   tarkista(await hst.evaluate(() => !document.getElementById('drawer').classList.contains('open') && !document.getElementById('sisalto').inert && S.tilil !== null), 'Takaisin sulkee toimittajan ikkunan');
   const meta = await hst.evaluate(() => ({ kuvake: (document.querySelector('link[rel="icon"]') || {}).href || '', og: ['og:title', 'og:description', 'og:image', 'og:url'].every(p => (document.querySelector(`meta[property="${p}"]`) || {}).content), kuvaus: (document.querySelector('meta[name="description"]') || {}).content || '', ld: !!JSON.parse(document.querySelector('script[type="application/ld+json"]').textContent).name }));
   tarkista(meta.kuvake.startsWith('data:image/svg+xml') && meta.og && meta.kuvaus.length > 80 && meta.ld && fs.existsSync(path.resolve(__dirname, '..', 'og-kuva.jpg')) && fs.existsSync(path.resolve(__dirname, '..', 'llms.txt')), 'sivukuvake, kuvaus, jakotiedot ja jakokuva ovat paikallaan', JSON.stringify(meta).slice(0, 200));
+  const csp = await hst.evaluate(() => (document.querySelector('meta[http-equiv="Content-Security-Policy"]') || {}).content || '');
+  tarkista(csp.includes("default-src 'none'") && !/https?:/.test(csp) && csp.includes("form-action 'none'"), 'sisältöturvakäytäntö estää ulkoiset lataukset ja lomakkeiden lähetyksen', csp);
+  tarkista(await hst.evaluate(() => fetch('https://example.com/').then(() => false, () => true)), 'selain estää sivulta lähtevät verkkopyynnöt');
   await hst.close();
   await avaa(s, '#nakyma=toimittaja&tvuosi=2023&toimittaja=' + iso.yt); await s.click('#tKaikkiVuodet'); await s.waitForTimeout(300);
   tarkista(await s.evaluate(() => S.supYear === null && !location.hash.includes('tvuosi') && document.querySelectorAll('#tKk .col').length === 72), 'toimittajan vuosivalinnan saa pois painikkeesta');
