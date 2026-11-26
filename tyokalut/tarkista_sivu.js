@@ -123,9 +123,9 @@ const kohdistus = sivu => sivu.evaluate(() => { const a = document.activeElement
   tarkista(await k.evaluate(() => document.documentElement.lang === 'fi' && document.querySelector('h1').textContent === 'Paimion kaupungin ostolaskut' && !location.hash.includes('kieli=')), 'paluu suomeen palauttaa alkuperäiset tekstit');
   await k.click('#teema'); await k.waitForTimeout(200);
   tarkista(await k.evaluate(() => document.documentElement.dataset.teema === 'tumma' && document.getElementById('teema').getAttribute('aria-pressed') === 'true'), 'tumma ulkoasu kytkeytyy painikkeesta');
-  await avaa(k); tarkista(await k.evaluate(() => document.documentElement.dataset.teema === 'tumma' && getComputedStyle(document.body).backgroundColor !== 'rgb(255, 255, 255)'), 'ulkoasun valinta muistetaan selaimessa');
+  await avaa(k); tarkista(await k.evaluate(() => document.documentElement.dataset.teema === 'tumma' && getComputedStyle(document.body).backgroundColor !== 'rgb(245, 247, 251)'), 'ulkoasun valinta muistetaan selaimessa');
   await k.click('#teema'); await k.waitForTimeout(200);
-  tarkista(await k.evaluate(() => !document.documentElement.dataset.teema && getComputedStyle(document.body).backgroundColor === 'rgb(255, 255, 255)'), 'paluu vaaleaan ulkoasuun');
+  tarkista(await k.evaluate(() => !document.documentElement.dataset.teema && getComputedStyle(document.body).backgroundColor === 'rgb(245, 247, 251)'), 'paluu vaaleaan ulkoasuun');
   await k.setViewportSize({ width: 1400, height: 900 });
   await avaa(k, '#vuosi=2023&tili=4340'); await k.click('#valikko a[data-nakyma="ohje"]'); await k.waitForTimeout(300);
   const nav = await k.evaluate(() => ({ hash: location.hash, view: S.view, f: document.activeElement.id }));
@@ -134,6 +134,8 @@ const kohdistus = sivu => sivu.evaluate(() => { const a = document.activeElement
   const m = await selain.newPage({ viewport: { width: 375, height: 700 } });
   await avaa(m); await m.focus('#menuBtn'); await m.keyboard.press('Enter'); await m.waitForTimeout(200);
   tarkista(await m.evaluate(() => document.getElementById('menuBtn').getAttribute('aria-expanded') === 'true' && document.activeElement.closest('#valikko') !== null), 'valikko avautuu näppäimistöllä ja kohdistus siirtyy siihen');
+  tarkista(await m.evaluate(() => ['ohje', 'yhteenveto', 'kehitys', 'toimittaja'].every(n => { const a = document.querySelector(`#valikko a[data-nakyma="${n}"]`); return a && a.getClientRects().length > 0; })), 'kapean näytön valikossa ovat kaikki näkymät');
+  await m.click('#valikko a[data-nakyma="kehitys"]'); await m.waitForTimeout(300); tarkista(await m.evaluate(() => S.view === 'kehitys' && getComputedStyle(document.getElementById('valikko')).display === 'none'), 'valikon linkki avaa näkymän ja sulkee valikon'); await m.focus('#menuBtn'); await m.keyboard.press('Enter'); await m.waitForTimeout(200);
   await m.keyboard.press('Escape'); await m.waitForTimeout(200);
   tarkista(await kohdistus(m) === 'BUTTON#menuBtn.menu-toggle' && await m.evaluate(() => getComputedStyle(document.getElementById('valikko')).display === 'none'), 'Esc sulkee valikon ja palauttaa kohdistuksen painikkeeseen');
   for (const kieli of ['sv', 'en']) for (const w of [320, 375]) { await m.setViewportSize({ width: w, height: 700 }); await avaa(m, '#kieli=' + kieli + '&nakyma=kehitys');

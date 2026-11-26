@@ -2,6 +2,16 @@
 
 Versionumero on muotoa **pää.osa.korjaus**: pää = sivun kokonaan uusi versio, osa = uusi ominaisuus tai uuden vuoden aineisto, korjaus = pieni korjaus tai tarkennus. Uusin versio ensin. Pelkkä dokumentaation tai työkalujen muutos ei nosta numeroa.
 
+## 2.2.0
+
+- Rauhallisempi ulkoasu: fonttikokoja on viisi (aiemmin 16) ja lihavuuksia kaksi, korttien väleissä ja sisällä on enemmän tilaa ja taulukon rivit ovat korkeampia.
+- Harmaa tausta poistettu tunnusluvuista, hakukentistä ja valikoista: kortit ja kentät ovat valkoisia ohuella reunalla, ja sivun tausta on hennon sinertävä. Korteista poistettu varjo.
+- Tunnuslukuja on neljä (ostot, toimittajat, paimiolaisten ja Varsinais-Suomen osuus); tositteet, rivit, keskimääräinen rivi, toimialat ja tilit ovat pienenä rivinä niiden alla.
+- Sivupalkin näkymistä valittu on sininen ja muut pelkkää tekstiä.
+- Puukartan laatikot ovat sinisen sävyjä suurimmasta pienimpään.
+- Kapean näytön valikossa ovat myös näkymät Yhteenveto, Kehitys ja Toimittaja.
+- Toimielimet ja Tiliryhmät ovat omina kortteinaan, ja selitteistä on poistettu toistuva Napsauta rajataksesi.
+
 ## 2.1.0
 
 - Yläpalkin vasemmassa reunassa on sivuston nimi Paimion ostolaskudata, joka vie aloitukseen: ohje, uusin vuosi, ei rajauksia.
