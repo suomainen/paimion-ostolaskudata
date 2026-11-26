@@ -195,11 +195,13 @@ const kohdistus = sivu => sivu.evaluate(() => { const a = document.activeElement
   tarkista(await s.evaluate(() => !document.getElementById('tiliT').hidden && document.getElementById('tiliK').hidden && decodeURIComponent(location.hash).includes('kaavio=sup,tili')), 'esitystavan vaihto takaisin taulukkoon');
   await avaa(s, '#yhtiomuoto=Osakeyhtiö&vuosi=2024');
   tarkista(await s.evaluate(() => D.yhtiomuoto[S.yhtiomuoto] === 'Osakeyhtiö' && document.querySelectorAll('#supTable thead th').length === 6 && document.querySelector('#chips').textContent.includes('Osakeyhtiö')), 'yritysmuoto toimii rajauksena ja toimittajataulukossa on tyyppi ja toimiala');
-  await avaa(s, '#nakyma=kehitys&vuosi=2024&raja=100000');
-  const rj = await s.evaluate(() => { const e = new Map(); for (const r of R) if (r[C.Y] === S.year) e.set(r[C.S], (e.get(r[C.S]) || 0) + r[C.SNT]); const oik = [...e.values()].filter(v => v >= 100000 * 100).length;
+  await avaa(s, '#nakyma=kehitys&vuosi=2024&raja=60000');
+  const rj = await s.evaluate(() => { const e = new Map(); for (const r of R) if (r[C.Y] === S.year) e.set(r[C.S], (e.get(r[C.S]) || 0) + r[C.SNT]); const oik = [...e.values()].filter(v => v >= 60000 * 100).length;
     const te = new Map(); for (const r of R) if (r[C.Y] === S.year && D.toimielin[r[C.TE]] !== '–') { const k = r[C.S] + '|' + r[C.TILI]; if (!te.has(k)) te.set(k, new Set()); te.get(k).add(r[C.TE]); }
     return { n: +document.getElementById('aRajaSub').textContent.replace(/\s/g, '').match(/^\d+/)[0], oik, sama: +document.getElementById('aSamaSub').textContent.replace(/\s/g, '').match(/^\d+/)[0], samaOik: [...te.values()].filter(x => x.size >= 2).length, hash: location.hash }; });
-  tarkista(rj.n === rj.oik && rj.sama === rj.samaOik && rj.hash.includes('raja=100000'), 'suurten toimittajien ja usean toimielimen tapausten määrät täsmäävät riveihin', JSON.stringify(rj));
+  tarkista(rj.n === rj.oik && rj.sama === rj.samaOik && rj.hash.includes('raja=60000'), 'eniten ostettujen ja yhteisten toimittajien määrät täsmäävät riveihin', JSON.stringify(rj));
+  await avaa(s, '#nakyma=kehitys&vuosi=2025');
+  tarkista(await s.evaluate(() => S.raja === 100000 && !location.hash.includes('raja=') && document.querySelectorAll('#aSama tr').length === 0 && document.getElementById('aSamaSub').textContent.includes('2020–2024')), 'arvioidulta vuodelta yhteisiä toimittajia ei listata, ja oletusraja on 100 000 euroa');
 
   console.log('\nTaulukot ilman vaakavieritystä');
   const yt1 = iso.yt;

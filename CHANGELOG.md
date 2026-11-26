@@ -2,6 +2,12 @@
 
 Versionumero on muotoa **pää.osa.korjaus**: pää = sivun kokonaan uusi versio, osa = uusi ominaisuus tai uuden vuoden aineisto, korjaus = pieni korjaus tai tarkennus. Uusin versio ensin. Pelkkä dokumentaation tai työkalujen muutos ei nosta numeroa.
 
+## 2.2.2
+
+- Kehitys-välilehden listojen otsikot ja saatteet muotoiltu niin, etteivät ne näytä väitteiltä yksittäisistä toimittajista: Toimittajat, joilta ostettiin eniten (aiemmin Suuret toimittajat) ja Yhteiset toimittajat (aiemmin Sama toimittaja usealla toimielimellä).
+- Varaus on listan yläpuolella, ja viittaus hankintojen kynnysarvoihin siirtyi Ohje-välilehdelle. Listan oletusraja on 100 000 euroa (aiemmin 60 000).
+- Yhteiset toimittajat -listaa ei näytetä vuodelta, jonka toimielin on arvioitu (2025).
+
 ## 2.2.1
 
 - Näkymän vaihto vierittää sivun alkuun, jolloin uusi näkymä alkaa aina ylhäältä.
