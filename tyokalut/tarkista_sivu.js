@@ -20,7 +20,8 @@ async function axe(sivu, nimi) {
   const r = await sivu.evaluate(async () => await axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'] } }));
   tarkista(r.violations.length === 0, `axe: ${nimi}`, r.violations.map(v => `${v.id} ×${v.nodes.length} (${v.nodes[0].target.join(' ')})`).join('; '));
 }
-const avaa = async (sivu, hash = '') => { await sivu.goto('about:blank'); await sivu.goto(SIVU + hash); await sivu.waitForTimeout(700); };
+// Tarkistukset avaavat oletuksena yhteenvedon; sivun oma oletus (ohje) tarkistetaan erikseen
+const avaa = async (sivu, hash = '') => { if (!hash.includes('nakyma=')) hash = hash ? hash + '&nakyma=yhteenveto' : '#nakyma=yhteenveto'; await sivu.goto('about:blank'); await sivu.goto(SIVU + hash); await sivu.waitForTimeout(700); };
 const kohdistus = sivu => sivu.evaluate(() => { const a = document.activeElement; return a.tagName + (a.id ? '#' + a.id : '') + (a.className ? '.' + String(a.className).split(' ')[0] : ''); });
 
 (async () => {
@@ -222,7 +223,11 @@ const kohdistus = sivu => sivu.evaluate(() => { const a = document.activeElement
     await o.click('#teema'); await o.waitForTimeout(200); await axe(o, `ohje, tumma ${leveys} px`); await o.click('#teema'); await o.click('#kielet [data-kieli="fi"]');
     await o.close();
   }
-  await avaa(s, '#nakyma=ohje&vuosi=2022'); await s.click('#p-ohje a[data-nakyma="kehitys"]'); await s.waitForTimeout(300);
+  await s.goto('about:blank'); await s.goto(SIVU); await s.waitForTimeout(600);
+  tarkista(await s.evaluate(() => S.view === 'ohje' && !document.getElementById('p-ohje').hidden && document.getElementById('t-ohje').getAttribute('aria-selected') === 'true' && document.querySelector('#p-ohje .tervetuloa a[href^="mailto:"]') !== null), 'sivu avautuu ohjeeseen, jossa on tervetuloteksti ja yhteystiedot');
+  await s.goto('about:blank'); await s.goto(SIVU + '#vuosi=2023&tili=4340'); await s.waitForTimeout(600);
+  tarkista(await s.evaluate(() => S.view === 'yhteenveto' && S.tilil !== null), 'vanha linkki ilman näkymää avaa yhteenvedon');
+  await avaa(s, '#nakyma=ohje&vuosi=2022'); await s.click('#p-ohje .opas li a[data-nakyma="kehitys"]'); await s.waitForTimeout(300);
   tarkista(await s.evaluate(() => S.view === 'kehitys' && location.hash.includes('vuosi=2022') && document.activeElement.id === 't-kehitys'), 'ohjeen linkki avaa näkymän ja säilyttää vuoden');
 
   console.log('\nSelaimen historia ja jakotiedot');

@@ -2,6 +2,11 @@
 
 Versionumero on muotoa **pää.osa.korjaus**: pää = sivun kokonaan uusi versio, osa = uusi ominaisuus tai uuden vuoden aineisto, korjaus = pieni korjaus tai tarkennus. Uusin versio ensin. Pelkkä dokumentaation tai työkalujen muutos ei nosta numeroa.
 
+## 1.10.0
+
+- Ohje on ensimmäinen välilehti ja avautuu oletuksena. Sen alussa kerrotaan, miksi sivu on tehty ja kenelle, ja pyydetään kysymyksiä ja parannusehdotuksia.
+- Linkit, joissa on rajauksia mutta ei näkymää, avaavat edelleen yhteenvedon. Näkymä kirjoitetaan nyt aina osoitteeseen.
+
 ## 1.9.0
 
 - Ohje omana välilehtenään: pikaopas, näkymät, rajaaminen, toimittajan tiedot, taulukot ja kaaviot, esimerkkikysymyksiä, käsitteet, lukujen tulkinta sekä kieli, ulkoasu ja näppäimistökäyttö. Suomeksi, ruotsiksi ja englanniksi.
