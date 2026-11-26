@@ -2,6 +2,10 @@
 
 Versionumero on muotoa **pää.osa.korjaus**: pää = sivun kokonaan uusi versio, osa = uusi ominaisuus tai uuden vuoden aineisto, korjaus = pieni korjaus tai tarkennus. Uusin versio ensin. Pelkkä dokumentaation tai työkalujen muutos ei nosta numeroa.
 
+## 2.2.1
+
+- Näkymän vaihto vierittää sivun alkuun, jolloin uusi näkymä alkaa aina ylhäältä.
+
 ## 2.2.0
 
 - Rauhallisempi ulkoasu: fonttikokoja on viisi (aiemmin 16) ja lihavuuksia kaksi, korttien väleissä ja sisällä on enemmän tilaa ja taulukon rivit ovat korkeampia.

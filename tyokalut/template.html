@@ -1470,7 +1470,10 @@ function update(){
 }
 
 // ---------- välilehdet ----------
+let naytetty=null;   // viimeksi näytetty näkymä: näkymän vaihtuessa sivu vieritetään alkuun
 function naytaNakyma(){
+  if(naytetty!==null && naytetty!==S.view) scrollTo({top:0,behavior:'instant'});
+  naytetty=S.view;
   const eiRajauksia= S.view==='toimittaja'||S.view==='ohje';
   $('rajaus').hidden=$('rajaimet').hidden=$('rajaaPalkki').hidden=eiRajauksia; if(eiRajauksia) suljeRajaus(false);
   $('hero').hidden= S.view!=='ohje'; $('h1piilo').hidden= S.view==='ohje';   // iso otsikko vain aloituksessa, muualla otsikko on vain ruudunlukijalle

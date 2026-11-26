@@ -279,6 +279,11 @@ const kohdistus = sivu => sivu.evaluate(() => { const a = document.activeElement
       tarkista(!y.ulos && !y.paall && y.sw <= w, `yläpalkin osat mahtuvat eivätkä mene päällekkäin ${w} px (${kieli})`, JSON.stringify(y)); }
     await b2.click('#kielet [data-kieli="fi"]'); await b2.close(); }
 
+  await avaa(s, '#vuosi=2024'); await s.evaluate(() => scrollTo(0, 2500)); await s.waitForTimeout(200); await s.click('#t-kehitys'); await s.waitForTimeout(300);
+  tarkista(await s.evaluate(() => S.view === 'kehitys' && scrollY < 5), 'näkymän vaihto sivupalkista vierittää sivun alkuun');
+  await s.evaluate(() => scrollTo(0, 1500)); await s.waitForTimeout(200); await s.click('#aPaik .rowbtn'); await s.waitForTimeout(300);
+  tarkista(await s.evaluate(() => S.tilil !== null && scrollY > 1000), 'rajaus samassa näkymässä ei siirrä vierityskohtaa');
+
   console.log('\nAnalyysien luvut');
   await avaa(s, '#nakyma=kehitys&vuosi=2025');
   const luvut = await s.evaluate(() => {
