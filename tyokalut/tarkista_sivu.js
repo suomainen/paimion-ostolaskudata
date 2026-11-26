@@ -127,9 +127,9 @@ const kohdistus = sivu => sivu.evaluate(() => { const a = document.activeElement
   await k.click('#teema'); await k.waitForTimeout(200);
   tarkista(await k.evaluate(() => !document.documentElement.dataset.teema && getComputedStyle(document.body).backgroundColor === 'rgb(255, 255, 255)'), 'paluu vaaleaan ulkoasuun');
   await k.setViewportSize({ width: 1400, height: 900 });
-  await avaa(k, '#vuosi=2023&tili=4340'); await k.click('#valikko a[data-nakyma="kehitys"]'); await k.waitForTimeout(300);
+  await avaa(k, '#vuosi=2023&tili=4340'); await k.click('#valikko a[data-nakyma="ohje"]'); await k.waitForTimeout(300);
   const nav = await k.evaluate(() => ({ hash: location.hash, view: S.view, f: document.activeElement.id }));
-  tarkista(nav.view === 'kehitys' && nav.hash.includes('vuosi=2023') && nav.hash.includes('tili=4340') && nav.f === 't-kehitys', 'yläpalkin linkki vaihtaa välilehden ja säilyttää rajaukset osoitteessa', JSON.stringify(nav));
+  tarkista(nav.view === 'ohje' && nav.hash.includes('vuosi=2023') && nav.hash.includes('tili=4340') && nav.f === 't-ohje', 'yläpalkin linkki vaihtaa välilehden ja säilyttää rajaukset osoitteessa', JSON.stringify(nav));
   await k.close();
   const m = await selain.newPage({ viewport: { width: 375, height: 700 } });
   await avaa(m); await m.focus('#menuBtn'); await m.keyboard.press('Enter'); await m.waitForTimeout(200);
@@ -224,7 +224,7 @@ const kohdistus = sivu => sivu.evaluate(() => { const a = document.activeElement
     await o.close();
   }
   await s.goto('about:blank'); await s.goto(SIVU); await s.waitForTimeout(600);
-  tarkista(await s.evaluate(() => S.view === 'ohje' && !document.getElementById('p-ohje').hidden && document.getElementById('t-ohje').getAttribute('aria-selected') === 'true' && document.querySelector('#p-ohje .tervetuloa a[href^="mailto:"]') !== null), 'sivu avautuu ohjeeseen, jossa on tervetuloteksti ja yhteystiedot');
+  tarkista(await s.evaluate(() => S.view === 'ohje' && !document.getElementById('p-ohje').hidden && document.getElementById('t-ohje').getAttribute('aria-selected') === 'true' && document.querySelector('#p-ohje .tervetuloa a.btn') !== null && document.querySelector('#palaute a[href^="mailto:"]') !== null && document.querySelector('#palaute a[href="https://summanen.org"]') !== null), 'sivu avautuu ohjeeseen, jossa on tervetuloteksti, ja Kysy ja ehdota -osiossa on yhteystiedot ja tekijän sivu');
   await s.goto('about:blank'); await s.goto(SIVU + '#vuosi=2023&tili=4340'); await s.waitForTimeout(600);
   tarkista(await s.evaluate(() => S.view === 'yhteenveto' && S.tilil !== null), 'vanha linkki ilman näkymää avaa yhteenvedon');
   await avaa(s, '#nakyma=ohje&vuosi=2022'); await s.click('#p-ohje .opas li a[data-nakyma="kehitys"]'); await s.waitForTimeout(300);
@@ -247,12 +247,12 @@ const kohdistus = sivu => sivu.evaluate(() => { const a = document.activeElement
   await hst.close();
   await avaa(s, '#nakyma=toimittaja&tvuosi=2023&toimittaja=' + iso.yt); await s.click('#tKaikkiVuodet'); await s.waitForTimeout(300);
   tarkista(await s.evaluate(() => S.supYear === null && !location.hash.includes('tvuosi') && document.querySelectorAll('#tKk .col').length === 72), 'toimittajan vuosivalinnan saa pois painikkeesta');
-  await s.click('#tVaihda'); await s.waitForTimeout(300);
+  await s.click('#supTyhjenna'); await s.waitForTimeout(300);
   tarkista(await s.evaluate(() => S.sup === null && document.getElementById('supSivu').hidden && document.activeElement.id === 'supQ'), 'toimittajan voi vaihtaa ja kohdistus siirtyy hakuun');
 
   console.log('\nSivupalkki ja rajausikkuna');
   await avaa(s, '#vuosi=2024'); await s.selectOption('#f-toimiala', { index: 3 }); await s.waitForTimeout(300);
-  const sp = await s.evaluate(() => ({ tol: S.toimiala !== null, siru: document.querySelectorAll('#chips .chip').length, valitut: !document.getElementById('valitut').hidden, hash: location.hash.includes('toimiala='), kiinni: getComputedStyle(document.getElementById('sivu')).position, hero: document.getElementById('hero').classList.contains('pieni'), palkki: getComputedStyle(document.getElementById('rajaaPalkki')).display }));
+  const sp = await s.evaluate(() => ({ tol: S.toimiala !== null, siru: document.querySelectorAll('#chips .chip').length, valitut: !document.getElementById('valitut').hidden, hash: location.hash.includes('toimiala='), kiinni: getComputedStyle(document.getElementById('sivu')).position, hero: document.getElementById('hero').hidden && [...document.querySelectorAll('h1')].filter(e => e.getClientRects().length).length === 1, palkki: getComputedStyle(document.getElementById('rajaaPalkki')).display }));
   tarkista(sp.tol && sp.siru === 1 && sp.valitut && sp.hash && sp.kiinni === 'sticky' && sp.hero && sp.palkki === 'none', 'sivupalkin toimialavalikko rajaa, valinta näkyy kohdassa Valittuna ja sivupalkki pysyy näkyvissä', JSON.stringify(sp));
   await s.selectOption('#f-kunta2', { label: 'Paimio' }); await s.waitForTimeout(300);
   tarkista(await s.evaluate(() => D.kunta[S.kunta] === 'Paimio' && document.getElementById('f-kunta').value === document.getElementById('f-kunta2').value), 'sivupalkin ja kartan kuntavalikot pysyvät samassa arvossa');
@@ -269,6 +269,13 @@ const kohdistus = sivu => sivu.evaluate(() => { const a = document.activeElement
   tarkista(await rj2.evaluate(() => Y[S.year] === 2022), 'vuoden voi vaihtaa kapealla näytöllä palkin valikosta');
   await rj2.click('#teema'); await rj2.click('#rajaaAvaa'); await rj2.waitForTimeout(300); await axe(rj2, 'rajausikkuna auki, tumma 375 px'); await rj2.keyboard.press('Escape'); await rj2.click('#teema');
   await rj2.close();
+
+  await avaa(s, '#vuosi=2021&tili=4340&nakyma=kehitys'); await s.click('#alku'); await s.waitForTimeout(300);
+  tarkista(await s.evaluate(() => S.view === 'ohje' && S.tilil === null && S.year === Y.length - 1 && document.getElementById('alku').textContent.includes('Paimion ostolaskudata') && document.getElementById('alku').getBoundingClientRect().left < 60), 'sivuston nimi on yläpalkin vasemmassa reunassa ja vie aloitukseen');
+  for (const w of [1280, 375, 320]) { const b2 = await selain.newPage({ viewport: { width: w, height: 800 } }); for (const kieli of ['fi', 'sv', 'en']) { await avaa(b2, '#kieli=' + kieli);
+      const y = await b2.evaluate(() => { const r = [...document.querySelectorAll('#topbar .wrap > *')].filter(e => e.offsetParent).map(e => e.getBoundingClientRect()); return { ulos: r.some(x => x.right > innerWidth + 1 || x.left < -1), paall: r.some((a, i) => r.some((b, j) => j > i && a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1)), sw: document.documentElement.scrollWidth }; });
+      tarkista(!y.ulos && !y.paall && y.sw <= w, `yläpalkin osat mahtuvat eivätkä mene päällekkäin ${w} px (${kieli})`, JSON.stringify(y)); }
+    await b2.click('#kielet [data-kieli="fi"]'); await b2.close(); }
 
   console.log('\nAnalyysien luvut');
   await avaa(s, '#nakyma=kehitys&vuosi=2025');

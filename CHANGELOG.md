@@ -2,6 +2,14 @@
 
 Versionumero on muotoa **pää.osa.korjaus**: pää = sivun kokonaan uusi versio, osa = uusi ominaisuus tai uuden vuoden aineisto, korjaus = pieni korjaus tai tarkennus. Uusin versio ensin. Pelkkä dokumentaation tai työkalujen muutos ei nosta numeroa.
 
+## 2.1.0
+
+- Yläpalkin vasemmassa reunassa on sivuston nimi Paimion ostolaskudata, joka vie aloitukseen: ohje, uusin vuosi, ei rajauksia.
+- Sininen otsikkopalkki näkyy vain aloituksessa (Ohje). Muissa näkymissä sisältö alkaa heti yläpalkin alta.
+- Kysy ja ehdota on oma osionsa ennen Tietoa aineistosta -osiota, ja siinä on linkki tekijän sivulle summanen.org.
+- Toimittaja-välilehdellä haun vieressä on painike Tyhjennä ja hae uudestaan.
+- Yläpalkin linkeistä poistettu näkymät, koska ne ovat sivupalkissa. Jäljellä ovat Ohje, Tietoa aineistosta ja Lähdekoodi.
+
 ## 2.0.0
 
 - Uusi asettelu: näkymät, vuosi ja kaikki rajaukset ovat vasemman reunan sivupalkissa, joka pysyy näkyvissä sivua vieritettäessä. Sisältö on oikealla.
